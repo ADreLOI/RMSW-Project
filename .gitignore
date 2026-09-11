@@ -1,0 +1,34 @@
+# LaTeX build products (keep source and publication figures)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+/II2202-proposal.pdf
+/build/
+
+# Local Python environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Private material and local analysis
+.analysis_tmp/
+private/
+*.m4a
+*.mp4
+*.wav
+*.mp3
+.env
+.env.*
+
+# Bulk data should not synchronize to Overleaf
+/results/raw/
+/data/raw/
