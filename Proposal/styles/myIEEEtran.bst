@@ -1,4 +1,4 @@
-% Preserved original bibliography style; not enabled by the proposal template.
+% Preserved original bibliography style; enabled by Proposal/references.tex.
 %%
 %% myIEEEtran.bst is based upon IEEEtran.bst, but add DOI, ISSN, and ISBN support
 %% 
