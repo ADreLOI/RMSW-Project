@@ -1,9 +1,9 @@
 % Drafting owner: Ettore. Keep scientific content student-authored.
 \subsection{Research Problem, Aim, and Research Questions}
 
-The research problem addressed in this project is the loss of coordination quality in cooperative seabed mapping when vehicles operate with intermittent communication. When communication is available, vehicles can exchange coverage information, local map updates, positions, and task assignments. When communication is unavailable, each vehicle must continue using local information that may no longer match the global mission state. This can lead to duplicated survey effort, delayed coverage of unsurveyed regions, or longer mission completion time. These effects are especially relevant when the coordination strategy reallocates work during execution rather than assigning fixed routes before the mission starts.
+The research problem addressed in this project is the loss of coordination quality in cooperative seabed mapping when vehicles operate with intermittent communication. When communication is available, vehicles can exchange coverage information, local map updates, positions, and task assignments. When communication is unavailable, each vehicle must continue using local information that may no longer match the global mission state. This can lead to duplicated survey effort, delayed coverage of unsurveyed regions, or longer mission completion time.
 
-The aim of the project is to evaluate whether short-horizon prediction of communication outages can improve cooperative seabed mapping compared with strategies that either ignore connectivity or react only after the link has degraded. The project will first study this question in a controlled 2D or 2.5D simulation. The model may later be extended with simplified 3D AUV behaviour if the initial model is too simple to expose the relevant trade-offs. This staged scope keeps the project feasible while still allowing the fidelity of the vehicle model to be discussed and adjusted.
+The aim is to evaluate whether short-horizon prediction of communication outages can improve cooperative seabed mapping compared with strategies that either ignore connectivity or react only after the link has degraded. The project will first study this question in a controlled 2D or 2.5D simulation. If this proves too simple, the model may be extended with simplified 3D AUV behaviour.
 
 The main research question is:
 
@@ -11,12 +11,11 @@ The main research question is:
 Under intermittent connectivity, how does short-horizon link-outage prediction affect mission completion time and redundant coverage in cooperative seabed mapping, compared with reactive and communication-agnostic coordination?
 \end{quote}
 
-The project will also consider the following supporting questions:
+The project will also consider two supporting questions:
 
 \begin{itemize}
   \item How does the effect of predictive coordination change under different levels of communication availability?
-  \item How does the effect change with fleet size?
-  \item If the simulation is extended beyond a planar model, does adding simplified depth or altitude dynamics change the relative performance of the coordination strategies?
+  \item If the simulation is extended beyond a planar model, does adding simplified depth or altitude dynamics change the relative performance of the strategies?
 \end{itemize}
 
-The working hypothesis is that predictive coordination will reduce redundant coverage and mission completion time when communication outages are frequent enough to make stale information harmful, but still predictable enough for vehicles to coordinate before losing contact. The expected benefit may decrease when communication is almost always available, when communication is almost never available, or when fixed initial task assignments already avoid most overlap.
+The working hypothesis is that predictive coordination will reduce redundant coverage and mission completion time when communication outages are frequent enough to make stale information harmful, but still predictable enough for vehicles to coordinate before losing contact.
