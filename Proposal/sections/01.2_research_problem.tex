@@ -1,16 +1,16 @@
 % Drafting owner: Ettore. Keep scientific content student-authored.
-\subsection{Research Problem, Aim, and Research Questions}
+\subsection{Research Problem, Aim, and Research Question}
 
-The research problem addressed in this project is the loss of coordination quality in cooperative seabed mapping when vehicles operate with intermittent communication. When communication is available, vehicles can exchange coverage information, local map updates, positions, and task assignments. When communication is unavailable, each vehicle must continue using only local information that may no longer match the global mission state. This can generate duplicated survey effort, delayed coverage of unsurveyed regions, or longer mission time.
+The research problem addressed in this project is the loss of coordination quality in cooperative seabed mapping when USVs operate with intermittent direct communication. When communication is available, the vehicles can exchange coverage information, positions, and current task claims. When communication is unavailable, each vehicle must continue using local information that may no longer match the global mission state. In an online allocation setting with unequal progress, this can generate duplicated survey effort, delayed coverage of unsurveyed regions, or longer mission time.
 
-The aim is to evaluate whether short-horizon prediction of communication outages can improve cooperative seabed mapping compared with strategies that either ignore connectivity or react only after the link has degraded.
+The aim is to evaluate whether short-horizon prediction of communication outages can improve online task allocation between two USVs conducting a cooperative seabed survey under intermittent boat-to-boat connectivity.
 
 Main research question:
 
 \begin{quote}
-Under intermittent connectivity, how does short-horizon link-outage prediction affect mission completion time and redundant coverage in cooperative seabed mapping, compared with reactive and communication-agnostic coordination?
+In a two-USV survey of a known 2D area with online task allocation and intermittent boat-to-boat communication, how does short-horizon outage prediction used for pre-outage task reservation affect mission completion time and redundant coverage relative to reactive resynchronization?
 \end{quote}
 
-The comparison will mainly be interpreted across different levels of communication availability. If the initial planar model is extended, the analysis will also examine whether simplified depth or altitude dynamics change the relative performance of the coordination strategies.
+The fixed offline partition is included as a communication-independent reference baseline rather than as the primary competitor. The main comparison is between reactive online coordination and prediction-aware coordination across different outage severities.
 
-Based on this hypothesis, we expect that predictive coordination will reduce redundant coverage and mission completion time when communication outages are frequent enough to make stale information harmful, but still predictable enough for vehicles to coordinate before losing contact.
+We hypothesize that predictive coordination will reduce redundant coverage and mission completion time when outages are long enough to make stale task information harmful, but still predictable enough for vehicles to reserve non-overlapping work before losing contact.
