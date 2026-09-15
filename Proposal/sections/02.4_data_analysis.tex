@@ -1,15 +1,6 @@
 % Drafting owner: Andrea. Keep scientific content student-authored.
 \subsection{Planned Data Analysis}
 
-\guidance{Explain how the collected data will be analyzed to answer each research question. Name relevant parameters, measures, comparisons, statistical methods, coding procedures, evaluation metrics, or decision criteria if these are already known. For instance, you can identify a few graphs that you would like to draw and mention what the axes and different curves will represent. You should then be able to answer your research questions once you have obtained these graphs.}
+The main figure will plot mission completion time against communication severity, with separate curves and uncertainty intervals for the fixed-partition, reactive, and prediction-aware strategies. The primary analysis will use paired per-run differences between prediction-aware and reactive coordination under the same scenario and communication trace. Effect sizes and confidence intervals will be reported; a parametric or non-parametric paired procedure will be selected after inspecting the distribution and sample size rather than assumed in advance.
 
-% DRAFTING CHECKLIST (invisible in the PDF; delete after writing):
-% - Map every RQ to a primary comparison, metric, decision criterion, and planned figure.
-% - Define the main figure's x-axis, y-axis, policy curves, and uncertainty intervals.
-% - Include a cost/trade-off measure such as messages, bytes, distance, or computation.
-% - Include a mechanism check showing that prediction changed the intended decision.
-% - Treat incomplete missions explicitly instead of silently discarding or averaging timeouts.
-% - Report variation and effect size; choose statistical procedures only after checking assumptions.
-% - Plan one sensitivity analysis for the omitted assumption most likely to reverse the ranking.
-% - Do not translate route/transmission proxies into energy or emission claims without an energy model.
-\placeholder{[Planned analysis]}
+Missions that do not reach the agreed coverage threshold before the timeout will be reported through completion proportion and coverage at timeout, not assigned an artificial completion time. Secondary results will compare redundant observations, messages and bytes, and travel distance. Predictor confusion counts, pre-outage exchanges, and task-allocation conflicts will check whether prediction changed the intended mechanism. Finally, one sensitivity analysis will vary the channel-correlation assumption most likely to alter the policy ranking. The question will be answered from the direction, magnitude, uncertainty, and communication cost of the paired differences, whether the predictive strategy helps, has no effect, or performs worse.

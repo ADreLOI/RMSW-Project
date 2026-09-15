@@ -1,15 +1,6 @@
 % Drafting owner: Andrea. Keep scientific content student-authored.
 \subsection{Work Procedure and Data Collection}
 
-\guidance{Describe, at a high level, how the data will be generated or collected. The procedure should be realistic within the course period and available resources (hardware/software/money). It can be helpful to break down the intended work into steps that must be carried out, specify how long each item could take, and note any perceived issues or uncertainties in carrying them out.}
+The work will proceed from the simplest verifiable case to the final comparison. First, a one-USV survey and a two-USV fixed partition will be checked under reliable and disconnected links; the fixed partition should be communication-independent. Next, the common online allocator and reactive resynchronization behavior will be implemented, and a hand-checked trace will confirm how stale shared state changes an allocation decision. The outage predictor will then be evaluated separately for false alarms, missed detections, and useful lead time before its pre-outage exchange and task-reservation action is added.
 
-% DRAFTING CHECKLIST (invisible in the PDF; delete after writing):
-% - Begin with one USV, then two USVs with fixed disjoint assignments as a sanity baseline.
-% - Demonstrate which selected coordination mechanism actually fails under stale information.
-% - Implement the reactive behavior before adding the predictive intervention.
-% - Keep observations, scenario conditions, and budgets comparable across strategies.
-% - Pilot runtime and variance before fixing the final parameter sweep and repetition count.
-% - Pair strategies on the same exogenous conditions where meaningful; save seeds and configurations.
-% - Preserve failed/incomplete runs and separate development cases from final evaluation cases.
-% - Give realistic time estimates, risks, and a fallback that still answers a narrower question.
-\placeholder{[Planned procedure and data collection]}
+A pilot will be used to check runtime, variability, failure cases, and whether every planned metric can be reconstructed from the logs. The final configurations and analysis rules will then be frozen. Strategies will be run on paired initial conditions and communication disturbances, with separate random streams so that policy-specific decisions do not change the common scenario. Seeds, configurations, raw logs, and timed-out runs will be retained. If the predictive intervention cannot be evaluated fairly within the course period, the higher-fidelity extension will be removed and the study will report the narrower reactive-versus-predictive comparison in the validated 2D model.
