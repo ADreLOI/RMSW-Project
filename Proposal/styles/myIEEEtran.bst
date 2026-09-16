@@ -2006,7 +2006,7 @@ FUNCTION {format.doi}
     { this.to.prev.status
       this.status.std
       cap.yes 'status.cap :=
-      "doi: " doi *
+      "doi: \href{https://doi.org/" doi * "}{\nolinkurl{" * doi * "}}" *
       punct.no 'this.status.punct :=
       punct.period 'prev.status.punct :=
       space.normal 'this.status.space :=
