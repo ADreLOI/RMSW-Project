@@ -64,3 +64,9 @@ Independent author/mentor review, any decision to change the baseline or add rec
 - Added the smoke workflow and deterministic comparison to GitHub Actions, with downloadable evidence archives retained for 14 days. See `validation/README.md` for evidence paths and the later CI result.
 
 No physical vessel test, mobile-device test, new Overleaf upload, course submission or GitHub merge was performed in this phase.
+
+### GitHub verification and final export repair
+
+Commit `b798db954613eac8a23cc119877c497d2469a610` passed the Linux [Simulator checks run](https://github.com/ADreLOI/RMSW-Project/actions/runs/39956781791): package installation, the 25-test/smoke workflow, exact scientific comparison, representative trace reconstruction and artifact upload all succeeded. The `paired-smoke-evidence` archive is retained for 14 days; metadata is in `validation/github-ci.json`.
+
+The final browser export check exposed an in-app-browser limitation with the map's data-URL download. Replaced it with a PNG Blob download, matching the verified SVG mechanism. Actual PNG and SVG downloads then succeeded; the SVG filename and embedded metadata identify seed 1000 / slowdown / L=5. The PNG includes grid dimensions/units, condition, legend and raw-log hash, and clamps its filename/time to the active policy's actual endpoint. The updated browser record and `validation/map-export.png` retain the result. This repair changes export transport/context only, not simulation or statistics.

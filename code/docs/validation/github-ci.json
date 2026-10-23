@@ -1,0 +1,25 @@
+{
+  "checked_utc": "2026-10-23 12:59:07 UTC",
+  "repository": "ADreLOI/RMSW-Project",
+  "source_commit": "b798db954613eac8a23cc119877c497d2469a610",
+  "workflow": "Simulator checks",
+  "run_id": 39956781791,
+  "url": "https://github.com/ADreLOI/RMSW-Project/actions/runs/39956781791",
+  "status": "completed",
+  "conclusion": "success",
+  "checks": [
+    "Editable package installation",
+    "25-test suite and five-policy smoke workflow",
+    "Deterministic scientific comparison with retained core",
+    "Representative raw-log reconstruction",
+    "Evidence artifact upload"
+  ],
+  "artifact": {
+    "id": 12503530032,
+    "name": "paired-smoke-evidence",
+    "size_in_bytes": 464203,
+    "expired": false,
+    "expires_at": "2026-11-06T12:53:57Z",
+    "digest": "sha256:a81e9e91e984b99f52ad75c9c48accd85c21dbbfcd9ff64dde500a76bc82a544"
+  }
+}

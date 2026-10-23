@@ -1121,26 +1121,43 @@ $("snapshot").addEventListener("click", () => {
   const canvas = $("map");
   if (!activeTrace()) return;
   const output = document.createElement("canvas");
-  output.width = canvas.width;
-  output.height = canvas.height + 70;
+  output.width = Math.max(canvas.width, 780);
+  output.height = canvas.height + 110;
   const context = output.getContext("2d");
   context.fillStyle = "#f4f7f1";
   context.fillRect(0, 0, output.width, output.height);
-  context.drawImage(canvas, 0, 0);
+  context.drawImage(canvas, (output.width - canvas.width) / 2, 0);
   context.fillStyle = "#315b4a";
   context.font = "14px Segoe UI";
   const trace = activeTrace();
+  const snapshotTime = Math.min(state.t, trace.result.stop_s);
   context.fillText(
-    `USV Research Lab · ${state.active} · seed ${trace.result.seed} · ${Math.floor(Math.min(state.t, trace.result.stop_s))} s · synthetic model`,
+    `USV Research Lab · ${state.active} · seed ${trace.result.seed} · ${fmt(snapshotTime, 1)} s · synthetic model`,
     20,
     canvas.height + 28,
   );
-  context.font = "11px Consolas";
-  context.fillText(`raw SHA-256 ${trace.raw_sha256}`, 20, canvas.height + 50);
-  const link = document.createElement("a");
-  link.download = `mission-${trace.name}-${Math.floor(state.t)}s.png`;
-  link.href = output.toDataURL("image/png");
-  link.click();
+  context.font = "12px Segoe UI";
+  const c = trace.config;
+  context.fillText(
+    `${c.width * c.cell_m} × ${c.height * c.cell_m} m · ${c.cell_m} m cells · L=${trace.result.fade_length} exchanges · slowdown=${trace.result.slowdown} · n=${c.path_exponent}`,
+    20,
+    canvas.height + 48,
+  );
+  context.font = "11px Segoe UI";
+  const layer = $("knowledge").value;
+  context.fillText(
+    `Green: ${layer === "global" ? "observed coverage" : `boat ${Number(layer) + 1} knowledge`} · orange: boat 1 · teal: boat 2 · outlines: queued tasks`,
+    20,
+    canvas.height + 68,
+  );
+  context.font = "10px Consolas";
+  context.fillText(`raw SHA-256 ${trace.raw_sha256}`, 20, canvas.height + 89);
+  const filename = `mission-${trace.name}-${snapshotTime.toFixed(1)}s.png`;
+  output.toBlob((blob) => {
+    if (blob) downloadBlob(blob, "image/png", filename);
+    else
+      toast("The browser could not encode this map. Try the figure export in a run bundle.", true);
+  }, "image/png");
 });
 $("previous-slide").addEventListener("click", () => {
   state.slide = Math.max(0, state.slide - 1);

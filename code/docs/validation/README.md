@@ -20,6 +20,8 @@ Actual browser observations used the Codex in-app browser at 952×871 and a 1707
 
 The SVG export's initial filename used the study filter even for a mission chart. Its embedded metadata was correct; the filename now identifies the mission's actual seed/progress/fade settings. Failed sandbox checks during development were rerun with normal localhost permission, as described in the work log. They were never counted as successful checks or scientific timeouts.
 
-GitHub Actions now runs the smoke workflow, compares its deterministic records with retained core evidence, reconstructs the tracked example, and uploads the evidence ZIP for 14 days. Artifact action usage follows the [official action documentation](https://github.com/actions/upload-artifact). The live CI outcome is recorded in the work log after the branch is pushed.
+GitHub Actions runs the smoke workflow, compares its deterministic records with retained core evidence, reconstructs the tracked example, and uploads the evidence ZIP for 14 days. Artifact action usage follows the [official action documentation](https://github.com/actions/upload-artifact). The Linux [run for source commit b798db9](https://github.com/ADreLOI/RMSW-Project/actions/runs/39956781791) passed every step and uploaded the archive; metadata is retained in `github-ci.json`.
+
+The final PNG download check exposed a data-URL limitation in the in-app browser. The export now uses a PNG Blob. Both the actual PNG download and the corrected scenario-named SVG download were then verified; their filenames and metadata checks are in `browser-qa.json`. The downloaded `map-export.png` was visually checked and includes units, condition, legend and raw-log hash.
 
 The frozen `results/core/` and report sources were not overwritten by these workflows. New raw logs, extracted bundles and larger archives remain local/ignored; the checked-in JSON validation records and screenshots provide a compact review trail.

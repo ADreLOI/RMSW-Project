@@ -166,5 +166,14 @@
     "No physical vessel or field test",
     "No mobile-device browser test",
     "Native fullscreen depends on browser support; focused layout is available"
+  ],
+  "map_download_verified": true,
+  "map_download_filename": "mission-1000-1-5-S4-T-700.0s.png",
+  "latest_svg_download_filename": "coverage-chart-seed1000-slow1-L5.svg",
+  "latest_svg_scenario_metadata_verified": true,
+  "export_rechecked_utc": "2026-10-23T13:01:18.136Z",
+  "map_download_dimensions": [
+    826,
+    516
   ]
 }
