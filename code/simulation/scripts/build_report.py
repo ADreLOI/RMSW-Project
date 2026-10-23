@@ -115,6 +115,7 @@ r_k=P_0-10n\log_{10}\left(\max(d_k,d_0)/d_0\right)+z_k.
 \end{equation}
 The stationary two-state fade uses $\Pr(F\to C)=1/L$ and $\Pr(C\to F)=q/[L(1-q)]$. Fade draws and slowdown draws use independent, policy-independent random streams. A fade is not automatically a failed exchange; delivery also depends on distance. At $n=2$, the clear-state threshold distance is approximately $316$ m. There is no rendezvous controller, so disconnected idle boats may never reconnect.
 
+\Needspace{8\baselineskip}
 \subsection{Work Procedure and Data Collection}
 S1 divides adjacent columns equally and follows a boustrophedon sweep without online messages. At a successful online session, the two boats merge delivered coverage, retain executing tasks, release unstarted queues, and jointly refill them. For each eligible unobserved task and boat with capacity, the allocator minimizes projected finish time, including committed remaining work, shortest grid travel, and turns. Ties use task ID then boat ID. Shortest paths minimize turns and prefer the horizontal-first path if still tied. The speed currently reported by each boat is held constant for allocation estimates; future slowdown states are unavailable to the allocator.
 
@@ -163,8 +164,9 @@ On held-out fixed-route replay, the trend predictor matched 197 of 757 eligible 
 The online long-queue and predictive methods produced redundant observations, including travel through already observed cells; S2's zero redundancy accompanies severe incomplete coverage. No duplicate task ownership or session-budget violation was detected in the reconstructed evaluation logs. Communication attempts, bytes, component operation counts, idle time, and missing-information fractions are retained per run and summarized by condition. Counts stop at completion or timeout.
 \begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/resource-tradeoff.png}
 \caption{Communication volume and restricted time, interpreted alongside completion and achieved coverage. Points represent conditions, not an imposed weighted score.}\end{figure}
+\Needspace{12\baselineskip}
 \begin{table}[htbp]\centering
-\caption{Descriptive resource means over the balanced 180-run matrix per policy, measured until completion or timeout. Low resource use in an incomplete mission is not efficiency. Missing-information gaps are averaged before synchronization.}
+\caption{Descriptive resource means over all 180 runs per policy, with six equally sized conditions, measured until completion or timeout. Low resource use in an incomplete mission is not efficiency. Missing-information gaps are averaged before synchronization.}
 \input{generated/resource-table}
 \end{table}
 \input{generated/host-summary}

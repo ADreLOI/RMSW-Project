@@ -18,8 +18,9 @@ On held-out fixed-route replay, the trend predictor matched 197 of 757 eligible 
 The online long-queue and predictive methods produced redundant observations, including travel through already observed cells; S2's zero redundancy accompanies severe incomplete coverage. No duplicate task ownership or session-budget violation was detected in the reconstructed evaluation logs. Communication attempts, bytes, component operation counts, idle time, and missing-information fractions are retained per run and summarized by condition. Counts stop at completion or timeout.
 \begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/resource-tradeoff.png}
 \caption{Communication volume and restricted time, interpreted alongside completion and achieved coverage. Points represent conditions, not an imposed weighted score.}\end{figure}
+\Needspace{12\baselineskip}
 \begin{table}[htbp]\centering
-\caption{Descriptive resource means over the balanced 180-run matrix per policy, measured until completion or timeout. Low resource use in an incomplete mission is not efficiency. Missing-information gaps are averaged before synchronization.}
+\caption{Descriptive resource means over all 180 runs per policy, with six equally sized conditions, measured until completion or timeout. Low resource use in an incomplete mission is not efficiency. Missing-information gaps are averaged before synchronization.}
 \input{generated/resource-table}
 \end{table}
 \input{generated/host-summary}

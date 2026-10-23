@@ -8,7 +8,7 @@ Checked live on 23 October 2026:
 - Final assignment: https://canvas.kth.se/courses/63857/assignments/393673. Ten-page main-body limit; cover, references, appendices excluded; at least 11 pt; no contents page.
 - New report project: https://www.overleaf.com/project/6adaa2ee04fc36dc7bdb36ac, copied from the assigned template.
 
-The original template has a stray `w` in its section-format command. The adapted preamble removes that typo and preserves intended geometry, font, sizes, spacing, and headings. The author icons and boxed GitHub link follow the plan. No KTH logo was added.
+The original template has a stray `w` in its section-format command. The adapted preamble removes that typo and preserves intended geometry, font, sizes, spacing, and headings. It also replaces the deprecated `sourcesanspro` package alias with `sourcesans`, retaining the same font family. The author icons and boxed GitHub link follow the plan. No KTH logo was added.
 
 Primary method sources checked during implementation:
 

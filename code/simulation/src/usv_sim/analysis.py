@@ -28,16 +28,26 @@ def reconstruct(path):
     covered=set(); known=None; observations=0; distance=0.0; previous=None
     totals={k:0 for k in ("attempted_messages","delivered_messages","attempted_bytes","delivered_bytes","budget_failures","reservations")}
     missing=[0.0,0.0]; ns=0; result=None; sessions=[]; idle=[0,0]
+    local=None; first_complete=None; last_tick=0
     for e in read_events(path):
         kind=e["event"]
         if kind=="start":
             c=Config(**e["config"])
             previous=[list(c.centre(0)),list(c.centre((c.width+1)//2))]
-        elif kind=="observe": covered.add(e["cell"]); observations+=1
+            initial={0,(c.width+1)//2}; local=[set(initial),set(initial)]
+        elif kind=="observe":
+            covered.add(e["cell"]); observations+=1; local[e["boat"]].add(e["cell"])
+            if len(covered)==c.cells and first_complete is None: first_complete=e["t"]
         elif kind=="tick":
+            assert e["t"]==last_tick+1
+            last_tick=e["t"]
             distance+=sum(math.hypot(now[0]-old[0],now[1]-old[1]) for now,old in zip(e["xy"],previous))
             previous=e["xy"]; idle=e["idle"]
         elif kind=="session":
+            assert e["missing"]==[len(covered-k)/c.cells for k in local]
+            if e["committed"]:
+                merged=local[0]|local[1]; local=[set(merged),set(merged)]
+            assert e["known"]==[sorted(k) for k in local]
             ns+=1; missing=[x+y for x,y in zip(missing,e["missing"])]
             known=e["known"]
             for field,key in (("attempted_messages","attempted"),("delivered_messages","delivered"),
@@ -54,6 +64,9 @@ def reconstruct(path):
             sessions.append(e)
         elif kind=="stop": result=e["result"]; known=e["known"]
     if result is None: raise ValueError(f"Incomplete log: {path}")
+    assert result["completion_s"]==first_complete
+    assert result["stop_s"]==last_tick
+    assert known==[sorted(k) for k in local]
     rebuilt={**totals,"observations":observations,"redundant":observations-len(covered),"distance_m":distance,
              "coverage":len(covered)/c.cells,"idle_s":idle,"complete":len(covered)==c.cells,
              "missing_mean":[x/ns if ns else None for x in missing],
@@ -150,24 +163,24 @@ def main():
     write_csv(root/"condition-summary.csv",summaries); write_csv(root/"paired-contrasts.csv",contrasts)
     write_csv(args.paper/"condition-summary.csv",summaries); write_csv(args.paper/"paired-contrasts.csv",contrasts)
     colors=["#475569","#ca5038","#b68b22","#007c83","#6b58a6"]
-    plt.rcParams.update({"font.size":10,"axes.spines.top":False,"axes.spines.right":False,"svg.fonttype":"none"})
-    fig,axs=plt.subplots(1,2,figsize=(10,3.8),sharey=True)
+    plt.rcParams.update({"font.size":11,"axes.spines.top":False,"axes.spines.right":False,"svg.fonttype":"none"})
+    fig,axs=plt.subplots(1,2,figsize=(6.3,3.3),sharey=True)
     for ax,slow in zip(axs,(False,True)):
         for p,color in zip(POLICIES,colors):
             g=[r for r in summaries if r["slowdown"]==slow and r["policy"]==p]
             ax.errorbar([r["fade_length"] for r in g],[r["restricted_mean_s"] for r in g],
                         yerr=[[r["restricted_mean_s"]-r["ci_low_s"] for r in g],[r["ci_high_s"]-r["restricted_mean_s"] for r in g]],label=p,color=color,marker="o",capsize=3)
-        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xticks([2,5,10]); ax.set_xlabel("Target mean fade duration [exchanges]")
+        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xticks([2,5,10]); ax.set_xlabel("Mean fade [exchanges]")
         ax.grid(alpha=.15); ax.set_ylim(0,7500)
-    axs[0].set_ylabel("Restricted mean time to coverage [s]"); axs[1].legend(ncol=3,fontsize=9,loc="center right")
+    axs[0].set_ylabel("Restricted mean time [s]"); axs[1].legend(ncol=3,fontsize=11,loc="upper center",bbox_to_anchor=(.5,.84),columnspacing=.5,handlelength=1)
     fig.tight_layout(); fig.savefig(args.paper/"mission-time.png",dpi=200); fig.savefig(args.paper/"mission-time.pdf"); plt.close(fig)
-    fig,axs=plt.subplots(1,2,figsize=(10,3.8),sharey=True)
+    fig,axs=plt.subplots(1,2,figsize=(6.3,3.3),sharey=True)
     for ax,slow in zip(axs,(False,True)):
         for p,color in zip(POLICIES,colors):
             g=[r for r in summaries if r["slowdown"]==slow and r["policy"]==p]
             ax.scatter([r["attempted_bytes"]/1000 for r in g],[r["restricted_mean_s"] for r in g],color=color,label=p,s=35)
-        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xlabel("Mean attempted communication [kB]"); ax.grid(alpha=.15)
-    axs[0].set_ylabel("Restricted mean time to coverage [s]"); axs[1].legend(ncol=2,fontsize=9); fig.tight_layout()
+        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xlabel("Attempted data [kB]"); ax.grid(alpha=.15)
+    axs[0].set_ylabel("Restricted mean time [s]"); axs[1].legend(ncol=2,fontsize=11,columnspacing=.5,handlelength=1); fig.tight_layout()
     fig.savefig(args.paper/"resource-tradeoff.png",dpi=200); fig.savefig(args.paper/"resource-tradeoff.pdf"); plt.close(fig)
     pooled=[]
     for method in ("trend","persistence"):
