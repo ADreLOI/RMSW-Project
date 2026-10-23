@@ -1,0 +1,13 @@
+{
+  "runs": 900,
+  "design_sha256": "51f3d40b5dc037c0b44ac3b47afa81617252bed7167253e8c5c6339e3ae9569e",
+  "elapsed_s": 17.94271510001272,
+  "path_exponent": 2.0,
+  "completed": true,
+  "source_sha256": {
+    "events.py": "92d7061b0a74310f327639c94b1210b4c7f46c8ec4a04c93823a76054ed80d1a",
+    "experiment.py": "07f37ddd50e00a3aef8db67f8c7c7e15cdc5e36f4db040a0ddc6fdb8907a2030",
+    "model.py": "720ed9ec4822b9f5ac9cf4aa35a31ffadd9a031e83df561fc03ffc6992747a59",
+    "__init__.py": "6526ccc80f369e6239388405c98ce8065008defe2e10428b246acbfc954a080f"
+  }
+}

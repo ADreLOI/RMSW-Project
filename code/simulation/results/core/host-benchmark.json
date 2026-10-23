@@ -1,0 +1,156 @@
+{
+  "environment": {
+    "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+    "logical_cpus": 20,
+    "physical_cpus": 14,
+    "ram_bytes": 34045341696,
+    "numpy": "1.26.4",
+    "matplotlib": "3.10.8",
+    "psutil": "7.2.2",
+    "git_base": "fed03ae354ef45f7326f92edb601beeed55d6829",
+    "numerics": "IEEE 754 binary64; no BLAS in forecast/allocator",
+    "timing": "process_time_ns per component; excludes logging and plotting; benchmark.py separately repeats saved inputs"
+  },
+  "timings": {
+    "allocation": {
+      "repetitions_per_batch": 512,
+      "batches": 7,
+      "median_cpu_ns": 366210.9375,
+      "median_wall_ns": 390067.1875,
+      "cpu_ns_batches": [
+        396728.515625,
+        396728.515625,
+        335693.359375,
+        366210.9375,
+        396728.515625,
+        366210.9375,
+        366210.9375
+      ],
+      "wall_ns_batches": [
+        393818.9453125,
+        391341.796875,
+        390067.1875,
+        384153.90625,
+        399283.0078125,
+        388219.140625,
+        385702.734375
+      ],
+      "incremental_python_peak_bytes": 9976,
+      "work": {
+        "arithmetic": 35494,
+        "comparisons": 8849,
+        "logarithms": 0,
+        "square_roots": 0,
+        "decisions": 1,
+        "cpu_ns": 0
+      }
+    },
+    "trend": {
+      "repetitions_per_batch": 32768,
+      "batches": 7,
+      "median_cpu_ns": 6675.72021484375,
+      "median_wall_ns": 6653.436279296875,
+      "cpu_ns_batches": [
+        7152.557373046875,
+        6675.72021484375,
+        6675.72021484375,
+        6675.72021484375,
+        6198.883056640625,
+        6198.883056640625,
+        6675.72021484375
+      ],
+      "wall_ns_batches": [
+        6800.933837890625,
+        6634.8846435546875,
+        7157.6690673828125,
+        6653.436279296875,
+        6632.4859619140625,
+        6651.9775390625,
+        6693.1610107421875
+      ],
+      "incremental_python_peak_bytes": 952,
+      "work": {
+        "arithmetic": 141,
+        "comparisons": 11,
+        "logarithms": 9,
+        "square_roots": 4,
+        "decisions": 1,
+        "cpu_ns": 0
+      }
+    },
+    "persistence": {
+      "repetitions_per_batch": 131072,
+      "batches": 7,
+      "median_cpu_ns": 1430.511474609375,
+      "median_wall_ns": 1482.2578430175781,
+      "cpu_ns_batches": [
+        1549.7207641601562,
+        1311.3021850585938,
+        1549.7207641601562,
+        1430.511474609375,
+        1430.511474609375,
+        1668.9300537109375,
+        1311.3021850585938
+      ],
+      "wall_ns_batches": [
+        1482.2578430175781,
+        1488.1271362304688,
+        1480.8258056640625,
+        1469.3931579589844,
+        1490.9400939941406,
+        1555.1483154296875,
+        1460.2226257324219
+      ],
+      "incremental_python_peak_bytes": 448,
+      "work": {
+        "arithmetic": 1,
+        "comparisons": 3,
+        "logarithms": 0,
+        "square_roots": 0,
+        "decisions": 1,
+        "cpu_ns": 0
+      }
+    }
+  },
+  "process_memory": [
+    {
+      "policy": "S1",
+      "baseline_rss_bytes": 43474944,
+      "peak_process_rss_bytes": 43597824,
+      "final_rss_bytes": 43597824,
+      "complete": true
+    },
+    {
+      "policy": "S2",
+      "baseline_rss_bytes": 44081152,
+      "peak_process_rss_bytes": 44847104,
+      "final_rss_bytes": 44847104,
+      "complete": false
+    },
+    {
+      "policy": "S3",
+      "baseline_rss_bytes": 43655168,
+      "peak_process_rss_bytes": 45015040,
+      "final_rss_bytes": 45015040,
+      "complete": true
+    },
+    {
+      "policy": "S4-T",
+      "baseline_rss_bytes": 43413504,
+      "peak_process_rss_bytes": 44802048,
+      "final_rss_bytes": 44802048,
+      "complete": true
+    },
+    {
+      "policy": "S4-P",
+      "baseline_rss_bytes": 44032000,
+      "peak_process_rss_bytes": 45314048,
+      "final_rss_bytes": 45314048,
+      "complete": true
+    }
+  ],
+  "procedure": "Pilot seed 0, L=5, slowdown; saved 20th coordination inputs. Warm integer geometry cache. CPU batches exceed 150 ms; seven batches; allocations profiled separately. RAM uses isolated process high-water working set; no raw log buffering.",
+  "limits": "Host-specific timing, wrapper/loop overhead included. Incremental tracemalloc excludes native allocations. Total RAM includes Python, NumPy, geometry, and simulation state. No power or device-lifetime estimate."
+}

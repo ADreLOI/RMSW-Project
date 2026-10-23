@@ -1,0 +1,54 @@
+\section{Research Method}
+\subsection{Research Design and Methodological Rationale}
+We implemented a controlled quantitative simulation with five configurations: S1 fixed partition, S2 reactive short queue, S3 always-long queue, S4-T trend-triggered reservation, and S4-P persistence-triggered reservation. Motion, sensing, allocator, disturbance generation, exchange budget, and stopping rules are shared. Each condition has 30 paired evaluation seeds; seed, fade-persistence level, and slowdown condition identify a matched scenario. Realized radio histories can differ because routes depend on policy.
+
+This design isolates queue reservation under a simple, inspectable model. It omits hydrodynamics, currents, collision avoidance, sonar reconstruction, and measured sea-channel calibration. No external robotics code was adopted. Implementation tests establish software properties, not maritime realism.
+
+\subsection{Data, Materials, Participants, or Other Sources}
+The data are synthetic trajectories, observations, task assignments, and communication events. There are no human participants. Table~\ref{tab:settings} gives author-selected controls retained from the revised research plan. The full plan, assigned template, source snapshots, frozen configuration, seeds, and analysis scripts are preserved separately from the active paper.
+\begin{table}[htbp]\centering
+\caption{Core synthetic settings. Model forms are source-informed; numerical values are author-selected controls, not sea-trial measurements.}\label{tab:settings}
+\begin{tabularx}{\linewidth}{@{}p{3.2cm}Y@{}}\toprule
+Quantity & Value\\\midrule
+Grid and starts & $20\times12$ cells, side $20$ m; starts $(10,10)$ and $(210,10)$ m.\\
+Motion and sensing & $2$ m/s; one-second ticks; $5$ s per heading change; observations on arrival at cell centres, including transit.\\
+Slowdown & None, or boat 1 at half speed for $300$ s; integer onset uniform on $[600,900]$ s.\\
+Communication & Every $10$ s; atomic batch, at most four datagrams and $8192$ UTF-8 JSON bytes.\\
+Signal & $P_0=-40$ dBm, $d_0=1$ m, $n=2$, threshold $-90$ dBm; fade offsets $0/-10$ dB.\\
+Fade process & Stationary faded fraction $q=0.2$; target mean faded duration $L=2,5,10$ exchanges.\\
+Reservation & Short/long unstarted queues $3/12$ tasks per boat, excluding the executing task.\\
+Forecast & Five successful samples; onset horizon three exchanges, four projected samples; margins $0,2,4$ dB in pilot.\\
+Stopping and seeds & Full coverage or $\tau=7200$ s; pilot seeds $0$--$9$, evaluation seeds $1000$--$1029$.\\\bottomrule
+\end{tabularx}\end{table}
+The signal is
+\begin{equation}
+r_k=P_0-10n\log_{10}\left(\max(d_k,d_0)/d_0\right)+z_k.
+\end{equation}
+The stationary two-state fade uses $\Pr(F\to C)=1/L$ and $\Pr(C\to F)=q/[L(1-q)]$. Fade draws and slowdown draws use independent, policy-independent random streams. A fade is not automatically a failed exchange; delivery also depends on distance. At $n=2$, the clear-state threshold distance is approximately $316$ m. There is no rendezvous controller, so disconnected idle boats may never reconnect.
+
+\subsection{Work Procedure and Data Collection}
+S1 divides adjacent columns equally and follows a boustrophedon sweep without online messages. At a successful online session, the two boats merge delivered coverage, retain executing tasks, release unstarted queues, and jointly refill them. For each eligible unobserved task and boat with capacity, the allocator minimizes projected finish time, including committed remaining work, shortest grid travel, and turns. Ties use task ID then boat ID. Shortest paths minimize turns and prefer the horizontal-first path if still tied. The speed currently reported by each boat is held constant for allocation estimates; future slowdown states are unavailable to the allocator.
+
+S2 refills to three tasks, S3 to twelve, and S4 normally to three but to twelve when its warning is positive. Initialization uses a jointly agreed allocation. During disconnection, ownership remains committed; a boat never steals tasks and idles after exhausting its queue. A successful budget-conforming batch contains two state datagrams, one proposal, and one acknowledgement. A failed radio opportunity attempts the two state datagrams without delivery. An oversized offered batch is rejected before transmission and recorded separately. This is an ideal atomic protocol, not real lossy consensus.
+
+At each tick the simulator applies the slowdown, advances both boats, records cell-centre observations, evaluates any scheduled radio opportunity, and then forecasts and allocates only after a successful exchange. Completion is checked from true observed coverage and ends the mission without a final coordination batch. Return travel and data upload are excluded.
+
+The trend warning estimates relative velocity from the last two successful position exchanges and fits an ordinary least-squares trend to the last five signal residuals after removing known distance loss. Actual timestamps include gaps. Forecasts combine extrapolated separation with the residual trend; persistence holds the latest received signal. Trend falls back to persistence before five samples. Both project four samples and warn if two adjacent samples beginning within the next three exchanges fall below the threshold plus margin. They cannot access future fade or slowdown draws.
+
+Sixty fixed-route pilot replays selected a separate margin for each predictor using pooled event-level F1, with ties favouring smaller margins. Both selected $4$ dB. An additional 240 online pilot runs checked feasibility. Short-queue stalls were retained as a model outcome, without adding a recovery controller or changing parameters. The frozen design then generated $2\times3\times5\times30=900$ evaluation runs. The optional distance-loss sensitivity and oracle were not part of this core evaluation.
+
+\subsection{Data Analysis and Quality Assurance}
+The primary contrast is S4-T minus S2 within each of six conditions. Secondary contrasts are S4-T minus S3 and S4-T minus S4-P. A timed-out mission contributes time at risk to the restricted mean,
+\begin{equation}
+\widehat\mu_\tau=N^{-1}\sum_s\min(T_s,\tau),
+\end{equation}
+without being called a completion. We used 2000 paired-seed bootstrap resamples and percentile 95\% intervals. These are marginal intervals; no simultaneous family-wise claim is made. Completion proportions and coverage accompany time estimates, since low travel or communication in stalled runs is not efficiency.
+
+A radio outage is a maximal run of at least two missed opportunities. Consecutive positive warnings collapse into one alert episode until a negative warning or outage/reconnection. Alerts match the first eligible onset one to three exchanges later, once per onset. The first three opportunities are excluded from onset recall; the last four from alert matching. Undefined precision/recall remain undefined. Both warnings are also replayed on the same 180 held-out fixed-route traces, so route changes cannot explain replay scores.
+
+Raw logs retain one-second positions and idle counters, cell observations, pre-synchronization information gaps, task versions, encoded messages, warnings, and component work counters. We reconstructed all 900 evaluation logs and checked observation counts, coverage, travel, idle time, transmitted bytes, reservations, and information-gap summaries. Unique-owner and budget assertions run throughout. Deterministic tests include hand-calculated finite-speed coverage, turning, disconnection, reconnection, prediction inputs, event boundaries, and serialization budgets.
+
+We count floating-point arithmetic separately from logical ordering/membership checks and logarithm/square-root calls. A billion counted arithmetic operations is one GOP, not GOP/s or processor instructions. Component CPU counters exclude file writing and plotting; small Windows CPU timings require separate repeated saved-input benchmarks. Isolated process high-water RAM and separate incremental Python allocation profiles describe this host implementation. The local information gap is $D_i(t)=|C(t)\setminus C_i(t)|/240$, measured before synchronization and at stopping. It is not bathymetric error.
+
+\subsection{Use of AI Tools}
+Codex generated the initial simulator, tests, analysis scripts, report structure, and this draft text from the revised plan. Verification included deterministic tests and independent reconstruction of logged metrics. Automated checks do not replace author review of modeling choices, references, code, statistical interpretation, or writing. Both authors' independent reproduction and review remain pending. The repository records assistance, provenance, and these limits explicitly.

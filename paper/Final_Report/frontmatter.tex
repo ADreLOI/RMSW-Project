@@ -1,0 +1,18 @@
+\reporttitle{Prediction-Aware Coordination for Two-USV Seabed Survey Coverage under Intermittent Connectivity}
+\unnumberedheading{Authors}
+\noindent\begin{minipage}[t]{0.48\linewidth}\centering
+\textbf{Andrea Lo Iacono}\\\texttt{andli2@kth.se}\\
+\href{https://github.com/ADreLOI}{\faGithubSquare\hspace{0.13cm}ADreLOI}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}\centering
+\textbf{Ettore Mugisha Cirillo}\\\texttt{emcir@kth.se}\\
+\href{https://github.com/EccirilloM}{\faGithubSquare\hspace{0.13cm}EccirilloM}
+\end{minipage}
+\begin{mdframed}[linecolor=guidancetext,linewidth=0.5pt,roundcorner=3pt]
+\centering\href{https://github.com/ADreLOI/RMSW-Project}{\faGithubSquare\hspace{0.15cm}Project code, paper, configurations, and reproducibility instructions}
+\end{mdframed}
+\unnumberedheading{Abstract}
+We implemented a controlled two-dimensional simulation of two unmanned surface vehicles surveying a known grid while coordinating over a synthetic intermittent radio link. The study compares fixed partitioning, reactive short queues, an always-long queue, and trend- or persistence-triggered task reservation. Ten pilot seeds selected warning margins using fixed-route replay; 30 separate evaluation seeds per condition produced 900 paired mission runs. All evaluation logs were checked against reconstructed coverage, travel, communication, and information-gap metrics. Fixed partitioning completed every run. Reactive short queues completed none because the modeled boats could exhaust work outside communication range. The predictive variants completed most runs, but the trend variant showed no consistent advantage over an always-long queue or persistence. Held-out warning F1 was approximately 0.175 for both predictors. Thus, these settings support a queue-reservation and reconnection explanation rather than a claim that the trend forecast improves surveying. Conclusions concern this synthetic model; they do not establish maritime map accuracy, energy savings, or vessel safety.
+\begin{guidancebox}
+Working draft with generated experiment results. Both authors must independently review the implementation, sources, analysis, and interpretation before submission. Main-body limit: ten pages, excluding this cover, references, and appendices.
+\end{guidancebox}

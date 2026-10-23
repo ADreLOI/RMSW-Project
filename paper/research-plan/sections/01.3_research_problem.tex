@@ -1,0 +1,34 @@
+% Research problem, aim, measurable objectives, and research questions.
+\subsection{Research Problem, Aim, and Research Questions}
+
+The research problem addressed in this project is the loss of coordination quality during cooperative seabed surveys when USVs operate with intermittent direct communication. When communication is available, the vehicles can exchange coverage information, positions, and current task claims. When communication is unavailable, each vehicle must continue using local information that may no longer match the global mission state. In an online allocation setting with unequal progress, this can generate duplicated survey effort, delayed coverage of unsurveyed regions, or longer mission time.
+
+The aim is to evaluate whether short-horizon prediction of communication outages can improve online task allocation between two USVs conducting a cooperative seabed survey under intermittent boat-to-boat connectivity.
+
+\Needspace{6\baselineskip}
+\textbf{Objectives.} To achieve this aim, we will pursue four measurable objectives. Their dates are the provisional internal targets in Section 3.1, not additional course deadlines.
+\begin{enumerate}[label=\textbf{O\arabic*.}]
+\item By 21 October, implement the finite-speed coverage scenario, communication model, and static and reactive coordination baselines, and pass the deterministic coverage, ownership-transfer, and forced-outage tests described in Section 2.3.
+\item By 28 October, implement prediction-triggered reservation with both persistence and trend predictors, implement the non-predictive larger-backlog control, complete the pilot, and freeze the settings, timeout, event definitions, and analysis procedure before the main experiments.
+\item By 11 November, complete the paired comparisons of the four coordination policies, including both predictor variants, under the balanced/unequal-progress and fade-persistence conditions in Section 2.3. Retain configuration files, seeds, and raw logs for every run, including timeouts.
+\item By 25 November, quantify mission-time effects, warning quality, communication load, computation time, memory use, and local coverage-state disagreement using Section 2.4, and produce analysis scripts and summaries that both authors can independently regenerate from the retained logs.
+\end{enumerate}
+
+Main research question:
+
+\begin{quote}
+In a two-USV survey of a known 2D area with online task allocation and intermittent boat-to-boat communication, how does short-horizon outage prediction used for pre-outage task reservation affect mission completion time and redundant coverage relative to reactive resynchronization?
+\end{quote}
+
+The fixed offline partition is included as a communication-independent reference baseline rather than as the primary competitor. The main comparison is between reactive online coordination and prediction-aware coordination across different fade-persistence conditions.
+
+We hypothesize that predictive coordination may reduce mission completion time when outages interrupt useful reassignment and an observable precursor permits reservation before losing contact. Redundant coverage remains a measured secondary outcome, not an assumed consequence: disjoint, consistently committed assignments can keep it at zero even during outages.
+
+To clarify what is being evaluated, the main question is divided into:
+\begin{enumerate}[label=\textbf{RQ\arabic*.}]
+\item Across fade-persistence conditions and balanced versus temporarily unequal progress, what is the effect of prediction-triggered reservation on completion time and redundant coverage relative to reactive resynchronization?
+\item Does any benefit remain relative to the same larger reservation backlog without prediction, and what communication, computation, and memory costs accompany it?
+\item How do persistence and signal-and-motion trend predictors compare in false alarms, missed outages, lead time, and mission outcomes when they use the same reservation action?
+\end{enumerate}
+
+The first question concerns the coordination action; the third compares two lightweight forecasting approaches without claiming a novel or maximally accurate predictor. The trend-based strategy is pre-specified for the primary comparison with reactive coordination; it will not be selected retrospectively because it performs better. Fixed pre-allocation is not defective: when progress is balanced, it may complete the mission without any online communication. Unequal progress motivates examining reassignment, but any time benefit must be considered alongside additional commitments and resource costs. Abrupt random fades may give no usable warning. Null or adverse effects are valid outcomes.

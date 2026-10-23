@@ -32,3 +32,12 @@ private/
 # Bulk data should not synchronize to Overleaf
 /results/raw/
 /data/raw/
+
+/code/simulation/results/*/raw/
+/code/simulation/results/smoke/
+/code/simulation/results/single/
+/code/simulation/results/core/analysis-console.json
+/code/simulation/results/core/benchmark-console.json
+/paper/Final_Report/*.pdf
+/paper/Final_Report/compile-pass*.txt
+/paper/Final_Report/bibtex-pass.txt

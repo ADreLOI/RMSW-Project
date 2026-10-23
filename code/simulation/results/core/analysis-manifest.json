@@ -1,0 +1,14 @@
+{
+  "design_sha256": "51f3d40b5dc037c0b44ac3b47afa81617252bed7167253e8c5c6339e3ae9569e",
+  "resamples": 2000,
+  "analysis_source_sha256": {
+    "analysis.py": "16daa3731174dd0c389877fa3bc2fb550fcf90e58908298105684d02c383b647",
+    "benchmark.py": "9d72008b25d38a788c09ad3ccb2d5527a0b3832db2a8e203a1f9c2ac02bf5e5a",
+    "events.py": "92d7061b0a74310f327639c94b1210b4c7f46c8ec4a04c93823a76054ed80d1a",
+    "experiment.py": "07f37ddd50e00a3aef8db67f8c7c7e15cdc5e36f4db040a0ddc6fdb8907a2030",
+    "model.py": "720ed9ec4822b9f5ac9cf4aa35a31ffadd9a031e83df561fc03ffc6992747a59",
+    "replay.py": "ae794ebd8440d2a37fb03f26276732f5e5c4b88e78b73077ac8d40a5c1899716",
+    "__init__.py": "6526ccc80f369e6239388405c98ce8065008defe2e10428b246acbfc954a080f"
+  },
+  "note": "Hashes establish integrity of retained artifacts. CPU timings and gzip headers may differ on regeneration; scientific deterministic metrics should agree."
+}

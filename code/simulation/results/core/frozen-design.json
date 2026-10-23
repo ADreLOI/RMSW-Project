@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "config": {
+    "width": 20,
+    "height": 12,
+    "cell_m": 20.0,
+    "speed_mps": 2.0,
+    "turn_s": 5.0,
+    "dt_s": 1,
+    "exchange_s": 10,
+    "timeout_s": 7200,
+    "short_queue": 3,
+    "long_queue": 12,
+    "p0_dbm": -40.0,
+    "path_exponent": 2.0,
+    "d0_m": 1.0,
+    "fade_db": -10.0,
+    "threshold_dbm": -90.0,
+    "fade_fraction": 0.2,
+    "window": 5,
+    "horizon": 3,
+    "max_datagrams": 4,
+    "max_bytes": 8192,
+    "slowdown_factor": 0.5,
+    "slowdown_s": 300,
+    "slowdown_earliest": 600,
+    "slowdown_latest": 900
+  },
+  "pilot_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "evaluation_seeds": [
+    1000,
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008,
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015,
+    1016,
+    1017,
+    1018,
+    1019,
+    1020,
+    1021,
+    1022,
+    1023,
+    1024,
+    1025,
+    1026,
+    1027,
+    1028,
+    1029
+  ],
+  "fade_lengths": [
+    2,
+    5,
+    10
+  ],
+  "slowdown": [
+    false,
+    true
+  ],
+  "policies": [
+    "S1",
+    "S2",
+    "S3",
+    "S4-T",
+    "S4-P"
+  ],
+  "margins": {
+    "trend": 4,
+    "persistence": 4
+  },
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 20261023,
+  "primary": "S4-T minus S2",
+  "secondary": [
+    "S4-T minus S3",
+    "S4-T minus S4-P"
+  ],
+  "event_rule": "events.py; exclude first H onsets and last H+1 alert slots",
+  "tuning": [
+    {
+      "method": "trend",
+      "margin_db": 0,
+      "true_positives": 19,
+      "false_positives": 76,
+      "false_negatives": 230,
+      "eligible_outages": 249,
+      "alerts": 95,
+      "f1": 0.11046511627906977
+    },
+    {
+      "method": "trend",
+      "margin_db": 2,
+      "true_positives": 28,
+      "false_positives": 150,
+      "false_negatives": 221,
+      "eligible_outages": 249,
+      "alerts": 178,
+      "f1": 0.13114754098360656
+    },
+    {
+      "method": "trend",
+      "margin_db": 4,
+      "true_positives": 55,
+      "false_positives": 424,
+      "false_negatives": 194,
+      "eligible_outages": 249,
+      "alerts": 479,
+      "f1": 0.1510989010989011
+    },
+    {
+      "method": "persistence",
+      "margin_db": 0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 249,
+      "eligible_outages": 249,
+      "alerts": 0,
+      "f1": 0.0
+    },
+    {
+      "method": "persistence",
+      "margin_db": 2,
+      "true_positives": 22,
+      "false_positives": 118,
+      "false_negatives": 227,
+      "eligible_outages": 249,
+      "alerts": 140,
+      "f1": 0.11311053984575835
+    },
+    {
+      "method": "persistence",
+      "margin_db": 4,
+      "true_positives": 55,
+      "false_positives": 418,
+      "false_negatives": 194,
+      "eligible_outages": 249,
+      "alerts": 473,
+      "f1": 0.1523545706371191
+    }
+  ],
+  "frozen_before_evaluation": true,
+  "sha256": "51f3d40b5dc037c0b44ac3b47afa81617252bed7167253e8c5c6339e3ae9569e"
+}
