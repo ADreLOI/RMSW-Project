@@ -19,8 +19,11 @@ from .model import Config, POLICIES, Work, forecast, geometry, make_scenario, ru
 
 
 def dump(path,data):
-    Path(path).parent.mkdir(parents=True,exist_ok=True)
-    Path(path).write_text(json.dumps(data,indent=2,allow_nan=False)+"\n",encoding="utf-8")
+    path=Path(path)
+    path.parent.mkdir(parents=True,exist_ok=True)
+    temporary=path.with_name(path.name+".tmp")
+    temporary.write_text(json.dumps(data,indent=2,allow_nan=False)+"\n",encoding="utf-8")
+    temporary.replace(path)
 
 
 def digest(data):
@@ -100,21 +103,36 @@ def environment():
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument("stage",choices=("pilot","evaluate","single"))
-    parser.add_argument("--output",type=Path,default=Path("results/core"))
+    parser.add_argument("--output",type=Path)
     parser.add_argument("--workers",type=int,default=1)
     parser.add_argument("--policy",choices=POLICIES,default="S4-T")
     parser.add_argument("--seed",type=int,default=1000)
     parser.add_argument("--length",type=int,default=5)
     parser.add_argument("--slowdown",action="store_true")
     parser.add_argument("--exponent",type=float)
+    parser.add_argument("--design",type=Path,default=Path(__file__).resolve().parents[2]/"results/core/frozen-design.json")
+    parser.add_argument("--overwrite",action="store_true",help="Explicitly replace existing CLI outputs; prefer fresh workflow bundles")
     args=parser.parse_args(); c=Config()
+    args.output=args.output or Path("results/single" if args.stage=="single" else "results/core")
+    if args.stage=="single" and args.output.resolve()==(Path(__file__).resolve().parents[2]/"results/core").resolve():
+        parser.error("Single runs must use a separate output directory, outside the frozen core")
+    if args.stage=="evaluate" and args.exponent is not None:
+        parser.error("Evaluation uses the frozen config. For sensitivity, create a separate design or use the exploratory dashboard.")
+    target={"pilot":"frozen-design.json","evaluate":"runs.json","single":"single.json"}[args.stage]
+    if (args.output/target).exists() and not args.overwrite:
+        parser.error(f"{args.output/target} already exists; use a fresh output directory or explicit --overwrite")
     args.output.mkdir(parents=True,exist_ok=True)
     if args.exponent is not None: c=replace(c,path_exponent=args.exponent)
     dump(args.output/"environment.json",environment())
     geometry(c.width,c.height)
     if args.stage=="pilot": tune(c,args.output); return
     if args.stage=="single":
-        r=worker((asdict(c),args.seed,args.length,args.slowdown,args.policy,{"trend":0,"persistence":0},args.output/"single.jsonl.gz"))
+        from .evidence import load_design
+        design=load_design(args.design)
+        c=Config(**design["config"])
+        if args.exponent is not None: c=replace(c,path_exponent=args.exponent)
+        r=worker((asdict(c),args.seed,args.length,args.slowdown,args.policy,design["margins"],args.output/"single.jsonl.gz"))
+        dump(args.output/"single-settings.json",{"config":asdict(c),"margins":design["margins"],"design_sha256":design["sha256"],"classification":"separate single-run reproduction / exploration"})
         dump(args.output/"single.json",r); print(json.dumps(r)); return
     freeze=json.loads((args.output/"frozen-design.json").read_text())
     expected=freeze.pop("sha256")

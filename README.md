@@ -2,6 +2,19 @@
 
 Andrea Lo Iacono and Ettore Mugisha Cirillo. Controlled two-USV coverage under intermittent radio communication.
 
+The **USV Research Lab** provides an animated simulator, synchronized policy comparisons, statistical charts, raw-event inspection, experiment controls, automated verification and a five-scene interactive presentation. From the repository root on Windows:
+
+```powershell
+.\Run-Lab.ps1 -Setup       # first run: install into a local environment
+.\Run-Lab.ps1              # later runs: open the dashboard
+.\Run-Lab.ps1 -Action Smoke
+.\Run-Lab.ps1 -Action Full -Workers 4
+```
+
+Open `http://127.0.0.1:8768`. New runs are saved as separate, reproducible evidence bundles. See the [dashboard guide](code/docs/dashboard-guide.md). Other tools should start with [AGENTS.md](AGENTS.md) and the [agent handoff](code/docs/agent-handoff.md); completed work is recorded in the [work log](code/docs/work-log.md).
+
+![USV Research Lab replay of the recorded seed-1000 mission at 700 seconds](code/docs/validation/dashboard-mission.png)
+
 The revised research plan is implemented. The core evaluation contains 900 runs, five configurations, six conditions, and 30 paired evaluation seeds per condition, following a separate 300-run pilot. All 900 evaluation logs passed metric reconstruction. Results are synthetic evidence; the report remains a working draft for both authors to review.
 
 ```text
@@ -22,6 +35,7 @@ code/
 - [Results and review limits](code/docs/results-and-review.md)
 - [Plan-to-code mapping](code/docs/plan-to-code.md)
 - [Sources and preservation](code/docs/provenance.md)
+- [Dashboard architecture and API](code/docs/architecture.md)
 
 Fixed partitioning completed every evaluation run. Reactive short queues completed none: this no-rendezvous model permits boats to exhaust work beyond radio range. Long queues and predictive variants completed most runs. Trend prediction showed no consistent benefit over an always-long queue or persistence. Do not treat the contrast with the stalled reactive policy as proof of forecast skill or convert operation/byte counts into measured energy savings.
 

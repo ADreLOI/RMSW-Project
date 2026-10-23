@@ -36,6 +36,7 @@ private/
 /code/simulation/results/*/raw/
 /code/simulation/results/smoke/
 /code/simulation/results/single/
+/code/simulation/results/lab/
 /code/simulation/results/core/analysis-console.json
 /code/simulation/results/core/benchmark-console.json
 /paper/Final_Report/*.pdf

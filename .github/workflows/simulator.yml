@@ -9,5 +9,17 @@ jobs:
         with:
           python-version: '3.11'
       - run: python -m pip install -e code/simulation
-      - run: python -m unittest discover -s code/simulation/tests -v
+      - name: Tests, paired simulation, figures and evidence archive
+        run: python -m usv_sim.workflow --preset smoke --output code/simulation/results/ci-smoke
+      - name: Compare deterministic scientific results with retained evidence
+        run: python -m usv_sim.verify code/simulation/results/ci-smoke --reference code/simulation/results/core
       - run: python -c "from usv_sim.analysis import reconstruct; result, _ = reconstruct('code/simulation/examples/trend-seed1000-slowdown-L5.jsonl.gz'); assert result['complete']"
+      - name: Retain reproducible evidence and test logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: paired-smoke-evidence
+          path: code/simulation/results/ci-smoke/evidence.zip
+          retention-days: 14
+          compression-level: 0
+          if-no-files-found: warn
