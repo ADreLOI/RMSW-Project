@@ -1,15 +1,31 @@
-from dataclasses import replace
+from dataclasses import asdict, replace
 import gzip
 import json
 from pathlib import Path
 import tempfile
+import subprocess
+import sys
 import unittest
 
+from usv_sim.analysis import reconstruct, validate_evaluation
+from usv_sim.experiment import digest
 from usv_sim.events import outage_events, warning_scores
 from usv_sim.model import Boat, Config, Work, allocate, forecast, make_scenario, route, run, signal
 
 
 class MotionTests(unittest.TestCase):
+    def test_one_boat_complete_hand_worked_sweep(self):
+        c=Config(width=2,height=2)
+        b=Boat(0,0,*c.centre(0),{0},queue=[1,3,2])
+        visited={0}
+        elapsed=0
+        while len(visited)<c.cells:
+            elapsed+=1
+            b.tick(c,c.speed_mps,lambda _i,cell: visited.add(cell))
+            self.assertLessEqual(elapsed,40)
+        self.assertEqual(elapsed,40)  # Three 10 s edges and two 5 s turns.
+        self.assertEqual(b.distance,60)
+
     def test_fixed_hand_computed_time_and_link_invariance(self):
         # Each boat visits 2 columns x 3 rows: 5 edges x 20/2 + two turns x 5.
         c=Config(width=4,height=3,timeout_s=200)
@@ -44,6 +60,22 @@ class MotionTests(unittest.TestCase):
 
 
 class CoordinationTests(unittest.TestCase):
+    def test_exact_snapshots_and_slowdown_boundaries(self):
+        c=Config(width=6,height=3,timeout_s=80,slowdown_earliest=5,slowdown_latest=5,slowdown_s=4)
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
+            path=Path(temporary)/"run.gz"
+            result,_=run(c,make_scenario(c,2,5,True),"S1",log_path=path)
+            rebuilt,_=reconstruct(path)
+            self.assertEqual(rebuilt,result)
+            with gzip.open(path,"rt",encoding="utf-8") as stream:
+                events=[json.loads(line) for line in stream]
+        ticks={event["t"]:event for event in events if event["event"]=="tick"}
+        for t in (4,5,8,9):
+            self.assertEqual(ticks[t]["boats"][0]["speed_mps"],1 if 5<=t<9 else 2)
+            self.assertEqual(ticks[t]["boats"][1]["speed_mps"],2)
+        self.assertTrue(any(b["mode"]=="turning" for e in ticks.values() for b in e["boats"]))
+        self.assertEqual(events[-1]["queues"],[b["queue"] for b in events[-1]["boats"]])
+
     def test_disconnected_queues_exhaust_without_stealing(self):
         c=Config(width=8,height=4,timeout_s=400)
         r,s=run(c,make_scenario(c,1,5,False),"S2",forced_radio=lambda k:False)
@@ -138,6 +170,68 @@ class ForecastTests(unittest.TestCase):
     def test_undefined_warning_metrics(self):
         r=warning_scores([{"t":i,"radio":True} for i in range(10)])
         self.assertIsNone(r["precision"]); self.assertIsNone(r["recall"]); self.assertIsNone(r["f1"])
+
+
+class ScientificValidationTests(unittest.TestCase):
+    def test_tampered_totals_fail_with_optimized_python(self):
+        c=Config(width=4,height=3,timeout_s=65)
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
+            path=Path(temporary)/"run.gz"
+            run(c,make_scenario(c,7,2,False),"S1",log_path=path)
+            with gzip.open(path,"rt",encoding="utf-8") as stream:
+                events=[json.loads(line) for line in stream]
+            events[-1]["result"]["distance_m"]+=1
+            with gzip.open(path,"wt",encoding="utf-8") as stream:
+                for event in events: stream.write(json.dumps(event)+"\n")
+            with self.assertRaisesRegex(ValueError,"distance_m mismatch"):
+                reconstruct(path)
+            outcome=subprocess.run([sys.executable,"-O","-c",
+                "import sys; from usv_sim.analysis import reconstruct; reconstruct(sys.argv[1])",str(path)],
+                capture_output=True,text=True)
+            self.assertNotEqual(outcome.returncode,0)
+            self.assertIn("distance_m mismatch",outcome.stderr)
+
+    def test_tampered_motion_snapshot_is_rejected(self):
+        c=Config(width=4,height=3,timeout_s=65)
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
+            path=Path(temporary)/"run.gz"
+            run(c,make_scenario(c,7,2,False),"S1",log_path=path)
+            with gzip.open(path,"rt",encoding="utf-8") as stream:
+                events=[json.loads(line) for line in stream]
+            tick=next(e for e in events if e["event"]=="tick")
+            tick["boats"][0]["edge_remaining_m"]-=1
+            with gzip.open(path,"wt",encoding="utf-8") as stream:
+                for event in events: stream.write(json.dumps(event)+"\n")
+            with self.assertRaisesRegex(ValueError,"recorded position"):
+                reconstruct(path)
+
+    def test_observation_time_cannot_invent_earlier_coverage(self):
+        c=Config(width=4,height=3,timeout_s=65)
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
+            path=Path(temporary)/"run.gz"
+            run(c,make_scenario(c,7,2,False),"S1",log_path=path)
+            with gzip.open(path,"rt",encoding="utf-8") as stream:
+                events=[json.loads(line) for line in stream]
+            observation=next(e for e in events if e["event"]=="observe" and e["t"]>0)
+            observation["t"]-=1
+            with gzip.open(path,"wt",encoding="utf-8") as stream:
+                for event in events: stream.write(json.dumps(event)+"\n")
+            with self.assertRaisesRegex(ValueError,"Observation timestamp"):
+                reconstruct(path)
+
+    def test_frozen_matrix_checks_seed_membership_and_hash(self):
+        freeze={"config":asdict(Config()),"policies":["S1","S2","S3","S4-T","S4-P"],
+                "evaluation_seeds":[1000],"slowdown":[False],"fade_lengths":[5]}
+        freeze["sha256"]=digest(freeze)
+        rows=[{"seed":1000,"slowdown":False,"fade_length":5,"policy":p} for p in freeze["policies"]]
+        validate_evaluation(freeze,rows)
+        rows[0]["seed"]=2000
+        with self.assertRaisesRegex(ValueError,"frozen matrix"):
+            validate_evaluation(freeze,rows)
+        rows[0]["seed"]=1000
+        freeze["evaluation_seeds"]=[2000]
+        with self.assertRaisesRegex(ValueError,"hash mismatch"):
+            validate_evaluation(freeze,rows)
 
 
 if __name__=="__main__": unittest.main()

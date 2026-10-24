@@ -22,15 +22,21 @@
         <symbol id="i-chart" viewBox="0 0 24 24">
           <path d="M4 3v17h17M8 16V9M13 16V5M18 16v-5" />
         </symbol>
-        <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 4 13 8-13 8z" /></symbol>
+        <symbol id="i-play" viewBox="0 0 24 24">
+          <path d="m8 4 13 8-13 8z" />
+        </symbol>
         <symbol id="i-list" viewBox="0 0 24 24">
           <path d="M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1" />
         </symbol>
         <symbol id="i-download" viewBox="0 0 24 24">
           <path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" />
         </symbol>
-        <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6" /></symbol>
-        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24">
+          <path d="m4 12 5 5L20 6" />
+        </symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24">
+          <path d="M4 12h16m-6-6 6 6-6 6" />
+        </symbol>
         <symbol id="i-expand" viewBox="0 0 24 24">
           <path d="M3 9V3h6m6 0h6v6M3 15v6h6m6 0h6v-6" />
         </symbol>
@@ -45,7 +51,9 @@
       <div class="sidebar-label">WORKSPACE</div>
       <nav aria-label="Main navigation">
         <button class="nav-item active" data-view="mission">
-          <svg><use href="#i-map" /></svg>Mission lab<span class="nav-dot"></span>
+          <svg><use href="#i-map" /></svg>Mission lab<span
+            class="nav-dot"
+          ></span>
         </button>
         <button class="nav-item" data-view="evidence">
           <svg><use href="#i-chart" /></svg>Study evidence
@@ -54,7 +62,9 @@
           <svg><use href="#i-play" /></svg>Presentation
         </button>
         <button class="nav-item" data-view="activity">
-          <svg><use href="#i-list" /></svg>Runs & verification<span id="job-count" class="count"
+          <svg><use href="#i-list" /></svg>Runs & verification<span
+            id="job-count"
+            class="count"
             >0</span
           >
         </button>
@@ -64,8 +74,9 @@
         <h3>Two boats.<br />One shared survey.</h3>
         <p>Coordination under intermittent radio communication.</p>
         <div class="mini-grid" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span><span></span><span></span
-          ><span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span
+          ><span></span><span></span><span></span><span></span><span></span
+          ><span></span><span></span>
         </div>
         <div class="study-tag">II2202 · KTH</div>
       </div>
@@ -80,19 +91,29 @@
     </aside>
     <div class="workspace">
       <header class="topbar">
-        <div><span class="breadcrumb">II2202 /</span> <span id="page-label">Mission lab</span></div>
+        <div>
+          <span class="breadcrumb">II2202 /</span>
+          <span id="page-label">Mission lab</span>
+        </div>
         <div class="topbar-right">
           <span class="badge">SYNTHETIC STUDY</span
-          ><span id="connection"><span class="status-dot"></span>Engine connected</span>
+          ><span id="connection">Connecting to engine…</span>
         </div>
       </header>
       <main>
-        <section id="view-mission" class="view active" aria-labelledby="mission-title">
+        <section
+          id="view-mission"
+          class="view active"
+          aria-labelledby="mission-title"
+        >
           <div class="page-heading">
             <div>
-              <div class="eyebrow">SIMULATE · OBSERVE · REPRODUCE</div>
-              <h1 id="mission-title">The survey, in motion<span>.</span></h1>
-              <p>Follow the boats. Inspect the decisions. Keep the evidence.</p>
+              <div class="eyebrow">TWO-BOAT COORDINATION EXPERIMENT</div>
+              <h1 id="mission-title">Mission replay<span>.</span></h1>
+              <p>
+                Recorded motion, local information and the decisions behind each
+                survey.
+              </p>
             </div>
             <button id="snapshot" class="button secondary">
               <svg><use href="#i-download" /></svg>Save map
@@ -101,21 +122,35 @@
           <div id="source-strip" class="source-strip">
             <span class="verified-mark">✓</span
             ><span id="source-label">Loading recorded evidence…</span
-            ><button class="text-button" data-view="evidence">Inspect study <span>↗</span></button>
+            ><button class="text-button" data-view="evidence">
+              Inspect study <span>↗</span>
+            </button>
           </div>
           <div class="lab-layout">
             <div class="mission-main">
               <article class="map-card">
                 <div class="card-top">
                   <div>
-                    <span class="live-tag"><i></i>MISSION REPLAY</span>
-                    <h2 id="active-policy">S4-T <span>Trend-triggered reservation</span></h2>
+                    <span class="live-tag">VERIFIED RECORDED EVENTS</span>
+                    <h2 id="active-policy">
+                      S4-T <span>Trend-triggered reservation</span>
+                    </h2>
                   </div>
                   <div class="map-tools">
-                    <label><input id="show-trails" type="checkbox" checked />Trails</label
-                    ><label><input id="show-queues" type="checkbox" checked />Tasks</label
+                    <label
+                      ><input
+                        id="show-trails"
+                        type="checkbox"
+                        checked
+                      />Trails</label
+                    ><label
+                      ><input
+                        id="show-queues"
+                        type="checkbox"
+                        checked
+                      />Tasks</label
                     ><select id="knowledge" aria-label="Coverage layer">
-                      <option value="global">Global coverage</option>
+                      <option value="global">Observer: global coverage</option>
                       <option value="0">Boat 1 knowledge</option>
                       <option value="1">Boat 2 knowledge</option>
                     </select>
@@ -128,19 +163,29 @@
                     role="img"
                   ></canvas>
                   <div class="map-caption">
-                    <span>400 × 240 m <b>·</b> 20 m cells</span><span id="map-clock">00:00</span>
+                    <span id="map-layer"
+                      >Observer view · observed cell centers</span
+                    ><span id="map-clock">00:00</span>
                   </div>
-                  <div class="north-mark" aria-hidden="true">N<br />↑</div>
                 </div>
                 <div class="map-legend">
-                  <span><i class="swatch covered"></i>Observed cell</span
+                  <span
+                    ><i class="swatch covered"></i>Known observed center</span
                   ><span><i class="swatch boat-one"></i>Boat 1</span
                   ><span><i class="swatch boat-two"></i>Boat 2</span
-                  ><span><i class="line-swatch"></i>Radio connection</span
-                  ><span id="queue-note">Tasks sampled every 10 s</span>
+                  ><span><i class="queue-swatch"></i>Unstarted reservation</span
+                  ><span><i class="target-swatch">×</i>Executing task</span>
+                </div>
+                <div class="replay-status">
+                  <span id="queue-note">Tasks sampled every 10 s</span
+                  ><span id="link-note">No radio sample yet</span>
                 </div>
                 <div class="playback">
-                  <button id="play" class="play-button" aria-label="Play simulation">
+                  <button
+                    id="play"
+                    class="play-button"
+                    aria-label="Play simulation"
+                  >
                     <svg><use href="#i-play" /></svg></button
                   ><span id="time-display" class="mono">00:00</span
                   ><input
@@ -157,17 +202,43 @@
                     <option value="60" selected>60×</option>
                     <option value="240">240×</option>
                     <option value="600">600×</option></select
-                  ><button id="restart" class="icon-button" aria-label="Restart replay">↺</button>
+                  ><button
+                    id="restart"
+                    class="icon-button"
+                    aria-label="Restart replay"
+                  >
+                    ↺
+                  </button>
+                </div>
+                <div class="timeline-context">
+                  <span id="slowdown-note">Loading progress condition…</span>
+                  <div class="jump-controls">
+                    <button
+                      class="text-button"
+                      id="jump-slowdown"
+                      type="button"
+                    >
+                      Slowdown onset ↗</button
+                    ><button class="text-button" id="jump-end" type="button">
+                      Mission end ↗
+                    </button>
+                  </div>
                 </div>
               </article>
+              <div class="observer-note" id="observer-note">
+                Global coverage is available to this viewer. Each boat acts on
+                its own knowledge and committed tasks.
+              </div>
               <div class="metric-grid" id="live-metrics">
                 <article class="metric">
-                  <span>OBSERVED COVERAGE</span><strong id="live-coverage">—</strong
+                  <span>GLOBAL COVERAGE</span
+                  ><strong id="live-coverage">—</strong
                   ><small id="live-cells">of 240 cells</small>
                   <div class="metric-progress"><i id="coverage-fill"></i></div>
                 </article>
                 <article class="metric">
-                  <span>RADIO SIGNAL</span><strong id="live-signal">—</strong
+                  <span>LAST RADIO SAMPLE</span
+                  ><strong id="live-signal">—</strong
                   ><small id="live-radio">No exchange yet</small>
                 </article>
                 <article class="metric">
@@ -175,15 +246,23 @@
                   ><small id="live-delivered">Payload bytes, no headers</small>
                 </article>
                 <article class="metric">
-                  <span>WARNING STATE</span><strong id="live-warning">—</strong
+                  <span>LAST RESERVATION DECISION</span
+                  ><strong id="live-warning">—</strong
                   ><small id="live-queues">Unstarted tasks per boat</small>
                 </article>
               </div>
+              <div
+                id="boat-states"
+                class="boat-state-grid"
+                aria-label="Per-boat knowledge and task state"
+              ></div>
             </div>
             <aside class="experiment-panel card">
               <div class="eyebrow">EXPERIMENT SETUP</div>
-              <h2>Same world.<br />Different decisions.</h2>
-              <p>All policies share the scenario’s fade and slowdown streams.</p>
+              <h2>Scenario & policy</h2>
+              <p>
+                All policies share the scenario’s fade and slowdown streams.
+              </p>
               <form id="run-form">
                 <label class="field"
                   >Random seed<input
@@ -200,9 +279,13 @@
                   <span>Progress condition</span>
                   <div class="segmented" id="slowdown-control">
                     <button type="button" data-slow="false">Balanced</button
-                    ><button type="button" data-slow="true" class="selected">Slowdown</button>
+                    ><button type="button" data-slow="true" class="selected">
+                      Slowdown
+                    </button>
                   </div>
-                  <small id="progress-description">Boat 1 at half speed for 300 s</small>
+                  <small id="progress-description"
+                    >Boat 1 at half speed for 300 s</small
+                  >
                 </div>
                 <label class="field"
                   >Mean fade duration<select id="length">
@@ -243,16 +326,30 @@
                 </details>
                 <button id="run-all" class="button primary" type="submit">
                   <svg><use href="#i-play" /></svg>Run all five policies</button
-                ><button id="run-one" class="button secondary full" type="button">
+                ><button
+                  id="run-one"
+                  class="button secondary full"
+                  type="button"
+                >
                   Run selected policy
                 </button>
               </form>
-              <div id="run-progress" class="run-progress" role="status" aria-live="polite" hidden>
-                <span id="run-status"></span><progress id="run-meter" value="0" max="5"></progress>
+              <div
+                id="run-progress"
+                class="run-progress"
+                role="status"
+                aria-live="polite"
+                hidden
+              >
+                <span id="run-status"></span
+                ><progress id="run-meter" value="0" max="5"></progress>
               </div>
               <div class="setup-note">
                 <svg><use href="#i-check" /></svg
-                ><span>Frozen margins: 4 dB.<br />New runs save to separate bundles.</span>
+                ><span
+                  >Frozen margins: 4 dB.<br />New runs save to separate
+                  bundles.</span
+                >
               </div>
             </aside>
           </div>
@@ -267,9 +364,49 @@
           </div>
           <div id="comparison" class="comparison-grid">
             <div class="empty">
-              Load a recorded comparison or run all five policies to compare the same scenario.
+              Load a recorded comparison or run all five policies to compare the
+              same scenario.
             </div>
           </div>
+          <p class="comparison-note">
+            All maps share the replay clock. Completed missions hold their
+            recorded final state. Each card labels its final outcome.
+          </p>
+          <article class="card forecast-card">
+            <div class="card-top">
+              <div>
+                <div class="eyebrow">CAUSAL FORECAST INSPECTOR</div>
+                <h2>What could the boat predict at this exchange?</h2>
+              </div>
+              <button
+                class="icon-button chart-export"
+                data-chart="forecast-chart"
+                aria-label="Download forecast chart"
+              >
+                ↓
+              </button>
+            </div>
+            <div class="forecast-layout">
+              <div id="forecast-chart" class="chart"></div>
+              <div class="forecast-explanation">
+                <span class="outcome" id="forecast-status"
+                  >No forecast yet</span
+                >
+                <p id="forecast-description">
+                  Seek to an exchange to inspect its stored forecast.
+                </p>
+                <p>
+                  Only delivered measurements at or before issuance enter the
+                  predictor. Four projected exchanges test whether two
+                  consecutive misses begin within the next three.
+                </p>
+                <p class="forecast-limit">
+                  The fade process has no guaranteed onset precursor. A warning
+                  is a model decision, not knowledge of the future.
+                </p>
+              </div>
+            </div>
+          </article>
           <div class="two-columns mission-charts">
             <article class="card chart-card">
               <div class="card-top">
@@ -285,9 +422,14 @@
                   ↓
                 </button>
               </div>
-              <div id="coverage-chart" class="chart" aria-label="Coverage over time chart"></div>
+              <div
+                id="coverage-chart"
+                class="chart"
+                aria-label="Coverage over time chart"
+              ></div>
               <p class="chart-note">
-                Exact observation times; a line ending below 100% indicates incomplete coverage.
+                Exact observation times; a line ending below 100% indicates
+                incomplete coverage.
               </p>
             </article>
             <article class="card chart-card">
@@ -304,9 +446,15 @@
                   ↓
                 </button>
               </div>
-              <div id="signal-chart" class="chart" aria-label="Signal over time chart"></div>
+              <div
+                id="signal-chart"
+                class="chart"
+                aria-label="Signal over time chart"
+              ></div>
               <p class="chart-note">
-                Received signal [dBm]. Red line: −90 dBm cutoff. Amber dots: committed warnings.
+                Observer signal samples every 10 s, including failed
+                opportunities. Red line: delivery cutoff. Amber dots: committed
+                warnings. Failed samples are not received by the predictor.
               </p>
             </article>
           </div>
@@ -349,16 +497,27 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
             </div>
             <div class="card-bottom">
               <span id="event-count"></span
-              ><a id="raw-download" class="text-button" href="#">Download full raw event log ↓</a>
+              ><a id="raw-download" class="text-button" href="#"
+                >Download full raw event log ↓</a
+              >
             </div>
           </article>
         </section>
-        <section id="view-evidence" class="view" aria-labelledby="evidence-title">
+        <section
+          id="view-evidence"
+          class="view"
+          aria-labelledby="evidence-title"
+        >
           <div class="page-heading">
             <div>
-              <div class="eyebrow">FROZEN STUDY · 30 PAIRED SEEDS PER CONDITION</div>
-              <h1 id="evidence-title">Evidence before conclusions<span>.</span></h1>
-              <p>900 evaluation missions. Five policies. Six controlled conditions.</p>
+              <div class="eyebrow">
+                FROZEN STUDY · 30 PAIRED SEEDS PER CONDITION
+              </div>
+              <h1 id="evidence-title">Study evidence<span>.</span></h1>
+              <p>
+                900 evaluation missions. Five policies. Six controlled
+                conditions.
+              </p>
             </div>
             <a class="button secondary" href="/api/download?name=runs.json"
               ><svg><use href="#i-download" /></svg>All run data</a
@@ -369,8 +528,9 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
             <div>
               <strong id="verified-count">900 raw logs reconstructed</strong>
               <p>
-                The short-queue policy stalls in this no-rendezvous model. Trend warnings show no
-                consistent advantage over the long-queue or persistence controls.
+                The short-queue policy stalls in this no-rendezvous model. Trend
+                warnings show no consistent advantage over the long-queue or
+                persistence controls.
               </p>
             </div>
           </div>
@@ -387,7 +547,9 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
                 <option value="10">10 exchanges</option>
               </select></label
             ><span id="condition-label">150 runs in this condition</span
-            ><a class="text-button" href="/api/download?name=condition-summary.csv"
+            ><a
+              class="text-button"
+              href="/api/download?name=condition-summary.csv"
               >Condition summaries CSV ↓</a
             >
           </div>
@@ -408,8 +570,9 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </div>
               <div id="time-chart" class="chart"></div>
               <p class="chart-note">
-                Mean restricted time [s], marginal 95% bootstrap intervals. Incomplete missions
-                contribute 7200 s; this is not a mean of completed missions alone.
+                Mean restricted time [s], marginal 95% bootstrap intervals.
+                Incomplete missions contribute 7200 s; this is not a mean of
+                completed missions alone.
               </p>
             </article>
             <article class="card chart-card">
@@ -428,8 +591,8 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </div>
               <div id="completion-chart" class="chart"></div>
               <p class="chart-note">
-                Completed missions out of 30 for each policy. These are descriptive proportions,
-                without confidence intervals.
+                Completed missions out of 30 for each policy. These are
+                descriptive proportions, without confidence intervals.
               </p>
             </article>
           </div>
@@ -450,8 +613,9 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </div>
               <div id="contrast-chart" class="chart"></div>
               <p class="chart-note">
-                S4-T minus comparator [s]. Negative favors S4-T. Whole seeds are resampled together
-                within each condition. Intervals are marginal, without a family-wise claim.
+                S4-T minus comparator [s]. Negative favors S4-T. Whole seeds are
+                resampled together within each condition. Intervals are
+                marginal, without a family-wise claim.
               </p>
             </article>
             <article class="card chart-card">
@@ -470,8 +634,9 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </div>
               <div id="bytes-chart" class="chart"></div>
               <p class="chart-note">
-                Mean attempted and delivered serialized payload [kB], decimal units. Failed radio
-                attempts count; network headers are excluded.
+                Mean attempted and delivered serialized payload [kB], decimal
+                units. Failed radio attempts count; network headers are
+                excluded.
               </p>
             </article>
           </div>
@@ -485,9 +650,10 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </div>
               <div id="warning-chart" class="chart"></div>
               <p class="chart-note">
-                Held-out replay pooled across 180 fixed-route scenarios. Precision: correct alerts /
-                alerts. Recall: detected outages / eligible outages. F1 balances both; event and
-                boundary rules apply.
+                Held-out replay pooled across 180 fixed-route scenarios.
+                Precision: correct alerts / alerts. Recall: detected outages /
+                eligible outages. F1 balances both; event and boundary rules
+                apply.
               </p>
             </article>
             <article class="card chart-card">
@@ -499,8 +665,9 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </div>
               <div id="work-chart" class="chart"></div>
               <p class="chart-note">
-                Mean binary64 arithmetic operations per mission, pooled across all six conditions.
-                Logs, square roots and logical tests are recorded separately. No energy conversion.
+                Mean binary64 arithmetic operations per mission, pooled across
+                all six conditions. Logs, square roots and logical tests are
+                recorded separately. No energy conversion.
               </p>
             </article>
           </div>
@@ -510,15 +677,18 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
                 <div class="eyebrow">HOST BENCHMARK</div>
                 <h2>Measure the implementation.</h2>
               </div>
-              <a class="text-button" href="/api/download?name=host-benchmark.json"
+              <a
+                class="text-button"
+                href="/api/download?name=host-benchmark.json"
                 >Procedure & batches ↓</a
               >
             </div>
             <div id="host-metrics" class="host-metrics"></div>
             <p class="chart-note padded">
-              Host-specific repeated CPU measurements on saved inputs, separate from mission
-              outcomes. Total process memory includes Python, NumPy and the geometry cache;
-              incremental Python allocations are a different measure.
+              Host-specific repeated CPU measurements on saved inputs, separate
+              from mission outcomes. Total process memory includes Python, NumPy
+              and the geometry cache; incremental Python allocations are a
+              different measure.
             </p>
           </article>
           <article class="card data-card">
@@ -553,35 +723,48 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               </table>
             </div>
             <div class="card-bottom">
-              <span id="runs-count"></span><span>Click Replay to inspect a raw trace.</span>
+              <span id="runs-count"></span
+              ><span>Click Replay to inspect a raw trace.</span>
             </div>
           </article>
           <details class="card provenance">
             <summary>Design, provenance & interpretation</summary>
             <p>
-              The two boats move on a Manhattan grid, observe cell centers, and exchange bounded
-              atomic messages. Radio fades and speed disturbances are pre-generated independently of
-              policy. There is no collision avoidance, reconnection controller, calibrated
+              The two boats move on a Manhattan grid, observe cell centers, and
+              exchange bounded atomic messages. Radio fades and speed
+              disturbances are pre-generated independently of policy. There is
+              no collision avoidance, reconnection controller, calibrated
               hydrodynamics, energy measurement, or measured map accuracy.
             </p>
             <p>
-              Completion ends at full observed coverage; return and upload are excluded. Pilot seeds
-              0–9 select warning margins; evaluation seeds 1000–1029 remain separate. Both margins
-              are frozen at 4 dB. Physical claims need independent measurements.
+              Completion ends at full observed coverage; return and upload are
+              excluded. Pilot seeds 0–9 select warning margins; evaluation seeds
+              1000–1029 remain separate. Both margins are frozen at 4 dB.
+              Physical claims need independent measurements.
             </p>
-            <div class="hash-row"><span>DESIGN SHA-256</span><code id="design-hash"></code></div>
+            <div class="hash-row">
+              <span>DESIGN SHA-256</span><code id="design-hash"></code>
+            </div>
             <pre id="provenance-json"></pre>
             <a class="text-button" href="/api/download?name=frozen-design.json"
               >Download frozen design ↓</a
             >
           </details>
         </section>
-        <section id="view-presentation" class="view" aria-labelledby="presentation-title">
+        <section
+          id="view-presentation"
+          class="view"
+          aria-labelledby="presentation-title"
+        >
           <div class="page-heading">
             <div>
               <div class="eyebrow">A GUIDED WALK THROUGH THE EXPERIMENT</div>
-              <h1 id="presentation-title">From mechanism to evidence<span>.</span></h1>
-              <p>Five scenes, using the recorded study and your active mission.</p>
+              <h1 id="presentation-title">
+                From mechanism to evidence<span>.</span>
+              </h1>
+              <p>
+                Five scenes, using the recorded study and your active mission.
+              </p>
             </div>
             <button id="fullscreen" class="button secondary">
               <svg><use href="#i-expand" /></svg>Full screen
@@ -589,40 +772,54 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
           </div>
           <div class="presentation-shell">
             <div class="slide-count">
-              <span id="slide-number">01 / 05</span><span>II2202 · SYNTHETIC EXPERIMENT</span
+              <span id="slide-number">01 / 05</span
+              ><span>II2202 · SYNTHETIC EXPERIMENT</span
               ><button id="exit-presentation" class="text-button" hidden>
                 Exit focused view ×
               </button>
             </div>
             <div id="slide-content"></div>
             <div class="slide-controls">
-              <button id="previous-slide" class="button secondary">← Previous</button>
+              <button id="previous-slide" class="button secondary">
+                ← Previous
+              </button>
               <div id="slide-dots"></div>
-              <button id="next-slide" class="button primary">Next scene →</button>
+              <button id="next-slide" class="button primary">
+                Next scene →
+              </button>
             </div>
           </div>
           <p class="presentation-note">
-            Use ← / → keys to navigate. The mission scene uses the main replay controls. Browser
-            Print exports the current scene. This presentation reflects the observed results,
-            including incomplete missions.
+            Use ← / → keys to navigate. The mission scene uses the main replay
+            controls. Browser Print exports the current scene. This presentation
+            reflects the observed results, including incomplete missions.
           </p>
         </section>
-        <section id="view-activity" class="view" aria-labelledby="activity-title">
+        <section
+          id="view-activity"
+          class="view"
+          aria-labelledby="activity-title"
+        >
           <div class="page-heading">
             <div>
               <div class="eyebrow">AUTOMATION & TRACEABILITY</div>
-              <h1 id="activity-title">Nothing disappears into a run<span>.</span></h1>
-              <p>Settings, source, raw events, verification and exports stay together.</p>
+              <h1 id="activity-title">Runs & verification<span>.</span></h1>
+              <p>
+                Settings, source, raw events, verification and exports stay
+                together.
+              </p>
             </div>
-            <button id="refresh-jobs" class="button secondary">Refresh activity ↺</button>
+            <button id="refresh-jobs" class="button secondary">
+              Refresh activity ↺
+            </button>
           </div>
           <div class="automation-grid">
             <article class="card">
               <span class="step-number">01</span>
               <h2>Check the implementation</h2>
               <p>
-                Run motion, protocol, forecast, evidence and dashboard tests. Retain the full test
-                output.
+                Run motion, protocol, forecast, evidence and dashboard tests.
+                Retain the full test output.
               </p>
               <button class="button secondary" data-action="tests">
                 Run test suite <svg><use href="#i-arrow" /></svg>
@@ -632,7 +829,8 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               <span class="step-number">02</span>
               <h2>Rehearse the workflow</h2>
               <p>
-                Tests → five paired missions → raw-log verification → figures → evidence archive.
+                Tests → five paired missions → raw-log verification → figures →
+                evidence archive.
               </p>
               <button class="button primary" data-action="smoke">
                 Run smoke workflow <svg><use href="#i-arrow" /></svg>
@@ -642,8 +840,8 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
               <span class="step-number">03</span>
               <h2>Reproduce the full study</h2>
               <p>
-                Tests → 900 frozen evaluation missions → statistical analysis → publication figures.
-                Uses two workers; allow several minutes.
+                Tests → 900 frozen evaluation missions → statistical analysis →
+                publication figures. Uses two workers; allow several minutes.
               </p>
               <button class="button secondary" data-action="full">
                 Run 900-mission workflow <svg><use href="#i-arrow" /></svg>
@@ -665,22 +863,25 @@ Raw decision fields appear here. Select a row to move the replay to that exchang
             <div class="eyebrow">TAKE THE CONTEXT WITH YOU</div>
             <h2>One repository, a shared research record.</h2>
             <p>
-              <code>AGENTS.md</code> gives tools the scientific rules and commands.
-              <code>code/docs/agent-handoff.md</code> records the architecture, current findings and
-              next steps. <code>code/docs/work-log.md</code> records completed work and its
-              verification. The dashboard guide explains every control and metric.
+              <code>AGENTS.md</code> gives tools the scientific rules and
+              commands. <code>code/docs/agent-handoff.md</code> records the
+              architecture, current findings and next steps.
+              <code>code/docs/work-log.md</code> records completed work and its
+              verification. The dashboard guide explains every control and
+              metric.
             </p>
             <div class="command-block">
-              python -m usv_sim.dashboard<br />python -m usv_sim.workflow --preset smoke<br />python
-              -m usv_sim.workflow --preset full --workers 4
+              python -m usv_sim.dashboard<br />python -m usv_sim.workflow
+              --preset smoke<br />python -m usv_sim.workflow --preset full
+              --workers 4
             </div>
           </article>
         </section>
         <footer class="page-footer">
           <span>USV RESEARCH LAB <b>·</b> REPRODUCIBLE BY DESIGN</span
           ><span
-            >Synthetic results support this model only. No measured energy or vessel-lifetime
-            claim.</span
+            >Synthetic results support this model only. No measured energy or
+            vessel-lifetime claim.</span
           >
         </footer>
       </main>

@@ -34,7 +34,10 @@ const state = {
 const esc = (value) =>
   String(value ?? "").replace(
     /[&<>"']/g,
-    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c],
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
   );
 const fmt = (n, digits = 0) =>
   n == null
@@ -63,17 +66,22 @@ async function api(url, body) {
   const options = body
     ? {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Lab-Token": state.catalog.token },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Lab-Token": state.catalog.token,
+        },
         body: JSON.stringify(body),
       }
     : {};
   const response = await fetch(url, options);
   const result = await response.json();
-  if (!response.ok) throw Error(result.error || `Request failed (${response.status})`);
+  if (!response.ok)
+    throw Error(result.error || `Request failed (${response.status})`);
   return result;
 }
 function view(name) {
-  if (!["mission", "evidence", "presentation", "activity"].includes(name)) name = "mission";
+  if (!["mission", "evidence", "presentation", "activity"].includes(name))
+    name = "mission";
   state.view = name;
   document
     .querySelectorAll(".view")
@@ -130,7 +138,12 @@ function setSetup(req) {
     : "Both boats maintain 2 m/s";
   document
     .querySelectorAll("[data-slow]")
-    .forEach((e) => e.classList.toggle("selected", (e.dataset.slow === "true") === state.slowdown));
+    .forEach((e) =>
+      e.classList.toggle(
+        "selected",
+        (e.dataset.slow === "true") === state.slowdown,
+      ),
+    );
 }
 async function loadSelected(reset = false) {
   const generation = ++state.generation;
@@ -142,7 +155,8 @@ async function loadSelected(reset = false) {
       ? state.traces[policy]
       : await api(urlForTrace(policy));
     if (generation !== state.generation) return;
-    if (Object.values(state.traces).some((d) => !traceMatches(d, req, dataset))) state.traces = {};
+    if (Object.values(state.traces).some((d) => !traceMatches(d, req, dataset)))
+      state.traces = {};
     state.traces[policy] = trace;
     state.active = policy;
     if (reset) state.t = 0;
@@ -160,18 +174,25 @@ function activateTrace() {
   const trace = activeTrace();
   if (!trace) return;
   const r = trace.result;
-  $("active-policy").innerHTML = `${esc(trace.policy)} <span>${NAMES[trace.policy]}</span>`;
-  const maximum = Math.max(...Object.values(state.traces).map((d) => d.result.stop_s));
+  $("active-policy").innerHTML =
+    `${esc(trace.policy)} <span>${NAMES[trace.policy]}</span>`;
+  const maximum = Math.max(
+    ...Object.values(state.traces).map((d) => d.result.stop_s),
+  );
   $("timeline").max = maximum;
   $("duration-display").textContent = clock(maximum);
   state.t = Math.min(state.t, maximum);
   $("timeline").value = state.t;
-  const label = trace.dataset === "core" ? "Frozen evaluation trace" : "Separate run bundle";
+  const label =
+    trace.dataset === "core"
+      ? "Frozen evaluation trace"
+      : "Separate run bundle";
   $("source-label").textContent =
     `${label} · seed ${r.seed} · ${r.slowdown ? "slowdown" : "balanced"} · L=${r.fade_length} · n=${r.path_exponent} · independently verified`;
   $("raw-download").href =
     `/api/raw?dataset=${encodeURIComponent(trace.dataset)}&run=${encodeURIComponent(trace.name)}`;
-  $("queue-note").textContent = `Tasks sampled every ${trace.config.exchange_s} s`;
+  $("queue-note").textContent =
+    `Tasks sampled every ${trace.config.exchange_s} s`;
 }
 function frameAt(trace, t) {
   const frames = trace.frames;
@@ -189,7 +210,12 @@ function trackAt(trace, t) {
   const a = trace.tracks[Math.floor(time)] || trace.tracks.at(-1);
   const b = trace.tracks[Math.ceil(time)] || a;
   const fraction = time - Math.floor(time);
-  return [time, ...a.slice(1, 5).map((v, i) => v + fraction * (b[i + 1] - v)), a[5], a[6]];
+  return [
+    time,
+    ...a.slice(1, 5).map((v, i) => v + fraction * (b[i + 1] - v)),
+    a[5],
+    a[6],
+  ];
 }
 function canvasContext(canvas) {
   const box = canvas.getBoundingClientRect();
@@ -205,6 +231,26 @@ function canvasContext(canvas) {
   ctx.setTransform(scale, 0, 0, scale, 0, 0);
   return { ctx, width: box.width, height: box.height };
 }
+function localKnowledge(trace, frame, t, boat) {
+  const known = new Set(frame.known?.[boat] || []);
+  for (const [at, id, task] of trace.observations)
+    if (at > frame.t && at <= t && boat === id) known.add(task);
+  return known;
+}
+function taskStateAt(trace, t) {
+  const states = trace.motion_states;
+  if (states?.length) {
+    let low = 0,
+      high = states.length - 1;
+    while (low < high) {
+      const middle = Math.ceil((low + high) / 2);
+      if (states[middle].t <= t) low = middle;
+      else high = middle - 1;
+    }
+    return { ...states[low], exact: true };
+  }
+  return { ...frameAt(trace, t), exact: false };
+}
 function drawMap(canvas, trace, time, mini = false) {
   const surface = canvasContext(canvas);
   if (!surface || !trace) return;
@@ -213,66 +259,87 @@ function drawMap(canvas, trace, time, mini = false) {
   const t = Math.min(time, trace.result.stop_s);
   const frame = frameAt(trace, t);
   const track = trackAt(trace, t);
-  const paddingX = mini ? 12 : width < 400 ? 28 : 48,
-    paddingY = mini ? 10 : 38;
-  const cell = Math.min((width - 2 * paddingX) / c.width, (height - 2 * paddingY) / c.height);
+  const tasks = taskStateAt(trace, t);
+  const paddingX = mini ? 9 : width < 400 ? 37 : 55,
+    paddingY = mini ? 10 : 41;
+  const cell = Math.min(
+    (width - 2 * paddingX) / c.width,
+    (height - 2 * paddingY) / c.height,
+  );
   const ox = (width - c.width * cell) / 2,
     oy = (height - c.height * cell) / 2;
-  const project = (x, y) => [ox + (x / c.cell_m) * cell, oy + (c.height - y / c.cell_m) * cell];
+  const project = (x, y) => [
+    ox + (x / c.cell_m) * cell,
+    oy + (c.height - y / c.cell_m) * cell,
+  ];
   const cellXY = (id) => [
     ox + (id % c.width) * cell,
     oy + (c.height - 1 - Math.floor(id / c.width)) * cell,
   ];
   ctx.clearRect(0, 0, width, height);
-  ctx.fillStyle = "#eaf1ee";
+  ctx.fillStyle = "#f2f6f3";
   ctx.fillRect(0, 0, width, height);
-  // Subtle contour curves are decorative; the computational world is the grid.
-  if (!mini) {
-    ctx.strokeStyle = "#d9e5de";
-    ctx.lineWidth = 0.6;
-    for (let i = 0; i < 7; i++) {
-      ctx.beginPath();
-      ctx.ellipse(
-        width * 0.7,
-        height * 0.7,
-        width * (0.34 + i * 0.08),
-        height * (0.34 + i * 0.08),
-        -0.2,
-        0,
-        2 * Math.PI,
-      );
-      ctx.stroke();
-    }
-  }
   let known = null;
   const layer = $("knowledge").value;
-  if (!mini && layer !== "global") {
-    const boat = +layer;
-    known = new Set(frame.known[boat]);
-    for (const [at, id, task] of trace.observations)
-      if (at > frame.t && at <= t && boat === id) known.add(task);
-  }
+  if (!mini && layer !== "global")
+    known = localKnowledge(trace, frame, t, +layer);
   for (let id = 0; id < c.width * c.height; id++) {
-    const seen = known ? known.has(id) : trace.first_seen[id] != null && trace.first_seen[id] <= t;
+    const seen = known
+      ? known.has(id)
+      : trace.first_seen[id] != null && trace.first_seen[id] <= t;
     const [x, y] = cellXY(id);
-    ctx.fillStyle = seen ? "#b7d3c1" : "#f4f7f1";
+    ctx.fillStyle = seen ? "#bdd8c9" : "#fcfdfa";
     ctx.fillRect(x, y, cell, cell);
-    ctx.strokeStyle = seen ? "#a9c7b5" : "#d6e1d7";
+    ctx.strokeStyle = seen ? "#a9c7b5" : "#d5e1d8";
     ctx.lineWidth = 0.5;
     ctx.strokeRect(x, y, cell, cell);
+    if (seen && !mini) {
+      ctx.fillStyle = "#638f7c";
+      ctx.beginPath();
+      ctx.arc(
+        x + cell / 2,
+        y + cell / 2,
+        Math.max(0.8, cell * 0.045),
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+    }
   }
-  if ($("show-queues").checked && frame.queues)
-    frame.queues.forEach((queue, boat) => {
+  if ($("show-queues").checked && tasks.queues)
+    tasks.queues.forEach((queue, boat) => {
       ctx.strokeStyle = BOAT[boat];
-      ctx.lineWidth = mini ? 0.8 : 1.3;
-      for (const id of queue) {
+      ctx.lineWidth = mini ? 0.8 : 1.6;
+      ctx.setLineDash(tasks.exact ? [] : [3, 2]);
+      for (const [index, id] of queue.entries()) {
         const [x, y] = cellXY(id);
-        ctx.strokeRect(x + cell * 0.18, y + cell * 0.18, cell * 0.64, cell * 0.64);
+        ctx.strokeRect(
+          x + cell * 0.18,
+          y + cell * 0.18,
+          cell * 0.64,
+          cell * 0.64,
+        );
+        if (!mini && cell >= 17) {
+          ctx.fillStyle = BOAT[boat];
+          ctx.font = `600 ${Math.min(10, cell * 0.42)}px Segoe UI`;
+          ctx.textAlign = "center";
+          ctx.fillText(index + 1, x + cell / 2, y + cell * 0.66);
+          ctx.textAlign = "left";
+        }
       }
-      if (frame.targets?.[boat] != null) {
-        const [x, y] = cellXY(frame.targets[boat]);
-        ctx.fillStyle = BOAT[boat] + "44";
+      ctx.setLineDash([]);
+      if (tasks.targets?.[boat] != null) {
+        const [x, y] = cellXY(tasks.targets[boat]);
+        ctx.fillStyle = BOAT[boat] + "25";
         ctx.fillRect(x + 1, y + 1, cell - 2, cell - 2);
+        ctx.strokeStyle = BOAT[boat];
+        ctx.strokeRect(x + 1.5, y + 1.5, cell - 3, cell - 3);
+        ctx.beginPath();
+        ctx.moveTo(x + cell * 0.3, y + cell * 0.3);
+        ctx.lineTo(x + cell * 0.7, y + cell * 0.7);
+        ctx.moveTo(x + cell * 0.7, y + cell * 0.3);
+        ctx.lineTo(x + cell * 0.3, y + cell * 0.7);
+        ctx.stroke();
       }
     });
   if ($("show-trails").checked)
@@ -282,78 +349,67 @@ function drawMap(canvas, trace, time, mini = false) {
       ctx.globalAlpha = mini ? 0.42 : 0.65;
       ctx.lineWidth = mini ? 1 : 1.4;
       let previous = null;
-      for (let i = 0; i <= Math.floor(t) && i < trace.tracks.length; i += mini ? 4 : 2) {
+      // Keep every turn in the recorded polyline. Decimation can cut corners.
+      for (let i = 0; i <= Math.floor(t) && i < trace.tracks.length; i++) {
         const record = trace.tracks[i],
           point = project(record[1 + boat * 2], record[2 + boat * 2]);
         if (!previous) ctx.moveTo(...point);
-        else if (point[0] !== previous[0] || point[1] !== previous[1]) ctx.lineTo(...point);
+        else if (point[0] !== previous[0] || point[1] !== previous[1])
+          ctx.lineTo(...point);
         previous = point;
       }
+      ctx.lineTo(...project(track[1 + boat * 2], track[2 + boat * 2]));
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
   const points = [project(track[1], track[2]), project(track[3], track[4])];
-  if (!trace.headings) {
-    let headings = [0, 0];
-    trace.headings = trace.tracks.map((record, i) => {
-      if (i)
-        for (let boat = 0; boat < 2; boat++) {
-          const previous = trace.tracks[i - 1],
-            dx = record[1 + boat * 2] - previous[1 + boat * 2],
-            dy = record[2 + boat * 2] - previous[2 + boat * 2];
-          if (dx || dy) headings[boat] = Math.atan2(-dy, dx) + Math.PI / 2;
-        }
-      return [...headings];
-    });
-  }
   if (frame.radio != null) {
+    // The channel is evaluated only at exchanges. Anchor the link to those
+    // sampled positions instead of implying it was measured at the moving boats.
+    const radioPoints = frame.xy?.map((xy) => project(...xy)) || points;
     ctx.beginPath();
-    ctx.strokeStyle = frame.radio ? "#538d7a" : "#b77e67";
-    ctx.lineWidth = mini ? 0.8 : 1;
-    ctx.setLineDash(frame.radio ? [3, 4] : [5, 5]);
-    ctx.moveTo(...points[0]);
-    ctx.lineTo(...points[1]);
+    ctx.strokeStyle = frame.radio ? "#648678" : "#bd654e";
+    ctx.lineWidth = mini ? 0.8 : 1.3;
+    ctx.setLineDash(frame.radio ? [3, 4] : [7, 4]);
+    ctx.moveTo(...radioPoints[0]);
+    ctx.lineTo(...radioPoints[1]);
     ctx.stroke();
     ctx.setLineDash([]);
+    if (!mini)
+      radioPoints.forEach(([x, y]) => {
+        ctx.strokeRect(x - 3, y - 3, 6, 6);
+      });
   }
   points.forEach(([x, y], boat) => {
-    const size = mini ? 3.5 : 6.5;
-    if (!mini) {
-      ctx.beginPath();
-      ctx.fillStyle = BOAT[boat] + "18";
-      ctx.arc(x, y, 14, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(trace.headings[Math.floor(t)][boat]);
     ctx.beginPath();
     ctx.fillStyle = BOAT[boat];
     ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = mini ? 0.8 : 1.5;
-    ctx.moveTo(0, -size * 1.45);
-    ctx.lineTo(size, size);
-    ctx.lineTo(0, size * 0.65);
-    ctx.lineTo(-size, size);
-    ctx.closePath();
+    ctx.lineWidth = mini ? 1 : 2;
+    ctx.arc(x, y, mini ? 4.2 : 9, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
-    ctx.restore();
     if (!mini) {
-      ctx.fillStyle = BOAT[boat];
-      ctx.font = "600 9px Segoe UI";
-      ctx.fillText(`0${boat + 1}`, x + 10, y - 9);
+      ctx.fillStyle = "white";
+      ctx.font = "700 10px Segoe UI";
+      ctx.textAlign = "center";
+      ctx.fillText(boat + 1, x, y + 3.5);
+      ctx.textAlign = "left";
     }
   });
   if (!mini) {
-    ctx.font = "8px Segoe UI";
-    ctx.fillStyle = "#829b8e";
+    ctx.font = "11px Segoe UI";
+    ctx.fillStyle = "#607a6f";
     ctx.textAlign = "center";
     for (let x = 0; x <= c.width; x += 5)
-      ctx.fillText(`${x * c.cell_m}`, ox + x * cell, oy + c.height * cell + 13);
+      ctx.fillText(`${x * c.cell_m}`, ox + x * cell, oy + c.height * cell + 17);
     ctx.textAlign = "right";
     for (let y = 0; y <= c.height; y += 4)
       ctx.fillText(`${y * c.cell_m}`, ox - 9, oy + (c.height - y) * cell + 3);
+    ctx.textAlign = "left";
+    ctx.font = "600 10px Segoe UI";
+    ctx.fillText("y [m]", 9, oy - 13);
+    ctx.textAlign = "right";
+    ctx.fillText("x [m]", ox + c.width * cell, oy + c.height * cell + 31);
     ctx.textAlign = "left";
   }
 }
@@ -368,22 +424,29 @@ function drawAll() {
     drawMap(card.querySelector("canvas"), data, state.t, true);
     card.querySelector(".compare-coverage").textContent =
       `${fmt((100 * data.first_seen.filter((v) => v != null && v <= Math.min(state.t, data.result.stop_s)).length) / data.first_seen.length, 1)}%`;
+    card.querySelector(".compare-clock").textContent =
+      state.t >= data.result.stop_s
+        ? `Final state · ${clock(data.result.stop_s)}`
+        : `At ${clock(state.t)}`;
   });
   const n = trace.first_seen.filter((v) => v != null && v <= t).length;
-  $("live-coverage").innerHTML = `${fmt((n / trace.first_seen.length) * 100, 1)}<em> %</em>`;
+  $("live-coverage").innerHTML =
+    `${fmt((n / trace.first_seen.length) * 100, 1)}<em> %</em>`;
   $("live-cells").textContent =
     `${n} of ${trace.first_seen.length} cells${t >= trace.result.stop_s ? " · final" : ""}`;
   $("coverage-fill").style.width = `${(n / trace.first_seen.length) * 100}%`;
-  $("live-signal").innerHTML = f.r == null ? "—" : `${fmt(f.r, 1)}<em> dBm</em>`;
+  $("live-signal").innerHTML =
+    f.r == null ? "—" : `${fmt(f.r, 1)}<em> dBm</em>`;
   $("live-radio").textContent = f.terminal
     ? "Mission ended · no new exchange"
     : f.radio == null
       ? "No exchange yet"
       : f.radio
-        ? "Available at last exchange"
-        : "Unavailable at last exchange";
+        ? `Available at ${fmt(f.t)} s · ${fmt(t - f.t, 1)} s ago`
+        : `Unavailable at ${fmt(f.t)} s · ${fmt(t - f.t, 1)} s ago`;
   $("live-bytes").innerHTML = `${fmt(f.sent_bytes / 1000, 1)}<em> kB</em>`;
-  $("live-delivered").textContent = `${fmt(f.received_bytes / 1000, 1)} kB delivered`;
+  $("live-delivered").textContent =
+    `${fmt(f.received_bytes / 1000, 1)} kB delivered`;
   $("live-warning").textContent = f.terminal
     ? "Ended"
     : !trace.policy.startsWith("S4")
@@ -393,12 +456,17 @@ function drawAll() {
         : f.warning
           ? "Positive"
           : "Negative";
-  $("live-queues").textContent = f.queues
-    ? `Queues: ${f.queues.map((q) => q.length).join(" / ")} unstarted tasks`
-    : "Terminal queues not recorded";
-  $("map-clock").textContent = `${clock(t)}${t >= trace.result.stop_s ? " · END" : " SIM"}`;
+  $("live-queues").textContent = f.terminal
+    ? "Mission ended"
+    : !f.committed
+      ? "No allocation committed at this sample"
+      : `At ${fmt(f.t)} s · ${fmt(t - f.t, 1)} s ago`;
+  $("map-clock").textContent =
+    `${clock(t)}${t >= trace.result.stop_s ? " · END" : " SIM"}`;
   $("time-display").textContent = clock(state.t);
   $("timeline").value = state.t;
+  renderStateContext(trace, t, f, n);
+  renderForecast(trace, t);
   document.querySelectorAll(".time-cursor").forEach((line) => {
     const x = 48 + (432 * state.t) / +line.dataset.duration;
     line.setAttribute("x1", Math.min(480, x));
@@ -407,13 +475,71 @@ function drawAll() {
   const slideMap = $("slide-map");
   if (slideMap) drawMap(slideMap, trace, state.t);
 }
+function renderStateContext(trace, t, frame, observedCount) {
+  const c = trace.config,
+    tasks = taskStateAt(trace, t),
+    track = trackAt(trace, t);
+  const layer = $("knowledge").value;
+  $("map-layer").textContent =
+    layer === "global"
+      ? "Observer view · observed cell centers"
+      : `Boat ${+layer + 1} local knowledge`;
+  $("observer-note").textContent =
+    layer === "global"
+      ? "Observer view combines both boats’ observations. The allocator receives shared state only at successful exchanges. Cell shading records a center visit; it does not show measured bathymetry or a sonar footprint."
+      : `This layer shows boat ${+layer + 1}’s known observations. Both true positions and task overlays remain observer records. Cell shading is bookkeeping for center visits, not measured seabed data.`;
+  $("queue-note").textContent =
+    tasks.queues == null
+      ? "Task state unavailable in this legacy end frame"
+      : tasks.exact
+        ? `Task state at ${fmt(tasks.t)} s · 1 s records`
+        : `Task snapshot at ${fmt(tasks.t)} s · ${fmt(t - tasks.t, 1)} s old`;
+  $("link-note").textContent =
+    frame.radio == null
+      ? "No radio sample in this frame"
+      : `Link at ${fmt(frame.t)} s: ${frame.radio ? "available" : "unavailable"}${trace.policy === "S1" ? " · diagnostic; S1 sends no messages" : " · squares mark sampled positions"}`;
+  const onset = trace.scenario.onset_s,
+    end = onset + c.slowdown_s;
+  const hasSlowdown = trace.scenario.slowdown;
+  const phase = !hasSlowdown
+    ? "Balanced progress · nominal speed 2 m/s"
+    : t < onset
+      ? `Boat 1 slowdown scheduled at ${fmt(onset)}–${fmt(end)} s`
+      : t < end
+        ? `Boat 1 slowdown active · ${fmt(c.speed_mps * c.slowdown_factor, 1)} m/s until ${fmt(end)} s`
+        : `Boat 1 slowdown ended at ${fmt(end)} s · nominal speed restored`;
+  $("slowdown-note").textContent =
+    phase +
+    (hasSlowdown && trace.result.stop_s < onset
+      ? " · mission ends before onset"
+      : "");
+  $("slowdown-note").classList.toggle(
+    "slowdown-active",
+    hasSlowdown && t >= onset && t < end,
+  );
+  $("jump-slowdown").hidden = !hasSlowdown || onset > trace.result.stop_s;
+  const key = `${trace.raw_sha256}:${Math.floor(t)}:${layer}`;
+  if ($("boat-states").dataset.key === key) return;
+  $("boat-states").dataset.key = key;
+  $("boat-states").innerHTML = [0, 1]
+    .map((boat) => {
+      const known = localKnowledge(trace, frame, t, boat);
+      const gap = observedCount - known.size;
+      const queue = tasks.queues?.[boat],
+        target = tasks.targets?.[boat];
+      const mode = tasks.modes?.[boat]?.replaceAll("_", " ");
+      const position = `(${fmt(track[1 + boat * 2], 1)}, ${fmt(track[2 + boat * 2], 1)}) m`;
+      return `<article class="boat-state" style="--boat-color:${BOAT[boat]}"><div class="boat-state-title"><span><i>${boat + 1}</i>Boat ${boat + 1}</span><span class="boat-position">${position}</span></div><dl><div><dt>Locally known</dt><dd>${known.size} / ${c.width * c.height} cells</dd></div><div><dt>Missing observed cells</dt><dd>${gap} <small>· ${fmt((100 * gap) / (c.width * c.height), 1)}% of grid</small></dd></div><div><dt>${tasks.exact ? "Executing target" : "Sampled target"}</dt><dd>${target == null ? (queue == null ? "Unavailable" : "None") : `Cell ${target}`}</dd></div><div><dt>Unstarted reservations</dt><dd>${queue == null ? "Unavailable" : queue.length}</dd></div>${mode ? `<div><dt>Recorded activity</dt><dd>${esc(mode)}</dd></div><div><dt>Commanded speed</dt><dd>${fmt(tasks.speed_mps[boat], 1)} m/s</dd></div>` : ""}</dl><p>${tasks.exact ? `Task state recorded at ${fmt(tasks.t)} s. Commanded speed is not translation during a turn or idle.` : queue == null ? "Legacy log omits terminal tasks." : `Tasks sampled at ${fmt(tasks.t)} s; may change between exchanges.`}</p></article>`;
+    })
+    .join("");
+}
 function renderComparison() {
   const entries = POLICIES.filter((p) => state.traces[p]);
   if (!entries.length) return;
   $("comparison").innerHTML = entries
     .map((p) => {
       const r = state.traces[p].result;
-      return `<button class="compare-card ${p === state.active ? "selected" : ""}" data-policy="${p}" style="--policy-color:${COLORS[p]}" aria-label="Inspect ${p}, ${NAMES[p]}"><div class="compare-top"><span>${p}</span><span class="compare-outcome">${r.complete ? "Complete" : "Cutoff"} · ${fmt(r.stop_s)} s</span></div><canvas aria-label="${p} synchronized mission map"></canvas><div class="compare-bottom"><span><strong class="compare-coverage">0%</strong> observed</span><span>${fmt(r.attempted_bytes / 1000)} kB final</span></div></button>`;
+      return `<button class="compare-card ${p === state.active ? "selected" : ""}" data-policy="${p}" style="--policy-color:${COLORS[p]}" aria-label="Inspect ${p}, ${NAMES[p]}" aria-pressed="${p === state.active}"><div class="compare-top"><span>${p}</span><span class="compare-outcome ${r.complete ? "" : "incomplete"}">${r.complete ? "Complete" : "Incomplete"}</span></div><div class="compare-name">${NAMES[p]}</div><canvas aria-label="${p} synchronized mission map"></canvas><div class="compare-bottom"><strong class="compare-coverage">0%</strong><span class="compare-clock">At 00:00</span></div><div class="compare-final">Final: ${fmt(100 * r.coverage, 1)}% · ${fmt(r.stop_s)} s${r.complete ? " to finish" : " cutoff"}</div></button>`;
     })
     .join("");
 }
@@ -423,7 +549,9 @@ async function loadComparison(policies = POLICIES) {
   const dataset = state.dataset,
     req = request();
   $("load-comparison").disabled = true;
-  const settled = await Promise.allSettled(policies.map((p) => api(urlForTrace(p, dataset, req))));
+  const settled = await Promise.allSettled(
+    policies.map((p) => api(urlForTrace(p, dataset, req))),
+  );
   $("load-comparison").disabled = false;
   if (generation !== state.generation) return;
   let missing = 0;
@@ -441,7 +569,8 @@ async function loadComparison(policies = POLICIES) {
       `${missing} raw traces are not available locally. Run all five policies to regenerate the comparison.`,
       true,
     );
-  if (!activeTrace()) state.active = POLICIES.find((p) => state.traces[p]) || state.active;
+  if (!activeTrace())
+    state.active = POLICIES.find((p) => state.traces[p]) || state.active;
   $("policy").value = state.active;
   activateTrace();
   renderComparison();
@@ -456,7 +585,10 @@ function setTime(t) {
 function setPlaying(on) {
   state.playing = on;
   $("play").classList.toggle("playing", on);
-  $("play").setAttribute("aria-label", on ? "Pause simulation" : "Play simulation");
+  $("play").setAttribute(
+    "aria-label",
+    on ? "Pause simulation" : "Play simulation",
+  );
   $("play").innerHTML = on ? "Ⅱ" : '<svg><use href="#i-play"/></svg>';
 }
 let lastFrame = 0,
@@ -464,8 +596,15 @@ let lastFrame = 0,
 function animate(timestamp) {
   const elapsed = Math.min((timestamp - lastFrame) / 1000, 0.1);
   lastFrame = timestamp;
-  if (state.playing && !document.hidden && ["mission", "presentation"].includes(state.view)) {
-    state.t = Math.min(+$("timeline").max, state.t + elapsed * +$("speed").value);
+  if (
+    state.playing &&
+    !document.hidden &&
+    ["mission", "presentation"].includes(state.view)
+  ) {
+    state.t = Math.min(
+      +$("timeline").max,
+      state.t + elapsed * +$("speed").value,
+    );
     if (timestamp - renderAt > 40) {
       drawAll();
       renderAt = timestamp;
@@ -480,12 +619,137 @@ function text(x, y, value, className = "chart-label", anchor = "start") {
   return `<text x="${x}" y="${y}" class="${className}" text-anchor="${anchor}">${esc(value)}</text>`;
 }
 function chartShell(title, content, height = 240) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 ${height}" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title><style>text{font-family:Arial,sans-serif}.chart-label{font-size:9px;fill:#6c8277}.chart-value{font-size:10px;fill:#274c41;font-weight:600}.legend-label{font-size:8px;fill:#72857a}.grid-line{stroke:#e9eee7;stroke-width:1}.time-cursor{stroke:#b5c9bf;stroke-width:1;stroke-dasharray:3 3}</style>${content}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 510 ${height}" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title><style>text{font-family:Arial,sans-serif}.chart-label{font-size:11px;fill:#526c60}.chart-value{font-size:11px;fill:#274c41;font-weight:600}.legend-label{font-size:10px;fill:#526c60}.grid-line{stroke:#e5ece6;stroke-width:1}.time-cursor{stroke:#597f6e;stroke-width:1;stroke-dasharray:3 3}</style>${content}</svg>`;
+}
+function renderForecast(trace, t) {
+  const session = trace.sessions.findLast(
+    (s) => s.t <= t && s.committed && s.projected?.length,
+  );
+  if (session) {
+    const count = trace.sessions.filter(
+      (s) => s.t <= session.t && s.committed,
+    ).length;
+    const method =
+      trace.policy === "S4-T" && count >= trace.config.window
+        ? "Trend + relative motion"
+        : "Persistence";
+    $("forecast-description").textContent =
+      `${method} issued at ${fmt(session.t)} s, ${fmt(t - session.t, 1)} s before the displayed time. ${Math.min(count, trace.config.window)} latest delivered sample${count === 1 ? "" : "s"} shown. ${session.warning ? "The committed session requested the long reservation capacity." : "The session used the short reservation capacity."}`;
+  }
+  const key = `${trace.raw_sha256}:${session?.k ?? "none"}`;
+  if ($("forecast-chart").dataset.key === key) return;
+  $("forecast-chart").dataset.key = key;
+  if (!session) {
+    $("forecast-chart").innerHTML =
+      `<div class="forecast-empty"><span class="forecast-symbol">↗</span><strong>${trace.policy.startsWith("S4") ? "No issued forecast at this time" : "This policy uses no forecast"}</strong><p>${trace.policy.startsWith("S4") ? "Advance to a committed exchange. The first delivered samples use persistence until the trend window is filled." : "Select S4-T or S4-P to inspect its recorded warning and four projected samples."}</p></div>`;
+    $("forecast-status").textContent = "No forecast";
+    $("forecast-description").textContent =
+      "No future signal measurements are shown in this inspector.";
+    return;
+  }
+  const c = trace.config,
+    issued = session.t,
+    delta = c.exchange_s;
+  const history = trace.sessions
+    .filter((s) => s.t <= issued && s.committed)
+    .slice(-c.window);
+  const margin =
+    trace.margins?.[trace.policy === "S4-T" ? "trend" : "persistence"] ?? 0;
+  const lower =
+    Math.floor(
+      Math.min(
+        c.threshold_dbm - 5,
+        ...history.map((s) => s.r),
+        ...session.projected,
+      ) / 5,
+    ) * 5;
+  const upper =
+    Math.ceil(
+      Math.max(
+        c.threshold_dbm + 10,
+        ...history.map((s) => s.r),
+        ...session.projected,
+      ) / 5,
+    ) * 5;
+  const earliest = history[0]?.t ?? issued,
+    latest = issued + (c.horizon + 1) * delta;
+  const left = 52,
+    right = 477,
+    top = 24,
+    bottom = 181;
+  const x = (at) =>
+    left + ((right - left) * (at - earliest)) / (latest - earliest);
+  const y = (r) => bottom - ((bottom - top) * (r - lower)) / (upper - lower);
+  let content = `<rect x="${x(issued)}" y="${top}" width="${right - x(issued)}" height="${bottom - top}" fill="#edf3f8"/>`;
+  for (let i = 0; i <= 4; i++) {
+    const value = lower + ((upper - lower) * i) / 4;
+    content += `<line x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}" class="grid-line"/>${text(left - 8, y(value) + 4, fmt(value), "chart-label", "end")}`;
+  }
+  content += text(left, 13, "Signal power [dBm]");
+  content += `<line x1="${left}" x2="${right}" y1="${y(c.threshold_dbm)}" y2="${y(c.threshold_dbm)}" stroke="#b55e49" stroke-dasharray="5 3"/>`;
+  content += `<line x1="${x(issued)}" x2="${right}" y1="${y(c.threshold_dbm + margin)}" y2="${y(c.threshold_dbm + margin)}" stroke="#af8532" stroke-dasharray="2 3"/>`;
+  for (const h of history)
+    content += `<circle cx="${x(h.t)}" cy="${y(h.r)}" r="3.3" fill="${COLORS[trace.policy]}"><title>Delivered at ${h.t} s: ${fmt(h.r, 1)} dBm</title></circle>`;
+  const forecasts = [
+    [issued, session.r],
+    ...session.projected.map((r, i) => [issued + delta * (i + 1), r]),
+  ];
+  content += `<path d="${forecasts.map(([at, r], i) => `${i ? "L" : "M"}${x(at)},${y(r)}`).join(" ")}" stroke="${COLORS[trace.policy]}" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`;
+  session.projected.forEach((r, i) => {
+    const at = issued + delta * (i + 1);
+    content += `<circle cx="${x(at)}" cy="${y(r)}" r="3.8" fill="white" stroke="${COLORS[trace.policy]}" stroke-width="1.7"><title>Forecast +${delta * (i + 1)} s: ${fmt(r, 2)} dBm</title></circle>`;
+    content += text(
+      x(at),
+      201,
+      `+${delta * (i + 1)} s`,
+      "chart-label",
+      "middle",
+    );
+  });
+  content += `<line x1="${x(issued)}" x2="${x(issued)}" y1="${top}" y2="${bottom}" stroke="#8ca295"/>`;
+  content += text(
+    x(issued),
+    216,
+    `Issued ${issued} s`,
+    "chart-label",
+    "middle",
+  );
+  content += text(
+    left,
+    237,
+    "● Delivered samples   ◯ Forecast only",
+    "legend-label",
+  );
+  content += text(
+    right,
+    237,
+    `Cutoff ${c.threshold_dbm} · margin +${margin} dB`,
+    "legend-label",
+    "end",
+  );
+  $("forecast-chart").innerHTML = chartShell(
+    `${trace.policy} forecast issued at ${issued} seconds; no later observations included`,
+    content,
+    250,
+  );
+  $("forecast-status").textContent = session.warning
+    ? "Positive warning"
+    : "Negative warning";
+  $("forecast-status").classList.toggle("timeout", session.warning);
 }
 function lineChart(
   id,
   series,
-  { title, min = 0, max = 100, duration = 7200, unit = "", threshold, markers = [] } = {},
+  {
+    title,
+    min = 0,
+    max = 100,
+    duration = 7200,
+    unit = "",
+    threshold,
+    markers = [],
+    sampled = false,
+  } = {},
 ) {
   const left = 48,
     right = 480,
@@ -507,14 +771,23 @@ function lineChart(
       "chart-label",
       "middle",
     );
-  content += text(left, 10, unit) + text(right, 222, "Simulation time [min]", "chart-label", "end");
+  content +=
+    text(left, 10, unit) +
+    text(right, 222, "Simulation time [min]", "chart-label", "end");
   if (threshold != null)
     content += `<line x1="${left}" x2="${right}" y1="${y(threshold)}" y2="${y(threshold)}" stroke="#bf7865" stroke-width="1" stroke-dasharray="4 3"/>`;
   series.forEach((s, i) => {
     const d = s.values
-      .map(([at, value], j) => `${j ? "L" : "M"}${x(at).toFixed(2)},${y(value).toFixed(2)}`)
+      .map(
+        ([at, value], j) =>
+          `${j ? "L" : "M"}${x(at).toFixed(2)},${y(value).toFixed(2)}`,
+      )
       .join(" ");
-    content += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="1.8"><title>${esc(s.name)}</title></path>`;
+    if (!sampled)
+      content += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="1.8"><title>${esc(s.name)}</title></path>`;
+    else
+      for (const [at, value] of s.values)
+        content += `<circle cx="${x(at)}" cy="${y(value)}" r="1.7" fill="${s.color}" opacity=".75"><title>Observer sample at ${at} s: ${fmt(value, 1)} dBm</title></circle>`;
     content += `<circle cx="${left + i * 83}" cy="235" r="2.5" fill="${s.color}"/>${text(left + 7 + i * 83, 238, s.name, "legend-label")}`;
   });
   for (const marker of markers)
@@ -526,20 +799,27 @@ function lineChart(
     .addEventListener("click", (event) => {
       const rect = event.currentTarget.getBoundingClientRect();
       setTime(
-        ((((event.clientX - rect.left) / rect.width) * 510 - left) / (right - left)) * duration,
+        ((((event.clientX - rect.left) / rect.width) * 510 - left) /
+          (right - left)) *
+          duration,
       );
     });
 }
 function renderMissionCharts() {
   const entries = POLICIES.filter((p) => state.traces[p]);
   if (!entries.length) return;
-  const duration = Math.max(...entries.map((p) => state.traces[p].result.stop_s));
+  const duration = Math.max(
+    ...entries.map((p) => state.traces[p].result.stop_s),
+  );
   const series = entries.map((p) => {
     const d = state.traces[p];
     const first = d.first_seen.filter((t) => t != null).sort((a, b) => a - b);
     const values = [[0, 0]];
     first.forEach((t, i) => {
-      values.push([t, (i / d.first_seen.length) * 100], [t, ((i + 1) / d.first_seen.length) * 100]);
+      values.push(
+        [t, (i / d.first_seen.length) * 100],
+        [t, ((i + 1) / d.first_seen.length) * 100],
+      );
     });
     values.push([d.result.stop_s, d.result.coverage * 100]);
     return { name: p, color: COLORS[p], values };
@@ -557,28 +837,46 @@ function renderMissionCharts() {
     max = Math.ceil(Math.max(-65, ...signals) / 5) * 5;
   lineChart(
     "signal-chart",
-    [{ name: state.active, color: COLORS[state.active], values: samples.map((s) => [s.t, s.r]) }],
+    [
+      {
+        name: state.active,
+        color: COLORS[state.active],
+        values: samples.map((s) => [s.t, s.r]),
+      },
+    ],
     {
-      title: `${state.active} received radio signal`,
+      title: `${state.active} observer radio samples`,
       min,
       max,
       duration,
-      unit: "Received signal [dBm]",
+      unit: "Observer signal [dBm]",
       threshold: trace.config.threshold_dbm,
       markers: samples.filter((s) => s.warning),
+      sampled: true,
     },
   );
 }
 function barChart(
   id,
   data,
-  { title, unit = "", max, suffix = "", digits = 0, secondary = false, ticks } = {},
+  {
+    title,
+    unit = "",
+    max,
+    suffix = "",
+    digits = 0,
+    secondary = false,
+    ticks,
+  } = {},
 ) {
   const left = 48,
     right = 480,
     top = 24,
     bottom = 183;
-  max = max ?? Math.max(1, ...data.map((d) => d.hi ?? Math.max(d.value, d.other || 0))) * 1.16;
+  max =
+    max ??
+    Math.max(1, ...data.map((d) => d.hi ?? Math.max(d.value, d.other || 0))) *
+      1.16;
   const y = (v) => bottom - ((bottom - top) * v) / max,
     spacing = (right - left) / data.length;
   let content = text(left, 11, unit);
@@ -615,7 +913,8 @@ function contrastChart(rows) {
     low = Math.min(0, ...rows.map((r) => +r.ci_low_s)),
     high = Math.max(0, ...rows.map((r) => +r.ci_high_s));
   const pad = (high - low || 1) * 0.16,
-    x = (v) => left + ((right - left) * (v - low + pad)) / (high - low + pad * 2);
+    x = (v) =>
+      left + ((right - left) * (v - low + pad)) / (high - low + pad * 2);
   let content = text(left, 12, "Difference in restricted time [s]");
   for (let i = 0; i <= 4; i++) {
     const value = low - pad + ((high - low + 2 * pad) * i) / 4,
@@ -671,10 +970,14 @@ function workChart() {
   const totals = POLICIES.map((p) =>
     components.map(
       (c) =>
-        +(resources.find((r) => r.policy === p && r.component === c)?.mean_arithmetic || 0) / 1000,
+        +(
+          resources.find((r) => r.policy === p && r.component === c)
+            ?.mean_arithmetic || 0
+        ) / 1000,
     ),
   );
-  const maximum = Math.max(1, ...totals.map((t) => t.reduce((a, b) => a + b, 0))) * 1.15;
+  const maximum =
+    Math.max(1, ...totals.map((t) => t.reduce((a, b) => a + b, 0))) * 1.15;
   const y = (value) => 183 - (159 * value) / maximum;
   let content = text(48, 11, "Arithmetic [thousands of operations]");
   for (let i = 0; i <= 4; i++)
@@ -709,7 +1012,8 @@ function renderEvidence() {
     slow = $("study-slow").value === "true",
     length = +$("study-length").value;
   const match = (r) =>
-    String(r.slowdown).toLowerCase() === String(slow) && +r.fade_length === length;
+    String(r.slowdown).toLowerCase() === String(slow) &&
+    +r.fade_length === length;
   const summaries = (c.tables["condition-summary"] || [])
     .filter(match)
     .sort((a, b) => POLICIES.indexOf(a.policy) - POLICIES.indexOf(b.policy));
@@ -750,7 +1054,11 @@ function renderEvidence() {
       value: +r.attempted_bytes / 1000,
       other: +r.delivered_bytes / 1000,
     })),
-    { title: "Attempted and delivered serialized payload", unit: "Payload [kB]", secondary: true },
+    {
+      title: "Attempted and delivered serialized payload",
+      unit: "Payload [kB]",
+      secondary: true,
+    },
   );
   warningChart();
   workChart();
@@ -772,9 +1080,24 @@ function renderEvidence() {
     timings = b.timings || {},
     memory = b.process_memory || [];
   const cards = [
-    ["TREND FORECAST", timings.trend?.median_cpu_ns / 1000, "µs", "Median CPU per decision"],
-    ["PERSISTENCE", timings.persistence?.median_cpu_ns / 1000, "µs", "Median CPU per decision"],
-    ["TASK ALLOCATION", timings.allocation?.median_cpu_ns / 1000, "µs", "Median CPU per decision"],
+    [
+      "TREND FORECAST",
+      timings.trend?.median_cpu_ns / 1000,
+      "µs",
+      "Median CPU per decision",
+    ],
+    [
+      "PERSISTENCE",
+      timings.persistence?.median_cpu_ns / 1000,
+      "µs",
+      "Median CPU per decision",
+    ],
+    [
+      "TASK ALLOCATION",
+      timings.allocation?.median_cpu_ns / 1000,
+      "µs",
+      "Median CPU per decision",
+    ],
   ];
   $("host-metrics").innerHTML =
     cards
@@ -822,7 +1145,9 @@ function renderEvents() {
     "Select an exchange to inspect its exact serialized record, including payloads, reservations, local knowledge and counted work.";
 }
 function inspectEvent(row) {
-  const session = activeTrace()?.sessions.find((e) => e.k === +row.dataset.session);
+  const session = activeTrace()?.sessions.find(
+    (e) => e.k === +row.dataset.session,
+  );
   if (!session) return;
   setPlaying(false);
   setTime(session.t);
@@ -844,7 +1169,10 @@ function exportChart(id) {
   if (!svg) return;
   const copy = svg.cloneNode(true);
   copy.querySelectorAll(".time-cursor").forEach((e) => e.remove());
-  const description = document.createElementNS("http://www.w3.org/2000/svg", "desc");
+  const description = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "desc",
+  );
   const mission = ["coverage-chart", "signal-chart"].includes(id),
     r = activeTrace()?.result;
   description.textContent = `USV Research Lab; synthetic model; design ${state.catalog.design.sha256}; ${mission ? `scenario seed=${r?.seed}, slowdown=${r?.slowdown}, L=${r?.fade_length}, dataset=${activeTrace()?.dataset}` : `frozen study; condition slowdown=${$("study-slow").value}, L=${$("study-length").value}; pooled charts are explicitly labeled`}. See repository for definitions and source evidence.`;
@@ -852,8 +1180,14 @@ function exportChart(id) {
     ? `${id}-seed${r?.seed}-slow${Number(r?.slowdown)}-L${r?.fade_length}.svg`
     : `${id}-slow${Number($("study-slow").value === "true")}-L${$("study-length").value}.svg`;
   copy.prepend(description);
-  downloadBlob(new XMLSerializer().serializeToString(copy), "image/svg+xml", filename);
-  toast("Chart exported as an editable SVG. Run bundles also include PNG and PDF figures.");
+  downloadBlob(
+    new XMLSerializer().serializeToString(copy),
+    "image/svg+xml",
+    filename,
+  );
+  toast(
+    "Chart exported as an editable SVG. Run bundles also include PNG and PDF figures.",
+  );
 }
 async function submit(action, selected = false) {
   try {
@@ -900,15 +1234,20 @@ async function refreshJobs() {
     ) {
       handledJobs.add(current.id);
       if (current.status === "passed") {
-        toast("Run complete. Raw logs verified; figures and evidence archive ready.");
-        if (["run", "smoke", "full"].includes(current.action)) await openCompleted(current.id);
+        toast(
+          "Run complete. Raw logs verified; figures and evidence archive ready.",
+        );
+        if (["run", "smoke", "full"].includes(current.action))
+          await openCompleted(current.id);
       } else toast(current.message, true);
     }
   }
   if (
     state.selectedJob &&
     jobs.some(
-      (j) => j.id === state.selectedJob && ["running", "queued", "packaging"].includes(j.status),
+      (j) =>
+        j.id === state.selectedJob &&
+        ["running", "queued", "packaging"].includes(j.status),
     )
   )
     await inspectJob(state.selectedJob);
@@ -932,8 +1271,11 @@ async function openCompleted(identity) {
   state.traces = {};
   state.t = 0;
   setPlaying(false);
-  if (!job.runs.some((r) => r.policy === $("policy").value)) $("policy").value = job.runs[0].policy;
-  await loadComparison(POLICIES.filter((p) => job.runs.some((r) => r.policy === p)));
+  if (!job.runs.some((r) => r.policy === $("policy").value))
+    $("policy").value = job.runs[0].policy;
+  await loadComparison(
+    POLICIES.filter((p) => job.runs.some((r) => r.policy === p)),
+  );
 }
 async function inspectJob(identity) {
   state.selectedJob = identity;
@@ -942,7 +1284,9 @@ async function inspectJob(identity) {
   $("job-title").textContent = `${job.action} · ${job.id}`;
   const link = (name, label) =>
     `<a class="text-button" href="/api/download?dataset=${identity}&name=${encodeURIComponent(name)}">${label} ↓</a>`;
-  $("job-downloads").innerHTML = ["passed", "failed", "interrupted"].includes(job.status)
+  $("job-downloads").innerHTML = ["passed", "failed", "interrupted"].includes(
+    job.status,
+  )
     ? link("evidence.zip", "Evidence ZIP") +
       link("provenance.json", "Provenance") +
       (job.runs.length && job.status === "passed"
@@ -972,7 +1316,8 @@ function renderSlide() {
   if (!state.catalog) return;
   const d = state.catalog,
     all = d.runs;
-  const completed = (p) => all.filter((r) => r.policy === p && r.complete).length;
+  const completed = (p) =>
+    all.filter((r) => r.policy === p && r.complete).length;
   const content = [
     () =>
       `<div class="eyebrow">01 · THE QUESTION</div><h2 class="slide-title">Can a short radio forecast improve a shared survey?</h2><p class="slide-lead">Two unmanned surface vehicles divide 240 observation cells. They must coordinate while the radio link fades and one boat can temporarily slow down.</p><div class="slide-facts"><div><strong>2</strong><span>simulated boats</span></div><div><strong>240</strong><span>cells · 400 × 240 m</span></div><div><strong>10 s</strong><span>between exchanges</span></div></div><div class="slide-callout">Controlled synthetic evidence: finite speed, turn costs, bounded messages, independent disturbance streams. No measured energy or physical survey accuracy.</div>`,
@@ -985,7 +1330,8 @@ function renderSlide() {
     () =>
       `<div class="eyebrow">05 · REPRODUCIBILITY</div><h2 class="slide-title">Every figure has a path back to an event.</h2><div class="slide-facts"><div><strong>${fmt(all.length)}</strong><span>evaluation missions</span></div><div><strong>${fmt(d.verification.raw_runs_reconstructed)}</strong><span>logs reconstructed</span></div><div><strong>30</strong><span>paired seeds / condition</span></div></div><ul class="slide-list"><li><b>Freeze before evaluation</b>Pilot 0–9; evaluation 1000–1029; selected warning margins 4 dB.</li><li><b>Keep evidence together</b>Configuration, source snapshot, environment, raw logs, metrics, figures and SHA-256 inventory.</li><li><b>Run it again</b><code>python -m usv_sim.workflow --preset full --workers 4</code></li></ul><div class="slide-callout">Author reproduction and mentor review remain necessary. Next research decisions should follow the results and the agreed plan; the dashboard does not change the frozen protocol.</div>`,
   ];
-  $("slide-number").textContent = `${String(state.slide + 1).padStart(2, "0")} / 05`;
+  $("slide-number").textContent =
+    `${String(state.slide + 1).padStart(2, "0")} / 05`;
   $("slide-content").innerHTML = content[state.slide]();
   $("slide-dots").innerHTML = content
     .map(
@@ -1006,7 +1352,8 @@ function renderSlide() {
         max: 200,
       },
     );
-  if (state.slide === 3) $("slide-warning").innerHTML = $("warning-chart").innerHTML;
+  if (state.slide === 3)
+    $("slide-warning").innerHTML = $("warning-chart").innerHTML;
 }
 
 document.addEventListener("click", async (event) => {
@@ -1064,7 +1411,9 @@ document.addEventListener("click", async (event) => {
   }
   if (event.target.closest("#slide-play")) {
     setPlaying(!state.playing);
-    $("slide-play").textContent = state.playing ? "Pause mission" : "Play mission";
+    $("slide-play").textContent = state.playing
+      ? "Pause mission"
+      : "Play mission";
   }
 });
 document.addEventListener("keydown", (event) => {
@@ -1075,17 +1424,25 @@ document.addEventListener("keydown", (event) => {
     const job = event.target.closest("[data-job]");
     if (job) inspectJob(job.dataset.job).catch((e) => toast(e.message, true));
   }
-  if (event.key === "Escape" && state.presentationFocus) exitPresentationFocus();
-  if (state.view === "presentation" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
+  if (event.key === "Escape" && state.presentationFocus)
+    exitPresentationFocus();
+  if (
+    state.view === "presentation" &&
+    ["ArrowLeft", "ArrowRight"].includes(event.key)
+  ) {
     event.preventDefault();
-    state.slide = Math.min(4, Math.max(0, state.slide + (event.key === "ArrowRight" ? 1 : -1)));
+    state.slide = Math.min(
+      4,
+      Math.max(0, state.slide + (event.key === "ArrowRight" ? 1 : -1)),
+    );
     renderSlide();
   }
 });
 function setupChanged() {
   state.dataset = "core";
   setPlaying(false);
-  if (+$("exponent").value === 2 && +$("timeout").value === 7200) loadSelected(true);
+  if (+$("exponent").value === 2 && +$("timeout").value === 7200)
+    loadSelected(true);
   else
     toast(
       "Exploratory settings selected. Run a mission to apply them; the map retains its last recorded view.",
@@ -1108,6 +1465,17 @@ $("restart").addEventListener("click", () => {
   setPlaying(false);
   setTime(0);
 });
+$("jump-slowdown").addEventListener("click", () => {
+  const trace = activeTrace();
+  if (!trace) return;
+  setPlaying(false);
+  setTime(trace.scenario.onset_s);
+});
+$("jump-end").addEventListener("click", () => {
+  if (!activeTrace()) return;
+  setPlaying(false);
+  setTime(activeTrace().result.stop_s);
+});
 $("load-comparison").addEventListener("click", loadComparison);
 $("run-form").addEventListener("submit", (event) => {
   event.preventDefault();
@@ -1115,7 +1483,8 @@ $("run-form").addEventListener("submit", (event) => {
 });
 $("run-one").addEventListener("click", () => submit("run", true));
 $("event-filter").addEventListener("change", renderEvents);
-for (const id of ["study-slow", "study-length"]) $(id).addEventListener("change", renderEvidence);
+for (const id of ["study-slow", "study-length"])
+  $(id).addEventListener("change", renderEvidence);
 $("outcome-filter").addEventListener("change", renderRuns);
 $("snapshot").addEventListener("click", () => {
   const canvas = $("map");
@@ -1156,7 +1525,10 @@ $("snapshot").addEventListener("click", () => {
   output.toBlob((blob) => {
     if (blob) downloadBlob(blob, "image/png", filename);
     else
-      toast("The browser could not encode this map. Try the figure export in a run bundle.", true);
+      toast(
+        "The browser could not encode this map. Try the figure export in a run bundle.",
+        true,
+      );
   }, "image/png");
 });
 $("previous-slide").addEventListener("click", () => {
@@ -1200,6 +1572,8 @@ window.addEventListener("resize", drawAll);
 async function init() {
   try {
     state.catalog = await api("/api/catalog");
+    $("connection").innerHTML =
+      '<span class="status-dot"></span>Engine connected';
     renderEvidence();
     await refreshJobs();
     view(location.hash.slice(1) || "mission");

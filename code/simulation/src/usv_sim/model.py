@@ -13,6 +13,7 @@ from typing import Callable
 import numpy as np
 
 POLICIES = ("S1", "S2", "S3", "S4-T", "S4-P")
+LOG_SCHEMA = 2  # Additive exact task/motion state; scientific rules are unchanged.
 # 0: no previous heading; 1 east, 2 north, 3 west, 4 south.
 VECTORS = {1: (1, 0), 2: (0, 1), 3: (-1, 0), 4: (0, -1)}
 
@@ -355,6 +356,25 @@ def fixed_queues(c):
     return queues
 
 
+def boat_state(boat: Boat, speed: float):
+    """Recorded state at an event boundary, not an inferred vessel pose.
+
+    Heading is the grid direction selected for the current/next edge. A turn
+    consumes stationary time; the model has no continuous yaw or acceleration.
+    speed_mps is commanded translation speed, not speed while turning/idling.
+    Coverage knowledge is reconstructed separately from observation/commit events
+    rather than repeating full cell sets in every one-second tick.
+    """
+    mode = ("ready" if boat.target is None and boat.queue else "idle" if boat.target is None
+            else "turning" if boat.turn_remaining > 0
+            else "in_transit" if boat.edge_target is not None else "ready")
+    return {"id": boat.id, "cell": boat.cell, "target": boat.target,
+            "queue": list(boat.queue), "heading": boat.heading, "mode": mode,
+            "speed_mps": speed, "edge_target": boat.edge_target,
+            "edge_remaining_m": boat.edge_remaining,
+            "turn_remaining_s": boat.turn_remaining}
+
+
 def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
         forced_radio: Callable[[int],bool] | None=None):
     if policy not in POLICIES:
@@ -373,7 +393,7 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
     sessions=[]; history=[]; version=0; reservations=0
     attempted=delivered=bytes_attempted=bytes_delivered=budget_failures=0
     missing_sum=[0.0,0.0]; missing_n=0
-    log.write({"event":"start","config":asdict(c),"scenario":asdict(scenario),"policy":policy,"margins":margins})
+    log.write({"event":"start","schema":LOG_SCHEMA,"config":asdict(c),"scenario":asdict(scenario),"policy":policy,"margins":margins})
     t=0
     def observe(i,cell):
         nonlocal observations
@@ -389,7 +409,9 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
         capacity=c.long_queue if policy=="S3" else c.short_queue
         queues=allocate(c,boats,initial,[c.speed_mps]*2,capacity,work["allocation"])
         for b,q in zip(boats,queues): b.queue=q
-    log.write({"event":"initial_allocation","queues":[b.queue for b in boats]})
+    speeds=[c.speed_mps]*2
+    log.write({"event":"initial_allocation","queues":[b.queue for b in boats],
+               "boats":[boat_state(b,speeds[b.id]) for b in boats]})
     complete=len(covered)==c.cells
     try:
         for t in range(1,c.timeout_s+1):
@@ -398,7 +420,8 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
             if scenario.slowdown and scenario.onset_s <= t < scenario.onset_s+c.slowdown_s:
                 speeds[0]*=c.slowdown_factor
             for b in boats: b.tick(c,speeds[b.id],observe)
-            log.write({"event":"tick","t":t,"xy":[[b.x,b.y] for b in boats],"idle":[b.idle for b in boats]})
+            log.write({"event":"tick","t":t,"xy":[[b.x,b.y] for b in boats],"idle":[b.idle for b in boats],
+                       "boats":[boat_state(b,speeds[b.id]) for b in boats]})
             complete=len(covered)==c.cells
             if t%c.exchange_s==0:
                 k=t//c.exchange_s
@@ -456,6 +479,7 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                 assert entry["attempted"]<=c.max_datagrams and entry["bytes_attempted"]<=c.max_bytes
                 entry.update(queues=[list(b.queue) for b in boats],targets=[b.target for b in boats],
                              known=[sorted(b.known) for b in boats],version=version,
+                             boats=[boat_state(b,speeds[b.id]) for b in boats],
                              work={name:asdict(w) for name,w in work.items()})
                 sessions.append({key:entry[key] for key in ("t","k","r","d","u","radio","committed","warning","distance_failure","budget_failure")})
                 log.write(entry)
@@ -470,7 +494,9 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                 "missing_stop":[len(covered-b.known)/c.cells for b in boats],
                 "link_availability":sum(s["radio"] for s in sessions)/len(sessions) if sessions else None,
                 "distance_failures":sum(s["distance_failure"] for s in sessions),"work":{name:asdict(w) for name,w in work.items()}}
-        log.write({"event":"stop","result":result,"known":[sorted(b.known) for b in boats]})
+        log.write({"event":"stop","result":result,"known":[sorted(b.known) for b in boats],
+                   "queues":[list(b.queue) for b in boats],"targets":[b.target for b in boats],
+                   "boats":[boat_state(b,speeds[b.id]) for b in boats]})
         return result,sessions
     finally:
         log.close()

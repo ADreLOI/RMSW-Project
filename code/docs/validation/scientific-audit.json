@@ -1,0 +1,25 @@
+{
+  "core_raw_logs_reconstructed": 900,
+  "core_raw_hashes_unchanged": 900,
+  "exact_frozen_matrix": true,
+  "schema2_scientific_records_compared": 30,
+  "all_scientific_values_match": true,
+  "excluded_fields": [
+    "wall_s",
+    "work.*.cpu_ns"
+  ],
+  "tests_passed": 32,
+  "elapsed_host_s": 28.517981400014833,
+  "limitations": "Software fidelity to reviewed synthetic plan only; no measured maritime validation.",
+  "additional_validation": "Observation timestamps checked against event order; all 900 legacy logs rechecked after validation hardening.",
+  "recorded_utc": "2026-10-23T20:33:20+00:00",
+  "source_sha256": {
+    "code/simulation/src/usv_sim/model.py": "9df9754e9e12b738c96e6e387ab0f461fe29a858e94e113c0f939e5d1ef2636e",
+    "code/simulation/src/usv_sim/analysis.py": "faefd21133ce5d6d89f4040b5128a0926967a5ec0361cd9cd5fb622e749aebc0",
+    "code/simulation/src/usv_sim/evidence.py": "b902eab23a015d8343f7f76320cde423e8585b9baf257799826a98c41602af8d",
+    "code/simulation/tests/test_simulator.py": "07280b407ac14675067db5e8c3b22037b4e11593450e29e806d45808bee6bae7",
+    "code/simulation/tests/test_dashboard.py": "39e62177e8898d1e590c3d8ea4b4e937b81132623a62ac73a970994cccb10164"
+  },
+  "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+  "test_command": "PYTHONPATH=src python -m unittest discover -s tests -v; executed with authorized localhost socket access"
+}

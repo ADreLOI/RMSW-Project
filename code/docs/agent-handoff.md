@@ -35,7 +35,9 @@ The dashboard does not change the scientific model. New run controls can explore
 | Publication report | `paper/Final_Report/main.tex`, modular sections and `generated/` |
 | Validation record | `work-log.md`, `code/docs/validation/` |
 
-The event stream is the authority for replay. Exact observations and 1 s motion coexist with 10 s queue/radio snapshots. Legacy logs omit terminal queue state; the dashboard reports null instead of carrying stale queues forward. Some selected missions end at the same second as a session; the separate terminal frame is intentional.
+The event stream is the authority for replay. New schema-2 logs record exact task/motion state each second and at termination. Radio and forecasts remain 10 s samples. Post-exchange state supersedes its pre-exchange tick at the same time. Legacy logs retain sampled task state and unavailable terminal queues; the dashboard never invents these. Numbered markers, model x/y axes, sample ages, local knowledge panels and a causal forecast inspector make the observer's information distinct from a boat's available information. No decorative bathymetry or inferred vessel yaw is shown.
+
+The fidelity audit is in `scientific-audit-2026-10-23.md`. Explicit reconstruction checks survive `python -O`, and analysis verifies the exact frozen matrix and design hash. All 900 original raw hashes remain unchanged. The integrated workflow `results/lab/20261023T203550-5f2c5b0a/` passed 32 tests, reconstructed 900 new schema-2 logs and matched every scientific record against core exactly, excluding host CPU/wall timing. Its 950 inventoried files passed integrity verification. Browser evidence and retained headless checks are under `validation/`.
 
 The browser is buildless and local. Python's standard-library HTTP server runs a serial fixed-action queue and uses validated requests, loopback binding, Host/origin/token checks and allowlisted exports. It is not intended for public hosting. Presentation mode is a five-scene interactive browser presentation, not a PowerPoint artifact. Bulk raw logs are ignored by Git; a fresh clone can inspect the included S4-T example and regenerate all other traces.
 
@@ -60,13 +62,13 @@ Run the application in an actual browser after UI changes. Verify policy loading
 - Research-plan Overleaf: `https://www.overleaf.com/project/6abd035913fae5baa946157b`
 - GitHub: `https://github.com/ADreLOI/RMSW-Project`
 
-The prior phase verified an Overleaf compile of the draft. This dashboard phase does not imply an updated Overleaf upload or course submission. Inspect the live project before changing paper sources; preserve collaborators' edits. The assigned report template excludes the KTH logo. Existing GitHub icon/link boxes and the report structure are already established.
+The report revision now covers the full reviewed plan, including all 18 paired contrasts, 30 condition diagnostics, delivered/attempted communication, component work, warning lead times, local information and the stalled baseline's limits. Six supplementary tables regenerate with `python code/simulation/scripts/build_report.py` from the repository root. This command writes generated tables only; it preserves edited prose and references. `package_report.py --output <new.zip>` creates a source package with hashes. Live Overleaf was backed up before synchronization. Final compilation, source comparison and PDF inspection are recorded in the work log; they do not imply course submission or human author review. The assigned template and existing GitHub links/icons remain in use.
 
 ## Remaining research decisions
 
 Independent author reproduction and review, mentor interpretation of the stalled baseline, literature/source verification, and the final submission remain human follow-up. Optional oracle and radio-exponent sensitivities were not part of the original core evaluation. Exploratory controls can generate clearly separated evidence for a future decision, but do not silently redefine the protocol or claim a favorable result.
 
-Possible engineering improvements include terminal queue logging in a new schema, a portable non-Windows process-memory benchmark, a cancel/resume protocol for long jobs, and an exportable slide-deck artifact if requested. Preserve the evidence and document any scientific change first.
+All 180 S2 runs stopped moving between 265 and 520 s, before the earliest slowdown at 600 s. This post-evaluation diagnostic limits the intended unequal-progress interpretation and is explicit in the report. A separate recovery study must retain strong controls and freeze its own design. Portable non-Windows process-memory benchmarking, cancel/resume and an exportable slide-deck artifact remain possible engineering work. Preserve the evidence and document scientific changes first.
 
 ## Copyable context for another tool
 

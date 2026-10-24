@@ -1,8 +1,104 @@
-\section{Reproduction and implementation details}
-The GitHub repository separates \texttt{paper/} and \texttt{code/}. The historical research-plan source is preserved under \texttt{paper/research-plan/}; the professor's original template is under \texttt{paper/professor-template-2026/}. Compile this report from \texttt{paper/Final\_Report/} using LuaLaTeX and BibTeX, with \texttt{main.tex} as the entry point.
+\section{Forecast and protocol specification}\label{app:forecast}
+Let $\boldsymbol u_k=\boldsymbol p_2(t_k)-\boldsymbol p_1(t_k)$ be the relative position in metres at a successful exchange. If $\ell<k$ is the preceding successful exchange, the relative-velocity estimate is
+\begin{equation}
+\widehat{\boldsymbol v}_k=\frac{\boldsymbol u_k-\boldsymbol u_\ell}{t_k-t_\ell},\qquad
+\hat d_{k+h}=\|\boldsymbol u_k+h\Delta\widehat{\boldsymbol v}_k\|_2.
+\end{equation}
+Here $\Delta=10$ s and velocity is in m/s. For the last five successful samples, ordinary least squares fits $\hat e(t)=\hat a+\hat b t$ to
+\begin{equation}
+e_j=r_j-\left[P_0-10n\log_{10}\left(\max(d_j,d_0)/d_0\right)\right].
+\end{equation}
+Residuals and intercept are in dB and slope in dB/s. Actual timestamps retain gaps. With known synthetic path-loss parameters, the trend forecast is
+\begin{equation}
+\hat r_{k+h}=P_0-10n\log_{10}\left(\max(\hat d_{k+h},d_0)/d_0\right)+\hat e(t_k+h\Delta).
+\end{equation}
+Persistence instead sets $\hat r_{k+h}=r_k$. The trend predictor uses persistence until five successful samples exist. Neither warns before a received sample. The forecast is positive when
+\begin{equation}
+\exists h\in\{1,2,3\}:\quad
+\hat r_{k+h}<\theta+m\ \land\ \hat r_{k+h+1}<\theta+m.
+\end{equation}
+Thus four projected samples test a two-miss episode whose onset is within three future opportunities; they do not extend the onset horizon to four. The selected margin is $m=4$ dB for both methods. Only successful exchanges support reservation, and no future channel or slowdown draw is visible to either predictor.
 
-From \texttt{code/simulation/}, install the project and run the documented test, pilot, evaluation, analysis, benchmark, and replay commands. The frozen design records margins, seed ranges, conditions, and analysis rules. The evaluation manifest records source hashes; raw-log SHA-256 hashes and reconstruction checks accompany the summaries. Bulk raw logs remain local and can be regenerated from the frozen design; a representative raw trace and an offline five-policy replay are supplied for inspection.
+Task IDs are row-major. Initial common knowledge includes both starting observations. Executing tasks remain fixed at replanning; only unstarted tasks are released. Paths minimize turns among shortest Manhattan routes and use horizontal-first ties. The initial heading has no turn cost. Movement continues through unused time within a tick after a waypoint. A current reported speed is held constant in each projected workload estimate. These deterministic choices apply to every online policy.
 
-The implementation resolves plan details explicitly: observations occur at target/transit cell centres, shortest paths minimize turns with horizontal-first ties, initial heading has no turning cost, slowdown onset is integer-uniform and applies before the tick's movement, and task execution continues within the remaining tick after a waypoint. Failed sessions retain committed ownership; no recovery or theft is introduced. Component operation-count formulas and message encoding are documented beside the code.
+Messages use compact sorted-key UTF-8 JSON. A successful atomic session consists of two state messages, one versioned proposal and one acknowledgement. A failed radio opportunity transmits the two state messages without delivery; a budget-rejected offered batch transmits zero. Payload bytes exclude lower-layer headers. A completed mission stops immediately, with no final exchange, return voyage or upload. The model samples radio even for S1 solely to compare route-dependent link conditions; S1 performs no coordination.
 
-The original template contains a stray \texttt{w} in its section-format command. Removing this typographical error preserves the intended formatting. The report retains the template's font family, 11-point body, one-inch margins, spacing, and required headings, and adds GitHub icons and a boxed repository link from the research-plan styling. The KTH logo is omitted in accordance with the course formatting page.
+\clearpage
+\section{Full condition results and diagnostics}\label{app:condition-results}
+The following tables are derived from the retained frozen evaluation, not from exploratory dashboard jobs. Each policy--condition cell has 30 seeds. The seed is the paired resampling unit; no inference treats all displayed rows as independent observations. Negative paired differences favour S4-T. Percent changes divide the paired mean difference by the reference restricted mean. Display rounding does not change the underlying calculations.
+
+\begin{table}[htbp]\centering
+\caption{Restricted mean time in seconds for all five policies. Incomplete missions contribute the common $7200$ s timeout.}
+\input{generated/mission-table}
+\end{table}
+
+\begin{table}[htbp]\centering
+\caption{All pre-specified paired contrasts. The S2 comparison is primary; S3 and S4-P are secondary. Intervals are marginal 95\% paired-bootstrap intervals, not simultaneous intervals.}
+\input{generated/complete-contrasts}
+\end{table}
+
+\clearpage
+\subsection{Completion, coverage and realized radio conditions}
+Coverage is the mean final fraction across all runs, including completions and timeouts. Link availability is the mean per-run fraction of scheduled opportunities with $r_k\geq\theta$. For S1 this is a sampled, unused link diagnostic. Outage duration averages observed episodes of at least two consecutive misses; it pools episodes within each condition, and boundary episodes may be truncated at mission stopping. It is not the target mean faded-state duration $10L$ s. Availability and episode statistics can differ across policies because routes and stopping times differ.
+
+\input{generated/condition-diagnostics}
+
+\subsection{Resource interpretation and host procedure}
+\begin{table}[htbp]\centering
+\caption{Mean communication attempts and deliveries per run over 180 missions per policy. A message is one serialized datagram; kB is 1000 payload bytes. Failed attempts count, lower-layer headers do not. These descriptive means include unfinished runs.}
+\input{generated/communication-diagnostics}
+\end{table}
+
+The component files retain forecasting, allocation and resynchronization counts separately. Each binary64 add, subtract, multiply or divide counts once; logarithms, square roots and logical tests remain separate. Set union has zero counted floating arithmetic while its membership visits are logical work. A full five-sample, four-step trend decision uses 141 arithmetic operations, nine logarithms and four square roots; its warmup uses persistence. These are algorithmic accounting conventions, not processor instruction or energy measurements.
+
+\begin{table}[htbp]\centering
+\caption{Component arithmetic workload and in-run CPU counters. Ops/run and GOP/run average 180 runs; per-decision values divide accumulated totals by executed decisions. Dashes mean no decisions. CPU counters can be below timer resolution, including displayed zeros; the separate repeated saved-input benchmark in the main text is the more reliable small-input timing comparison.}
+\input{generated/component-diagnostics}
+\end{table}
+
+The retained host environment was Python 3.13.2 on Windows 11, with NumPy 1.26.4, Matplotlib 3.10.8 and psutil 7.2.2, 14 physical/20 logical CPU cores and approximately 31.7 GiB reported total system RAM. The benchmark saved the twentieth coordination input of pilot seed 0, $L=5$, with slowdown and warmed the integer geometry cache. Seven CPU batches exceeded 150 ms each; representative allocation, trend and persistence used 512, 32768 and 131072 repetitions per batch respectively. Wrapper and loop overhead are included. Separate incremental Python allocation peaks were 9976, 952 and 448 bytes for these inputs and exclude some native-library allocations. Full-process peaks include the interpreter, libraries, geometry and state; memory and CPU profiling were separate.
+
+\clearpage
+\section{Reproduction, provenance and draft status}\label{app:reproduce}
+The repository separates paper sources from implementation. The reviewed research-plan snapshot is retained under \path{paper/research-plan/} and the assigned template under \path{paper/professor-template-2026/}. The active report compiles from \path{paper/Final_Report/main.tex} using LuaLaTeX and BibTeX. Source Sans, 11-point body text, one-inch margins and the professor's required headings are preserved. GitHub author icons and the boxed repository link follow the established research-plan style.
+
+\begin{table}[htbp]\centering
+\caption{Evidence used by this draft. Paths below are relative to \texttt{code/simulation/results/core/}, except the last row.}
+\begin{tabularx}{\linewidth}{@{}p{4.7cm}Y@{}}\toprule
+Artifact & Role\\\midrule
+\path{frozen-design.json} & Pilot margins, fixed settings, seeds, conditions, primary/secondary contrasts and bootstrap seed.\\
+\path{runs.json} & All 900 per-run outcomes, resources and warning counts.\\
+\path{condition-summary.csv} & Thirty policy--condition summaries and mean-time intervals.\\
+\path{paired-contrasts.csv} & Eighteen planned paired effects and marginal intervals.\\
+\path{warning-summary.json} & Fixed-route held-out warning counts and matched lead times.\\
+\path{mechanism-diagnostics.csv} & Committed extensions, pre-outage commits, idle and conflict diagnostics.\\
+\path{outage-diagnostics.csv} & Realized episode counts and observed durations.\\
+\path{component-resources.csv}\newline\path{host-benchmark.json} & Separate component counts, saved-input timing and memory procedure.\\
+\path{raw-log-sha256.json}\newline\path{verification.json} & Raw artifact integrity and independent accounting reconstruction.\\
+\path{paper/Final_Report/generated/table-provenance.json} & Input and output hashes for report tables.\\\bottomrule
+\end{tabularx}
+\end{table}
+
+From the repository root on Windows, the documented workflow is:
+\begin{verbatim}
+.\Run-Lab.ps1 -Setup
+.\Run-Lab.ps1 -Action Test
+.\Run-Lab.ps1 -Action Smoke
+.\Run-Lab.ps1 -Action Full -Workers 4
+\end{verbatim}
+Setup creates a local environment; the first command also starts the dashboard. Smoke runs provide a quick check and do not replace the full matrix. New output uses a unique \path{code/simulation/results/lab/} directory and does not overwrite \path{results/core/}. The dashboard's visual presentation and event inspector use recorded evidence. Alternate settings are exploratory and remain separate from the report's frozen matrix.
+
+From \path{code/simulation/}, an installed package also permits:
+\begin{verbatim}
+python -m unittest discover -s tests -v
+python -m usv_sim.workflow --preset full --workers 4
+python -m usv_sim.verify results/lab/<id> --reference results/core
+python scripts/build_report.py
+\end{verbatim}
+Replace \texttt{<id>} with the generated run directory. The comparison checks scientific values and excludes host wall time and component CPU timing. The optional isolated process-memory procedure currently uses Windows working-set high-water measurement. Raw logs are bulk local artifacts ignored by Git; hashes, configurations and commands allow regeneration, while the repository retains a representative compressed trace. Downloadable workflow bundles capture source, effective settings, event logs, step logs, analysis products, hashes and reproduction instructions.
+
+
+
+The frozen-design SHA-256 begins \texttt{51f3d40b5dc037c0}; complete hashes remain in the manifests. The last-motion observation for S2 in Section 4 was checked by scanning all 180 S2 raw files, comparing successive recorded one-second positions, and taking the last time either boat moved. The range was $265$--$520$ s. This is a post-evaluation explanatory diagnostic, not a new primary endpoint.
+
+The repository work log, AI assistance record and agent handoff describe implementation, validation, source checks and pending author review. The draft reports the full retained core even where the result is adverse. Optional oracle and distance-loss sensitivity analyses remain outside this evidence set. No claim of human author replication, mentor acceptance, course submission or operational validation is made.

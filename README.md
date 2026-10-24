@@ -13,7 +13,9 @@ The **USV Research Lab** provides an animated simulator, synchronized policy com
 
 Open `http://127.0.0.1:8768`. New runs are saved as separate, reproducible evidence bundles. See the [dashboard guide](code/docs/dashboard-guide.md). Other tools should start with [AGENTS.md](AGENTS.md) and the [agent handoff](code/docs/agent-handoff.md); completed work is recorded in the [work log](code/docs/work-log.md).
 
-![USV Research Lab replay of the recorded seed-1000 mission at 700 seconds](code/docs/validation/dashboard-mission.png)
+Start with the [first-run walkthrough](code/docs/first-run-walkthrough.md) for a worked example, the five methods, decision inspection, results, tests and presentation controls.
+
+![USV Research Lab replay with recorded tasks, local knowledge and sample ages](code/docs/validation/dashboard-mission-evening.png)
 
 The revised research plan is implemented. The core evaluation contains 900 runs, five configurations, six conditions, and 30 paired evaluation seeds per condition, following a separate 300-run pilot. All 900 evaluation logs passed metric reconstruction. Results are synthetic evidence; the report remains a working draft for both authors to review.
 
@@ -40,6 +42,8 @@ code/
 Fixed partitioning completed every evaluation run. Reactive short queues completed none: this no-rendezvous model permits boats to exhaust work beyond radio range. Long queues and predictive variants completed most runs. Trend prediction showed no consistent benefit over an always-long queue or persistence. Do not treat the contrast with the stalled reactive policy as proof of forecast skill or convert operation/byte counts into measured energy savings.
 
 Compile inside `paper/Final_Report/` with LuaLaTeX and BibTeX, using `main.tex`. `II2202-report.tex` is a compatibility wrapper for the original template setting. The assigned font, 11-point body, margins, spacing, and headings are retained; a stray `w` in its section-format command is corrected. GitHub icons and a boxed repository link follow the plan styling. The course forbids the KTH logo on this report.
+
+Regenerate the six supplementary evidence tables with `python code/simulation/scripts/build_report.py`. This checks the frozen matrix and records source/output hashes without overwriting report prose. Create an Overleaf source package with `python code/simulation/scripts/package_report.py --output <new.zip>`. Back up and compare the live project before uploading; compile and inspect its PDF afterward. The [draft notes](paper/Final_Report/DRAFT-NOTES.md) map the report to the reviewed plan and distinguish evidence from pending author review.
 
 The original proposal is preserved byte-for-byte at its new location. The existing dirty local clone was untouched. GitHub and Overleaf synchronization is manual; the final-report project contains paper sources and figures only. Coordinate edits, upload the paper package, recompile, and verify the PDF.
 

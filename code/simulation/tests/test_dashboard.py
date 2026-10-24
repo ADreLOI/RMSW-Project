@@ -1,5 +1,6 @@
 from dataclasses import asdict
 import hashlib
+import gzip
 import http.client
 from http.server import ThreadingHTTPServer
 import json
@@ -56,10 +57,54 @@ class EvidenceTests(unittest.TestCase):
             data = trace(path)
             self.assertEqual(data["frames"][-1]["coverage"], result["coverage"])
             self.assertEqual(data["tracks"][-1][0], result["stop_s"])
-            self.assertIsNone(data["frames"][-1]["queues"])
+            self.assertEqual(data["raw_schema"], 2)
+            self.assertTrue(data["sampling"]["terminal_queues_recorded"])
+            self.assertEqual(data["frames"][-1]["queues"], [[], []])
+            self.assertEqual(data["frames"][-1]["targets"], [None, None])
             self.assertIsNone(data["frames"][-1]["radio"])
             self.assertEqual(sum(t is not None for t in data["first_seen"]), 12)
             self.assertEqual(data["raw_sha256"], hashlib.sha256(path.read_bytes()).hexdigest())
+            with gzip.open(path, "rt", encoding="utf-8") as stream:
+                events = [json.loads(line) for line in stream]
+            # Preserve support for the retained original raw-log schema.
+            for event in events:
+                event.pop("boats", None)
+                event.pop("schema", None)
+                if event["event"] == "stop":
+                    event.pop("queues"); event.pop("targets")
+            legacy = Path(temporary) / "legacy.gz"
+            with gzip.open(legacy, "wt", encoding="utf-8") as stream:
+                for event in events: stream.write(json.dumps(event) + "\n")
+            old = trace(legacy)
+            self.assertEqual(old["raw_schema"], 1)
+            self.assertFalse(old["sampling"]["motion_states_recorded"])
+            self.assertEqual(old["motion_states"], [])
+            self.assertIsNone(old["frames"][-1]["queues"])
+            self.assertIsNone(old["frames"][-1]["targets"])
+
+    def test_trace_exact_task_state_and_post_exchange_order(self):
+        with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:
+            path = Path(temporary) / "trace.gz"
+            c = Config(width=6, height=3, timeout_s=43)
+            run(c, make_scenario(c, 0, 5, False), "S2", log_path=path, forced_radio=lambda k: True)
+            data = trace(path)
+            self.assertEqual([s["t"] for s in data["motion_states"]], list(range(44)))
+            with gzip.open(path, "rt", encoding="utf-8") as stream:
+                events = [json.loads(line) for line in stream]
+            expected = {}
+            for event in events:
+                if "boats" in event:
+                    t = event.get("t", 43 if event["event"] == "stop" else 0)
+                    expected[t] = event["boats"]
+            for state in data["motion_states"]:
+                actual = expected[state["t"]]
+                self.assertEqual(state["queues"], [b["queue"] for b in actual])
+                self.assertEqual(state["targets"], [b["target"] for b in actual])
+            # At 10 s, replenished queues must supersede the pre-exchange tick.
+            tick = next(e for e in events if e["event"] == "tick" and e["t"] == 10)
+            session = next(e for e in events if e["event"] == "session" and e["t"] == 10)
+            self.assertNotEqual([b["queue"] for b in tick["boats"]], session["queues"])
+            self.assertEqual(data["motion_states"][10]["queues"], session["queues"])
 
     def test_design_tampering_is_rejected(self):
         with tempfile.TemporaryDirectory(dir=Path.cwd()) as temporary:

@@ -254,7 +254,7 @@ def handler_for(lab):
                 self.send(400, {"error": str(error)})
             except FileNotFoundError as error:
                 self.send(404, {"error": str(error)})
-            except (BrokenPipeError, ConnectionResetError):
+            except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError):
                 pass
             except Exception:
                 traceback.print_exc()

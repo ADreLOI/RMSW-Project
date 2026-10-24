@@ -1,0 +1,118 @@
+{
+  "created_utc": "2026-10-23T20:33:59.348Z",
+  "status": "passed",
+  "node": "v24.19.0",
+  "python": "C:/Python313/python.exe",
+  "unique_html_ids": 108,
+  "checked_web_sha256": {
+    "app.js": "77743aaf2b3d4d5a099aa1e24434deabbf538ab6afd2bcf3a087bd2de1591f0f",
+    "index.html": "9658c45789f7c7fa9a5f4702b79ea579f5143807a4aa443fdce9fef89e3af56f",
+    "style.css": "17a0d0bac081176ca7ef836686763372b32e4c1a8da8f8d26cf5ff1aece9644c"
+  },
+  "checks": [
+    {
+      "policy": "S4-T",
+      "raw_schema": 1,
+      "motion_states": 0,
+      "time_samples": [
+        0,
+        10,
+        55.5,
+        1493
+      ],
+      "knowledge_layers": [
+        "global",
+        "0",
+        "1"
+      ],
+      "result": "passed"
+    },
+    {
+      "policy": "S1",
+      "raw_schema": 2,
+      "motion_states": 121,
+      "time_samples": [
+        0,
+        10,
+        55.5,
+        120
+      ],
+      "knowledge_layers": [
+        "global",
+        "0",
+        "1"
+      ],
+      "result": "passed"
+    },
+    {
+      "policy": "S2",
+      "raw_schema": 2,
+      "motion_states": 121,
+      "time_samples": [
+        0,
+        10,
+        55.5,
+        120
+      ],
+      "knowledge_layers": [
+        "global",
+        "0",
+        "1"
+      ],
+      "result": "passed"
+    },
+    {
+      "policy": "S3",
+      "raw_schema": 2,
+      "motion_states": 121,
+      "time_samples": [
+        0,
+        10,
+        55.5,
+        120
+      ],
+      "knowledge_layers": [
+        "global",
+        "0",
+        "1"
+      ],
+      "result": "passed"
+    },
+    {
+      "policy": "S4-T",
+      "raw_schema": 2,
+      "motion_states": 121,
+      "time_samples": [
+        0,
+        10,
+        55.5,
+        120
+      ],
+      "knowledge_layers": [
+        "global",
+        "0",
+        "1"
+      ],
+      "result": "passed"
+    },
+    {
+      "policy": "S4-P",
+      "raw_schema": 2,
+      "motion_states": 121,
+      "time_samples": [
+        0,
+        10,
+        55.5,
+        120
+      ],
+      "knowledge_layers": [
+        "global",
+        "0",
+        "1"
+      ],
+      "result": "passed"
+    }
+  ],
+  "limits": "DOM/canvas mocks check render logic and markup only. They do not verify browser painting, layout, downloads, network APIs, or interactive event dispatch. Browser QA is separate.",
+  "command": "node code/docs/validation/headless-replay-qa.cjs --python python --output code/docs/validation/headless-replay-qa.json"
+}

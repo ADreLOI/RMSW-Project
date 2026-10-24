@@ -38,11 +38,13 @@ No browser build step, npm packages, CDN, remote fonts or hosted account is need
 3. **Run all five policies** regenerates that paired scenario in a new evidence bundle. **Run selected policy** runs only the selected configuration. Both use the frozen 4 dB warning margins.
 4. Scrub the timeline, press Play, or choose 10× / 60× / 240× / 600× playback. The shared clock allows policies that stall to continue while completed policies hold their terminal state.
 5. Click a comparison card to inspect that policy. The live metrics refer to the active policy at the displayed time, while each card also labels its final outcome.
-6. Switch between global observed coverage and either boat's local knowledge. Trails show movement; task outlines show unstarted reservations; filled task cells show an executing target at the recorded snapshot. The line between boats uses the last exchange's radio availability.
+6. Switch between global observed coverage and either boat's local knowledge. Trails show recorded movement; numbered task outlines show unstarted reservations; a cross marks an executing target. Positions and task overlays remain observer data in every layer. The radio line anchors to positions at the last measured exchange, with its sample age stated.
 7. Click the coverage or signal graph to seek. Filter the decision table to warnings, unavailable radio or committed allocations. Click an exchange row to inspect its exact JSON, including serialized messages, queues, knowledge and counted work.
 8. **Save map** exports a PNG with policy, seed, simulation time and raw-log SHA-256. Chart arrow buttons export editable SVG. **Download full raw event log** exports the original `.jsonl.gz`, including every observation and 1 s motion tick.
 
-Positions and observations come from exact 1 s model events; movement is interpolated between adjacent samples. Queue and radio states are snapshots every 10 s, not continuous measurements. Older logs omit terminal queues, so the end frame reports those as unavailable. Decorative map contours do not represent measured seabed data.
+Positions and observations come from exact 1 s model events; movement is interpolated between adjacent samples. New schema-2 logs additionally record exact task/motion states every second and at termination, including discrete activity and commanded translation speed. A turning/idle boat does not move at that command. Legacy schema-1 logs retain 10 s sampled tasks and omit terminal queues, so those states are labeled sampled or unavailable. Radio remains a 10 s measurement in both schemas. The map shows model coordinates and cell-center bookkeeping, with no invented bathymetry or sensor footprint.
+
+The causal forecast inspector shows delivered signal history at the selected issuance time and its four stored projections. Subsequent measured signals are excluded from that view. The separate observer signal chart includes failed exchanges, which were not received by the predictor. Use **Slowdown onset** to inspect the scenario's actual onset, and inspect the per-boat panel for exact activity, task state and missing local observations.
 
 **Exploratory settings** allow exponent 1.5–3.0 and a 60–7200 s cutoff. These runs never enter the frozen evaluation. A shortened cutoff can end before the scheduled slowdown, which occurs at 600–900 s. Changing settings does not change an already recorded mission: run the selected settings to create new evidence. The source strip identifies the data actually displayed.
 
@@ -120,6 +122,8 @@ python -m usv_sim.verify ../reproduced-bundle --reference .
 Full-study bundles use `--preset full` without `--request`. Hash verification checks byte integrity; reference comparison checks deterministic scientific results and excludes CPU/wall timings. Gzip headers, timings and process memory may change on regeneration. Do not edit a bundle in place; derived checks should be saved outside it.
 
 ## Files and troubleshooting
+
+Regenerate the report's four outcome/contrast tables and appendix resource tables from the retained data with `python code/simulation/scripts/build_report.py` from the repository root. It checks the complete matrix, records input/output hashes, and writes only generated tables. Prose, bibliography and template files remain edited sources. `python code/simulation/scripts/package_report.py --output <new.zip>` creates a paper-only Overleaf package with source hashes. Inspect/back up live Overleaf before synchronizing, then compile and inspect the PDF; ZIP creation alone does not verify the live draft.
 
 - `AGENTS.md`: scientific rules and essential commands for any coding tool.
 - `code/docs/agent-handoff.md`: architecture, findings, known limits and a ready-to-copy handoff prompt.

@@ -1,5 +1,20 @@
 # Visual-lab validation · 23 October 2026
 
+## Fidelity and report revision, 23–24 October
+
+| Check | Evidence | Result |
+|---|---|---|
+| Scientific audit | `scientific-audit.json`, `../scientific-audit-2026-10-23.md` | 32 tests; all 900 original logs/hashes verified; 30 new scientific records matched before full integration |
+| Final integrated workflow | `full-reproduction-evening.json`; local `results/lab/20261023T203550-5f2c5b0a/` | 32 tests; 900 schema-2 logs reconstructed; 950 hashes and all 900 scientific records match |
+| Retained render checks | `headless-replay-qa.{cjs,json,md}` | 72 real legacy/new trace render combinations; mocks, not browser verification |
+| Actual desktop browser | `browser-study-evening.json`, `dashboard-*-evening.png` | All six condition values match core; exact task state, causal forecast, local knowledge, endpoints and presentation checked |
+| Actual downloads | `map-export-evening.png`, `forecast-export-evening.svg` | PNG map and SVG causal-forecast downloads succeeded |
+| Live Overleaf and PDF | `report-20261024.json`, `overleaf-draft-20261024.png` | Zero errors/warnings/overfull boxes; 17 A4 pages, nine body pages; 25 active files match; six tables regenerate; three GitHub links |
+
+The final PDF and Overleaf source ZIP are in the parent workspace's `output/pdf/`. The full report-source backups remain in `Project-source-snapshots/` outside the checkout. The work log records source preservation, checks actually performed and remaining research limits. The notices retained in Overleaf are underfull typesetting information, not compilation errors.
+
+## Earlier dashboard acceptance
+
 These are recorded checks, not an independent author review or physical validation.
 
 | Check | Retained evidence | Result |

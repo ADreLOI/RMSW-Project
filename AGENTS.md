@@ -62,7 +62,8 @@ The localhost integration tests need socket access. If a restricted runner forbi
 
 - Run relevant meaningful tests. Simulation/protocol changes also require raw-log reconstruction and a new independent evaluation as appropriate; compare deterministic scientific values, excluding host timing.
 - For UI changes inspect the actual browser, including replay, run submission, evidence filters, downloads and presentation. A Python test is not browser QA.
-- Queue snapshots are every 10 s; motion and observations are exact 1 s events. Older logs omit terminal queues. Show missing terminal state as unavailable, never carry stale ownership forward as fact.
+- Schema-2 logs record task/motion state every 1 s and at stopping; post-exchange snapshots supersede ticks at the same time. Radio/forecast measurements remain every 10 s. Legacy schema-1 logs have sampled tasks and unavailable terminal queues. Never invent missing state or show observer data as a boat's knowledge.
+- Regenerate report tables with `python code/simulation/scripts/build_report.py`; this writes generated tables only. Package the active report with `python code/simulation/scripts/package_report.py --output <new.zip>`. Never restore the historical prose scaffolder over edited sources.
 - Keep dashboard writes on the loopback server, with token/origin checks, fixed allowed actions, validated inputs and bounded paths. Do not expose it publicly.
 - Update the work log with what changed, actual validation, output locations and remaining limitations. Update the handoff if architecture or research interpretation changes.
 - Do not merge the open PR, submit the course work, or claim independent human review unless that action is separately requested and verified.

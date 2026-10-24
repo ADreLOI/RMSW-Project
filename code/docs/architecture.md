@@ -62,9 +62,13 @@ The inventory proves byte integrity, not scientific correctness. Independent rec
 
 `evidence.trace()` first calls `analysis.reconstruct()`. It then derives exact first-observation times for each cell, all observation events, and one position/idle sample per simulation second. Canvas interpolates positions only between adjacent 1 s samples. Coverage never uses an invented sensor footprint.
 
-Queue ownership, local knowledge after exchange, radio signal and warning fields use recorded exchange snapshots. Between exchanges, local knowledge additionally receives that boat's observed arrivals. Old logs lack final queue/target state; the terminal frame contains null queues/targets and no radio sample rather than cloning an earlier frame. The UI labels the sampling interval and missing terminal state.
+Raw schema 2 records each boat's task queue, executing target, grid heading, activity, commanded speed, edge remainder and turn remainder at initialization, every 1 s tick, exchanges and stopping. `motion_states` exposes these records; a post-exchange state replaces the pre-exchange tick at the same timestamp. Commanded speed is not translation while turning/idling, and grid heading is not physical yaw. Radio and forecast values remain scheduled exchange measurements.
 
-There is one shared clock across loaded policies. A policy that ends earlier holds its actual terminal position and coverage while another continues. A comparison's duration is the maximum of its loaded runs. Chart lines end at each run's recorded termination. The decorative contour lines do not affect the grid world or imply bathymetry.
+Between exchanges, local coverage knowledge additionally receives only that boat's observed arrivals. Legacy schema-1 logs retain sampled task state and unavailable terminal queues/targets; the trace never fabricates them. A local-knowledge layer changes cell shading while positions and task overlays remain observer records. Sample age, exact task-state time and observer scope are explicit in the interface. The causal forecast inspector uses only delivered measurements at issuance and the stored projections, excluding subsequent observed signals.
+
+There is one shared clock across loaded policies. A policy that ends earlier holds its actual terminal position and coverage while another continues. A comparison's duration is the maximum of its loaded runs. Chart lines end at each run's recorded termination. Trails preserve every recorded corner. The map has model x/y axes, cell-center observations and numbered observer markers; it adds no seabed, sonar, currents or geographic orientation.
+
+Reconstruction uses explicit exceptions, including under `python -O`, to validate accounting, geometry, timestamps, snapshot bounds/ownership and censoring. Analysis verifies the freeze hash and exact seed/condition/policy matrix. Hash integrity and software verification remain distinct from environmental calibration.
 
 ## HTTP contract
 

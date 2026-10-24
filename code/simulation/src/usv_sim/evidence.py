@@ -99,12 +99,13 @@ def inventory(destination):
 def trace(path):
     """1 s tracks + exchange snapshots + exact observation times + raw sessions.
 
-    Queue ownership is sampled at exchanges. Older logs do not record terminal
-    queues, so that final value is null instead of copying stale reservations.
+    Schema-2 logs additionally record exact one-second task/motion states; a
+    session at the same timestamp supersedes its pre-exchange tick snapshot.
+    Legacy logs retain sampled ownership and unavailable terminal tasks.
     """
     path = Path(path)
     result, _ = reconstruct(path)  # Fail closed if independent totals disagree.
-    frames, tracks, sessions, observations = [], [], [], []
+    frames, tracks, sessions, observations, motion_states = [], [], [], [], []
     counts = {}
     covered = set()
     total_observations = 0
@@ -113,6 +114,25 @@ def trace(path):
     idle = [0, 0]
     sent = received = 0
     start = terminal = None
+
+    def recorded_state(event, t):
+        boats = event.get("boats")
+        if boats is None:
+            return
+        state = {"t": t, "queues": [b["queue"] for b in boats],
+                 "targets": [b["target"] for b in boats],
+                 "headings": [b["heading"] for b in boats],
+                 "modes": [b["mode"] for b in boats],
+                 "speed_mps": [b["speed_mps"] for b in boats],
+                 "cells": [b["cell"] for b in boats],
+                 "edge_targets": [b["edge_target"] for b in boats],
+                 "edge_remaining_m": [b["edge_remaining_m"] for b in boats],
+                 "turn_remaining_s": [b["turn_remaining_s"] for b in boats]}
+        if motion_states and motion_states[-1]["t"] == t:
+            motion_states[-1] = state
+        else:
+            motion_states.append(state)
+
     for event in read_events(path):
         kind = event["event"]
         counts[kind] = counts.get(kind, 0) + 1
@@ -129,6 +149,7 @@ def trace(path):
                 first_seen[event["cell"]] = event["t"]
             observations.append([event["t"], event["boat"], event["cell"]])
         elif kind == "initial_allocation":
+            recorded_state(event, 0)
             initial = [0, (config.width + 1) // 2]
             frames.append({"t": 0, "xy": positions, "known": [initial, initial],
                            "queues": event["queues"], "targets": [None, None],
@@ -138,7 +159,9 @@ def trace(path):
         elif kind == "tick":
             positions, idle = event["xy"], event["idle"]
             tracks.append([event["t"], *positions[0], *positions[1], *idle])
+            recorded_state(event, event["t"])
         elif kind == "session":
+            recorded_state(event, event["t"])
             sent += event["bytes_attempted"]
             received += event["bytes_delivered"]
             sessions.append(event)
@@ -150,16 +173,19 @@ def trace(path):
             frames.append(frame)
         elif kind == "stop":
             terminal = event
+            recorded_state(event, result["stop_s"])
     # Always append a distinct terminal state, even if an exchange shares its time.
     frames.append({"t": result["stop_s"], "xy": positions, "known": terminal["known"],
                    "queues": terminal.get("queues"), "targets": terminal.get("targets"),
                    "coverage": result["coverage"], "redundant": result["redundant"],
                    "sent_bytes": sent, "received_bytes": received, "radio": None,
                    "r": None, "warning": False, "committed": False, "terminal": True})
-    return {"schema": 1, "config": asdict(config), "scenario": start["scenario"],
+    return {"schema": 2, "raw_schema": start.get("schema", 1), "config": asdict(config), "scenario": start["scenario"],
             "margins": start["margins"], "policy": start["policy"], "result": result,
-            "frames": frames, "tracks": tracks, "first_seen": first_seen,
+            "frames": frames, "tracks": tracks, "motion_states": motion_states, "first_seen": first_seen,
             "observations": observations, "sessions": sessions, "event_counts": counts,
             "raw_sha256": sha256(path), "verified": True,
-            "sampling": {"motion_s": 1, "queues_s": config.exchange_s,
+            "sampling": {"motion_s": 1, "queues_s": 1 if motion_states else config.exchange_s,
+                         "radio_s": config.exchange_s,
+                         "motion_states_recorded": bool(motion_states),
                          "terminal_queues_recorded": "queues" in terminal}}
