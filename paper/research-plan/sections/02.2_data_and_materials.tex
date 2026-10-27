@@ -1,0 +1,52 @@
+% Proposal source-description paragraphs retained.
+% Forecast/event definitions and metrics are specified in procedure and analysis.
+\subsection{Data, Materials, Participants, or Other Sources}
+The evidence will come from simulation; no human participants are involved. Two identical USVs will survey a known rectangular grid. A policy-independent, temporary speed reduction of one USV will create unequal progress, motivating online reassignment of unfinished cells. Its onset and duration will be generated before the paired policy runs. The slowed USV observes its own progress; its peer learns that progress through timestamped position, coverage, and task-claim messages over a direct boat-to-boat radio link. The synthetic link model will combine distance-dependent signal strength with a two-state, temporally correlated fade process; recent signal and position measurements may give warning before some outages.
+
+Each run will record true and locally known coverage, positions, link and message events, predictions, task claims, completion or timeout, travel distance, and bytes sent. Configurations, random seeds, software versions, and any reused code revision will be retained. Parameters will be source-based where possible; synthetic assumptions and their units will be explicit. The grid, idealized sensing, and synthetic link limit conclusions about real vessels and seabed-map quality.
+
+The study will use synthetic scenarios and event logs, not a measured maritime dataset. The simulator and its validation remain planned work; no implemented baseline or experimental results are claimed in this plan. Development will begin with a fixed, disjoint grid-sweep baseline before adding finite-speed motion, communication, reactive allocation, and prediction. Public software candidates include PythonRobotics for grid-sweep coverage and published CBBA software for studying task allocation \cite{sakai2018pythonrobotics,choi2009auction}. These are potential resources, not adopted or reproduced dependencies. If code is reused, its repository, commit, licence, attribution, dependencies, tests, and adaptations will be recorded.
+
+Table \ref{tab:parameters} supplies implementable starting values. All numerical values are \textbf{provisional author design choices} for the synthetic scenario, rather than measurements from vessels. They will be checked in the pilot and frozen before evaluation; changes will be recorded rather than selected to produce a favourable effect.
+
+The grid-coverage abstraction is informed by CPP literature \cite{galceran2013coverage,yang2023cooperative}. The distance-loss term uses a standard log-distance path-loss form \cite{goldsmith2005pathloss}, and the correlated two-state process is motivated by Gilbert's burst-channel model \cite{gilbert1960burst}. These references support the model forms, not the numerical settings in Table \ref{tab:parameters}. Grid size, speed, slowdown, exchange budget, signal offsets, threshold, queue sizes, forecast window/horizon, margins, timeout, and repeat counts are deliberately chosen experimental controls; none is presented as a calibrated sea-trial value or a published benchmark setting. Predictor-method references are given in Sections 2.1 and 2.3.
+
+\begin{table}[htbp]
+\centering
+\caption{Provisional synthetic settings for the core experiment; model sources are distinguished from author-selected values.}
+\label{tab:parameters}
+{\small\setstretch{1.05}
+\begin{tabularx}{\linewidth}{@{}p{3.15cm}Y@{}}
+\toprule
+Quantity & Starting value / definition\\
+\midrule
+Survey grid & $20\times12$ cells, cell side $20$ m; $400\times240$ m rectangle.\\
+USVs and initial state & Two identical vehicles at centres $(10,10)$ m and $(210,10)$ m; speed $2$ m/s.\\
+Motion and sensing & $1$ s time step; adjacent-cell centre travel; $5$ s per heading change. One idealized cell observation per cell entry, including transit.\\
+Progress disturbance & No slowdown, or USV 1 at $0.5$ nominal speed for $300$ s; onset uniform between $600$ and $900$ s, drawn before each paired run.\\
+Exchange opportunity & Every $\Delta=10$ s; one logical session, up to four datagrams and $8192$ serialized bytes per session for every online policy.\\
+Distance-loss signal & Log-distance form \cite{goldsmith2005pathloss}; selected $P_0=-40$ dBm at $d_0=1$ m and exponent $n=2$; separation clamped to at least $d_0$.\\
+Fade and delivery & Offset $0$ or $-10$ dB; stationary faded fraction $q=0.2$; reception threshold $\theta=-90$ dBm. Radio delivery requires $r_k\geq\theta$; session commitment also requires the batch to fit the message budget.\\
+Fade persistence & Two-state burst abstraction \cite{gilbert1960burst}; selected mean faded duration $L=2,5,10$ exchange intervals; start state drawn from the stationary distribution.\\
+Short / long queue & $b_s=3$ / $b_l=12$ unstarted cell tasks per USV, excluding the currently executing task.\\
+Forecast & Onset horizon $H=3$ exchanges; project through $H+1$ to check two consecutive failures. Trend window $W=5$ received samples; pilot margins $m\in\{0,2,4\}$ dB.\\
+Timeout and repeats & Common $\tau=7200$ s; 10 disjoint pilot seeds, initially 30 evaluation seeds per condition.\\
+\bottomrule
+\end{tabularx}\par}
+\end{table}
+
+\needspace{11\baselineskip}
+The direct radio link is abstracted by
+\begin{equation}
+\label{eq:received-signal}
+r_k=P_0-10n\log_{10}\!\left(\max(d_k,d_0)/d_0\right)+z_k.
+\end{equation}
+Here $k$ indexes scheduled exchange opportunities at time $t_k=k\Delta$ seconds, with exchange interval $\Delta=10$ s; $d_k$ is the distance in metres between the two USV centres at $t_k$. The reference distance $d_0=1$ m (subscript zero) also prevents a logarithm at zero separation. $P_0$ is nominal received power at $d_0$ in dBm, not transmit power; $n$ is the dimensionless path-loss exponent; $z_k$ is the synthetic fade offset in dB; and $r_k$ is received signal power in dBm. The reception threshold $\theta$ is also in dBm. A radio exchange is available when $r_k\geq\theta$, independently of the additional message-budget requirement.
+
+A two-state burst process, motivated mathematically by Gilbert's model \cite{gilbert1960burst}, supplies $z_k$. Let $C$ denote the clear state ($z_k=0$ dB) and $F$ the faded state ($z_k=-10$ dB). For a selected stationary faded fraction $q$ and mean faded duration $L$ measured in exchange intervals, set the one-step transition probabilities to
+\begin{equation}
+\label{eq:fade-transitions}
+\Pr(F\to C)=\frac{1}{L},\qquad
+\Pr(C\to F)=\frac{q}{L(1-q)}.
+\end{equation}
+These probabilities are derived to preserve $q=0.2$ while varying $L$, rather than borrowed as marine-channel parameters. Longer episodes therefore imply fewer fade onsets. A faded state is not automatically a failed radio exchange: delivery also depends on separation and threshold. This is a generic burst-link abstraction, not a calibrated sea-channel model. Deterministic always-connected and forced-outage traces are separate validation cases.

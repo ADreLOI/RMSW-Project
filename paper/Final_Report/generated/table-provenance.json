@@ -1,0 +1,22 @@
+{
+  "generator": "code/simulation/scripts/build_report.py",
+  "generator_sha256": "04b1fd41968d8ae5010a1f44a533711b10497db69b916c85b55ac4ac6b53bc70",
+  "runs": 900,
+  "inputs_sha256": {
+    "runs.json": "94844a3ec45bccf446650ceb5916a79bafba4f3b88c846d0b42eb9c56e025e9b",
+    "paired-contrasts.csv": "c9b25ff3373919ae7ccb9091df457afd424e1613ddb88fa971e89af1a3998dd5",
+    "condition-summary.csv": "c57d2ed7af812f231894ade7e69f8bad84c9c30c6bd0825f0e1941bcc321a132",
+    "outage-diagnostics.csv": "368e27f494e427a0aaa5d0910bd334905a121ae9898494a6d8dc3459123c9fcb",
+    "component-resources.csv": "8eb07ecadf8a81f7f6ca9e01a9a48f7fd0f53cd7ebfdce32f06c288f1bedd82d",
+    "frozen-design.json": "9d74c46fbbdf726809daf3444d54757fed7016cc0910d9f4f8a5d052d66c8c99"
+  },
+  "outputs_sha256": {
+    "primary-contrasts.tex": "5a5723ec2f01339ed90e413907e39eb65a8e04bbf822c60f1d60bf8916e29188",
+    "complete-contrasts.tex": "6938f01c4e68817b6b17ceefb551a6923cdb0e1ea7a61e4abdbc0e559373f2c9",
+    "condition-diagnostics.tex": "91d6aa00bc96e313fd09325660161430bf2c4101d763dd25673c4151e6997a04",
+    "policy-diagnostics.tex": "c9504f506b4d4c78a3ed881d0072ec98993303114b00f2622962788b364088e4",
+    "communication-diagnostics.tex": "78c2be9f59a07fe2a88ec2fb718132db4c3bca9c698e1eed4c9a54f831e94d45",
+    "component-diagnostics.tex": "f45195455b07ddf6b08300e8f1ccc3ad321a8b52bdcc233d4c5fdabe1ea8df9b"
+  },
+  "note": "Tables are descriptive except paired marginal bootstrap intervals copied from retained contrasts. Prose and bibliography are never overwritten."
+}

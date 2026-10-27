@@ -1,0 +1,36 @@
+\section{Results}
+\subsection{Mission outcomes and the primary comparison}
+All 900 planned runs produced retained logs and reconstructed metrics. S1 completed every mission with no redundant observations. S2 completed none and reached approximately $23.5$--$23.7\%$ coverage by condition. Table~\ref{tab:outcomes} shows mission outcomes and movement diagnostics. These pooled descriptions average six equally sized conditions; paired inference remains within each condition. Mean coverage includes both finished and unfinished runs and is not coverage only among failures.
+
+\begin{table}[htbp]\centering
+\caption{Descriptive mission outcomes per policy. Repeated observations, travel and idle are means per run. Idle sums both vehicles' waiting time in boat-seconds.}\label{tab:outcomes}
+\input{generated/policy-diagnostics}
+\end{table}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/mission-time.png}
+\caption{Restricted mean time to coverage with 95\% bootstrap intervals. Unfinished missions contribute $7200$ s without being counted as completed. Each point uses 30 seeds.}\label{fig:time}\end{figure}
+\begin{table}[htbp]\centering
+\caption{Primary paired contrast, S4-T minus S2. Negative values favour S4-T; changes are relative to the reference restricted mean. Each row uses 30 matched seeds and a marginal 95\% bootstrap interval.}\label{tab:primary}
+\input{generated/primary-contrasts}
+\end{table}
+The primary restricted-time differences range from $-4370$ to $-5386$ s, or $-60.7\%$ to $-74.8\%$ (Table~\ref{tab:primary}). They include S2's persistent non-completion. S1 remained faster in mean time than every online configuration in these settings, with $1280$ s without slowdown and $1423$ s with slowdown. All condition means and all 18 planned paired contrasts are in Appendix~\ref{app:condition-results}.
+
+\subsection{Reservation control and warning quality}
+S4-T showed no consistent improvement over S3. Its mean restricted-time difference from S3 was positive in all six conditions, ranging from $2.8$ to $196.3$ s. At $L=5$ without slowdown it was $+196.3$ s ($[0.7,583.0]$); with slowdown it was $+194.2$ s ($[-0.2,577.5]$). The trend/persistence comparison was also mixed: at $L=5$ S4-T was about $575$ s slower without slowdown and $570$ s slower with slowdown, while several other conditions differed only slightly. The complete paired contrasts, including uncertainty, are provided with the generated data.
+
+On held-out fixed-route replay, the trend predictor matched 197 of 757 eligible outages, with 1299 false alerts: precision $0.132$, recall $0.260$, F1 $0.175$. Persistence matched 196, with 1280 false alerts: precision $0.133$, recall $0.259$, F1 $0.176$. Trend missed 560 eligible onsets and persistence missed 561. Forty early-boundary outages and 25 late-boundary alerts per predictor were excluded. Matched trend lead times were $10/20/30$ s in $80/59/58$ cases, versus $79/59/58$ for persistence; both medians were $20$ s. These are descriptive event counts, not independent trials or proof of forecast superiority.
+
+In online missions, S4-T committed 6475 warning-triggered queue extensions; 1086 occurred one to three opportunities before an eligible outage. S4-P committed 5127, with 1007 in that window. At least one such commit preceded $443/538$ eligible S4-T onsets and $393/553$ S4-P onsets. These counts establish that warnings sometimes changed reservation capacity before an outage. They do not establish that the change improved a mission.
+
+\subsection{Coverage and resource trade-offs}
+The online long-queue and predictive methods produced redundant observations, including travel through already observed cells; S2's zero redundancy accompanies severe incomplete coverage. No duplicate task ownership or session-budget violation was detected. S2's mean link availability was $3.3\%$, with about 694 distance-related failed opportunities per run. For S3, S4-T and S4-P, mean availability was $73.5\%$, $72.4\%$ and $74.9\%$. Condition-specific availability and observed outage durations are in Appendix~\ref{app:condition-results}; final outage episodes may be truncated by stopping.
+
+S1's mean missing-information fraction was $25.70\%$ before scheduled opportunities and $49.58\%$ at stopping, consistent with completing disjoint work without exchanging observations. Online mean pre-synchronization gaps were $1.10$--$1.62\%$ and stopping gaps $0.82$--$1.66\%$. Thus full true coverage does not imply that either boat holds the entire coverage record. Communication and work counts stop at completion or timeout.
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/resource-tradeoff.png}
+\caption{Communication volume and restricted time, interpreted alongside completion and achieved coverage. Points represent conditions, not an imposed weighted score.}\end{figure}
+\Needspace{12\baselineskip}
+\begin{table}[htbp]\centering
+\caption{Descriptive resource means over all 180 runs per policy, with six equally sized conditions, measured until completion or timeout. Low resource use in an incomplete mission is not efficiency. Missing-information gaps are averaged before synchronization.}
+\input{generated/resource-table}
+\end{table}
+\input{generated/host-summary}

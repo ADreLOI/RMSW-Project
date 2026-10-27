@@ -1,0 +1,179 @@
+{
+  "checked_utc": "2026-10-23T12:48:04.242Z",
+  "browser": "Codex in-app browser",
+  "condition_checks": [
+    {
+      "completed": [
+        30,
+        0,
+        28,
+        28,
+        28
+      ],
+      "length": "2",
+      "restricted": [
+        1280,
+        7200,
+        1811,
+        1814,
+        1814
+      ],
+      "rows": 150,
+      "slowdown": "false",
+      "matchesSource": true
+    },
+    {
+      "completed": [
+        30,
+        0,
+        24,
+        23,
+        26
+      ],
+      "length": "5",
+      "restricted": [
+        1280,
+        7200,
+        2582,
+        2778,
+        2203
+      ],
+      "rows": 150,
+      "slowdown": "false",
+      "matchesSource": true
+    },
+    {
+      "completed": [
+        30,
+        0,
+        27,
+        27,
+        27
+      ],
+      "length": "10",
+      "restricted": [
+        1280,
+        7200,
+        2030,
+        2050,
+        2051
+      ],
+      "rows": 150,
+      "slowdown": "false",
+      "matchesSource": true
+    },
+    {
+      "completed": [
+        30,
+        0,
+        28,
+        28,
+        28
+      ],
+      "length": "2",
+      "restricted": [
+        1423,
+        7200,
+        1874,
+        1878,
+        1881
+      ],
+      "rows": 150,
+      "slowdown": "true",
+      "matchesSource": true
+    },
+    {
+      "completed": [
+        30,
+        0,
+        24,
+        23,
+        26
+      ],
+      "length": "5",
+      "restricted": [
+        1423,
+        7200,
+        2635,
+        2830,
+        2260
+      ],
+      "rows": 150,
+      "slowdown": "true",
+      "matchesSource": true
+    },
+    {
+      "completed": [
+        30,
+        0,
+        27,
+        27,
+        27
+      ],
+      "length": "10",
+      "restricted": [
+        1423,
+        7200,
+        2094,
+        2153,
+        2172
+      ],
+      "rows": 150,
+      "slowdown": "true",
+      "matchesSource": true
+    }
+  ],
+  "presentation_scenes": [
+    "Can a short radio forecast improve a shared survey?",
+    "Watch work continue when the link cannot.",
+    "Completion reveals the model’s limits.",
+    "Reserve capacity helps.\nForecast value remains unproven.",
+    "Every figure has a path back to an event."
+  ],
+  "focused_presentation": {
+    "captionTop": 711.9166870117188,
+    "chartBottom": 696.9166870117188,
+    "exitVisible": true,
+    "focused": true,
+    "viewportHeight": 1067,
+    "viewportWidth": 1707,
+    "chart_does_not_overlap_caption": true
+  },
+  "exploratory_terminal": {
+    "coverage": "15.0 %",
+    "maximum": "180",
+    "queues": "Terminal queues not recorded",
+    "signal": "Mission ended · no new exchange",
+    "source": "Separate run bundle · seed 2026 · balanced · L=10 · n=1.8 · independently verified",
+    "terminal": "03:00 · END",
+    "time": "180"
+  },
+  "mission": {
+    "coverage": "55.4 %",
+    "horizontalOverflow": false,
+    "policies": 5,
+    "source": "Frozen evaluation trace · seed 1000 · slowdown · L=5 · n=2 · independently verified",
+    "time": "700",
+    "viewport": [
+      952,
+      871
+    ]
+  },
+  "svg_download_verified": true,
+  "svg_download_metadata_verified": true,
+  "console_errors": [],
+  "limits": [
+    "No physical vessel or field test",
+    "No mobile-device browser test",
+    "Native fullscreen depends on browser support; focused layout is available"
+  ],
+  "map_download_verified": true,
+  "map_download_filename": "mission-1000-1-5-S4-T-700.0s.png",
+  "latest_svg_download_filename": "coverage-chart-seed1000-slow1-L5.svg",
+  "latest_svg_scenario_metadata_verified": true,
+  "export_rechecked_utc": "2026-10-23T13:01:18.136Z",
+  "map_download_dimensions": [
+    826,
+    516
+  ]
+}

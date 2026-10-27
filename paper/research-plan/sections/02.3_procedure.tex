@@ -1,0 +1,68 @@
+% Original procedure paragraphs retained. Added details make the plan implementable.
+\subsection{Work Procedure and Data Collection}
+
+The work will proceed from the simplest verifiable case to the final comparison. First, a one-USV survey and a two-USV fixed partition will be checked under reliable and disconnected links; the fixed partition should be communication-independent. Next, the common online allocator and reactive resynchronization behavior will be implemented, and a hand-checked trace will confirm how stale shared state changes an allocation decision. The outage predictor will then be evaluated separately for false alarms, missed detections, and useful lead time before its pre-outage exchange and task-reservation action is added.
+
+A pilot will be used to check runtime, variability, failure cases, and whether every planned metric can be reconstructed from the logs. The final configurations and analysis rules will then be frozen. Strategies will be run on paired initial conditions and the same pre-generated fade and slowdown traces, with separate random streams for policy choices. Their realized link histories may still differ because signal strength depends on the routes taken. Seeds, configurations, raw logs, and timed-out runs will be retained. If the predictive intervention cannot be evaluated fairly within the course period, no main-effect claim will be made about prediction; the study will instead report the validated fixed-partition and reactive baselines and the reason why the predictive comparison was not completed.
+
+\textbf{Common allocation rule and benchmarks.}
+Cell tasks will use the grid representation defined in Section 2.2. At a successful session, merge delivered coverage and task-state messages; keep executing tasks fixed and release only unstarted queue entries for joint replanning. The common allocator considers all eligible unobserved cell tasks and each USV with available queue capacity. It chooses the pair with the smallest projected finish time: queued work time plus shortest grid travel from the queue endpoint, with the specified turning cost. Equal scores are resolved by task ID then USV ID. Append that task, update projected workload, and repeat until both queues reach the policy's capacity or no task remains. This deterministic greedy rule is defined for the present study. CBAA/CBBA supplies a literature reference for auction-based allocation \cite{choi2009auction}, but the planned rule does not implement its distributed bundle-consensus procedure. The same greedy allocator will be used in all three online policies to isolate the reservation decision.
+
+The reference and intervention policies are:
+\begin{enumerate}[label=\textbf{S\arabic*.}]
+\item \textbf{Fixed offline partition.} Split adjacent grid columns equally before launch and traverse each partition in boustrophedon order. No online messages or reassignment are needed. This baseline will be implemented as a study control informed by CPP literature, not as a reproduction of Yang et al.'s full algorithm.
+\item \textbf{Reactive resynchronization.} At successful scheduled sessions, merge received state and refill queues to $b_s$. On a failed exchange, preserve committed ownership and work; resynchronize when communication returns.
+\item \textbf{Long backlog without prediction.} Use exactly the same allocator, but refill to $b_l$ at every successful session. This ablation controls for the reservation size.
+\item \textbf{Prediction-triggered reservation.} Normally refill to $b_s$; if the warning is positive while connected, refill to $b_l$ in that session. Do not cancel already committed tasks during disconnection.
+\end{enumerate}
+
+S4 will have two variants: S4-T uses the trend predictor, and S4-P uses persistence. The primary comparison is S4-T versus S2. Comparing S4-T with S3 tests whether warning-dependent reservation provides a benefit beyond always maintaining a longer queue; S4-T versus S4-P tests the choice of predictor under the same action. S1 establishes how a communication-independent partition performs under the same motion and slowdown conditions. These are controlled comparisons within the proposed model, not a reproduction of a published benchmark suite.
+
+In the basic simulation, a session is an explicitly idealized atomic exchange: either both vehicles receive the state/proposal/acknowledgement batch within the budget and adopt the same versioned allocation, or neither changes ownership. This is not a solution to real lossy distributed consensus. After a failed session, each USV executes its previously committed queue and idles if it becomes empty; it never steals its peer's tasks using stale state. Both start with a joint allocation. The added restriction makes ownership verifiable; any sensing overlap caused by travel is still counted.
+
+Reconnection is not guaranteed: two idle vehicles outside communication range may remain disconnected even after a fade ends. The core model includes no rendezvous controller. Such runs will continue to the common timeout and remain in the analysis. Logs will distinguish empty-queue waiting, distance-related disconnection, fading, and budget failures so that incomplete missions can be explained. The pilot will check whether persistent stalls dominate the comparison; any resulting design revision will be documented before evaluation, without selecting settings to favour prediction.
+
+\textbf{Forecast rule and event order.}
+A forecast will be positive when an outage of at least two consecutive missed scheduled exchanges is predicted to begin within the next three update intervals. Both predictors use only information available through successful exchanges, never future link states. We will implement the following rules from standard persistence and least-squares components \cite{hyndman2021forecasting,nistLeastSquares}; the combined signal-motion warning rule is a study-specific construction, not a reproduction of a published USV predictor.
+
+Let $\boldsymbol p_i(t)$ be the two-dimensional position in metres of USV $i\in\{1,2\}$ at time $t$, and let $\boldsymbol u_k=\boldsymbol p_2(t_k)-\boldsymbol p_1(t_k)$ be its relative-position vector. At the latest successful exchange $k$, let $\ell<k$ index the preceding successful position exchange. Estimate constant relative velocity and future separation by
+\begin{equation}
+\label{eq:motion-forecast}
+\widehat{\boldsymbol v}_k=\frac{\boldsymbol u_k-\boldsymbol u_\ell}{t_k-t_\ell},
+\qquad
+\hat d_{k+h}=\left\|\boldsymbol u_k+h\Delta\widehat{\boldsymbol v}_k\right\|_2.
+\end{equation}
+The velocity estimate is in m/s, $h$ is the number of future exchange intervals, and $\|\cdot\|_2$ is Euclidean length. For each of the latest $W=5$ successful samples, indexed by $j$ with its actual timestamp $t_j$, remove the known distance-loss component and fit a straight-line time trend by ordinary least squares:
+\begin{equation}
+\label{eq:signal-residual}
+e_j=r_j-\left[P_0-10n\log_{10}\!\left(\max(d_j,d_0)/d_0\right)\right],
+\qquad \hat e(t)=\hat a+\hat b t.
+\end{equation}
+Here $e_j$ and $\hat e(t)$ are signal residuals in dB. The fitted intercept $\hat a$ (dB) and slope $\hat b$ (dB/s) minimize the sum of squared residual errors over those $W$ samples. The trend signal forecast is then
+\begin{equation}
+\label{eq:trend-forecast}
+\hat r_{k+h}=P_0-10n\log_{10}\!\left(\max(\hat d_{k+h},d_0)/d_0\right)+\hat e(t_k+h\Delta).
+\end{equation}
+The predicted signal $\hat r_{k+h}$ is in dBm. The residual formulation avoids counting distance loss twice. Its path-loss parameters are known from the synthetic configuration, not estimated as a real marine model. The persistence predictor uses the naive forecast \cite{hyndman2021forecasting},
+\begin{equation}
+\label{eq:persistence-forecast}
+\hat r_{k+h}=r_k,
+\end{equation}
+holding the latest received signal constant. It provides a low-cost reference that warns when the current signal lies within the selected safety margin. Both predictors use the same forecast horizon, warning rule, and reservation action. The trend variant falls back to persistence until five successful samples are available; neither variant warns before its first received sample. Actual timestamps, including gaps, are used in the trend fit.
+
+Let $H=3$ be the onset horizon in exchange intervals and $m$ the safety margin in dB. Compute projected samples for $h=1,2,3,4$. Issue a warning if
+\begin{equation}
+\label{eq:warning-rule}
+\text{there exists }h\in\{1,\ldots,H\}:\quad
+\hat r_{k+h}<\theta+m\ \text{ and }\ \hat r_{k+h+1}<\theta+m.
+\end{equation}
+The fourth sample checks continuation of an outage beginning at the third opportunity; the onset horizon remains three intervals. Select one margin per predictor from Table \ref{tab:parameters} using event-level F1 on the same separate pilot replay traces, breaking ties by the smaller margin. If pilot outages occur but no alerts are issued, use F1 equal to zero for selection; a replay set without eligible outages cannot support tuning and must be expanded within the pilot. Do not tune on evaluation outcomes.
+
+A true radio outage is a maximal run of at least two scheduled opportunities with $r_k<\theta$; budget failures will be recorded separately. The forecast is checked only while a successful session can support the reservation. Gradual changes in separation may provide warning, whereas independently generated Markov fades need not have precursors. Fade persistence does not imply onset predictability. An optional oracle-warning diagnostic may use future link state to examine the action's potential, but it will be explicitly separated from both deployable predictors and the main comparisons.
+
+Each simulation tick applies the exogenous slowdown, advances motion/sensing, and, at scheduled opportunities, evaluates link delivery. Only delivered state updates local knowledge; the warning and common allocator then act, followed by logging. Keep this order fixed to prevent future-information leakage. A successful session samples a constant channel state for its batch; transmission latency within the slot is not resolved.
+
+\textbf{Pilot and evaluation matrix.}
+Use the two progress settings and three fade-persistence levels with S1, S2, S3, S4-T, and S4-P, initially $2\times3\times5\times30=900$ runs. The ten pilot seeds will be separate from evaluation seeds. The pilot will measure runtime and variability to confirm the repeat count; any revision will be made before evaluation and will retain paired configurations. Generate channel innovations and slowdown draws separately from policy randomness so additional policy decisions cannot alter the shared disturbances. Record each configuration's realized outages because routes may differ.
+
+Replay both predictors on identical held-out traces generated along the fixed-partition routes to compare warning quality without route changes. Include paired S4-T and S4-P mission runs to assess how those warnings affect coordination. The optional distance-loss check repeats the same design at $n=2.5$, without retuning on test seeds. Freeze all settings, seeds, event matching, and analysis before evaluation. If runtime is excessive, remove optional sensitivity and oracle diagnostics before reducing the core comparisons.

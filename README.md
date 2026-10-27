@@ -1,67 +1,50 @@
-# RMSW Project — II2202, Autumn 2026
+# RMSW Project · II2202
 
-Andrea Lo Iacono and Ettore Mugisha Cirillo.
+Andrea Lo Iacono and Ettore Mugisha Cirillo. Controlled two-USV coverage under intermittent radio communication.
 
-Status: proposal preparation. No simulator or experimental results are implemented yet. The scientific direction and research questions remain to be agreed by both authors.
+The **USV Research Lab** provides an animated simulator, synchronized policy comparisons, statistical charts, raw-event inspection, experiment controls, automated verification and a five-scene interactive presentation. From the repository root on Windows:
 
-## Where to work
-
-```text
-Proposal/II2202-proposal.tex Proposal main document
-Proposal/
-  preamble.tex              Original course formatting
-  frontmatter.tex           Title, authors and template notice
-  sections/01-*.tex          Section 1 — Ettore
-  sections/02-*.tex          Section 2 — Andrea
-  references.tex            Reference section and BibTeX commands
-  references.bib            Proposal bibliography, initially empty
-  assets/                   Figures used in the report
-  appendices/               Optional appendices
-  styles/                   BibTeX style
-Final_Report/               Final report template and sections
-code/docs/                  Drafting worksheet
-code/simulation/            Future simulator, configurations and tests
-code/data/                  Data provenance; no private or bulk raw data
+```powershell
+.\Run-Lab.ps1 -Setup       # first run: install into a local environment
+.\Run-Lab.ps1              # later runs: open the dashboard
+.\Run-Lab.ps1 -Action Smoke
+.\Run-Lab.ps1 -Action Full -Workers 4
 ```
 
-The former zero-byte root files `main.tex` and `preamble.tex` were removed to avoid ambiguous entry points; they remain recoverable in Git history. All section guidance and placeholders were preserved. Existing personal reminders remain in `Cose_Da_Ricordare.txt`.
+Open `http://127.0.0.1:8768`. New runs are saved as separate, reproducible evidence bundles. See the [dashboard guide](code/docs/dashboard-guide.md). Other tools should start with [AGENTS.md](AGENTS.md) and the [agent handoff](code/docs/agent-handoff.md); completed work is recorded in the [work log](code/docs/work-log.md).
 
-## Compile and pagination
+Open the dashboard's **Guide** for a step-by-step first simulation and a tour of every control (English/Italian). The [documentation index](code/docs/README.md) lists everything else, starting from the [27 October summary PDF](code/docs/aggiornamento-per-ettore-2026-10-27.pdf).
 
-In Overleaf, choose the document you want to build through **Main document**. Use `Proposal/II2202-proposal.tex` for the proposal. When the final report template is completed, use `Final_Report/main.tex` for the final report. Use **LuaLaTeX**. Compile from the repository root locally too, if a TeX distribution is installed.
+![USV·PAC research lab: guide with the digit field drawn from recorded signal values](code/docs/validation/redesign-v2-desktop-guide.png)
 
-Sections use `\input`, not `\include`, which inserts page breaks. Normal page breaks when a page fills remain expected. Fonts, margins, spacing and heading sizes are unchanged. See [Overleaf's explanation](https://www.overleaf.com/learn/latex/Management_in_a_large_project).
+The revised research plan is implemented. The core evaluation contains 900 runs, five configurations, six conditions, and 30 paired evaluation seeds per condition, following a separate 300-run pilot. All 900 evaluation logs passed metric reconstruction. Results are synthetic evidence; the report remains a working draft for both authors to review.
 
-## Writing responsibilities
+```text
+paper/
+  Final_Report/              Active modular final report; main.tex
+  research-plan/             Unmodified live Overleaf snapshot, 23 Oct 2026
+  professor-template-2026/   Unmodified assigned report template
+  Proposal/                 Preserved earlier proposal
+code/
+  simulation/               Simulator, tests, frozen design, analysis, replay
+  docs/                     Provenance and implementation decisions
+  data/                     Data notes
+```
 
-- Ettore: Section 1, Background/Related Work and Research Problem/Aim/Questions.
-- Andrea: Section 2, Design, Data/Materials, Procedure and Analysis.
-- Both: agree on the question, comparison, scope, evidence and final consistency.
+- [Final-report Overleaf project](https://www.overleaf.com/project/6adaa2ee04fc36dc7bdb36ac)
+- [Research-plan Overleaf project](https://www.overleaf.com/project/6abd035913fae5baa946157b)
+- [Simulator and reproduction commands](code/simulation/README.md)
+- [Results and review limits](code/docs/results-and-review.md)
+- [Plan-to-code mapping](code/docs/plan-to-code.md)
+- [Sources and preservation](code/docs/provenance.md)
+- [Dashboard architecture and API](code/docs/architecture.md)
 
-Start with [the Section 2 worksheet](code/docs/section-2-worksheet.md). It contains feedback and author decision prompts, not submission prose. Keep final scientific text student-authored and record AI use as Canvas requires.
+Fixed partitioning completed every evaluation run. Reactive short queues completed none: this no-rendezvous model permits boats to exhaust work beyond radio range. Long queues and predictive variants completed most runs. Trend prediction showed no consistent benefit over an always-long queue or persistence. Do not treat the contrast with the stalled reactive policy as proof of forecast skill or convert operation/byte counts into measured energy savings.
 
-The proposal uses BibTeX through `Proposal/references.tex`. Add only sources that were actually read and cited to `Proposal/references.bib`; do not add sample references or unused candidate entries. Before submission, remove visible template guidance if the assignment asks for a clean report.
+Compile inside `paper/Final_Report/` with LuaLaTeX and BibTeX, using `main.tex`. `II2202-report.tex` is a compatibility wrapper for the original template setting. The assigned font, 11-point body, margins, spacing, and headings are retained; a stray `w` in its section-format command is corrected. GitHub icons and a boxed repository link follow the plan styling. The course forbids the KTH logo on this report.
 
-Before submission: update title/date/period; fill placeholders; remove visible template guidance; verify citations, PDF and applicable AI disclosure. Do not change prescribed formatting to hit a page count.
+Regenerate the six supplementary evidence tables with `python code/simulation/scripts/build_report.py`. This checks the frozen matrix and records source/output hashes without overwriting report prose. Create an Overleaf source package with `python code/simulation/scripts/package_report.py --output <new.zip>`. Back up and compare the live project before uploading; compile and inspect its PDF afterward. The [draft notes](paper/Final_Report/DRAFT-NOTES.md) map the report to the reviewed plan and distinguish evidence from pending author review.
 
-## Overleaf ↔ GitHub ↔ local clone
+The original proposal is preserved byte-for-byte at its new location. The existing dirty local clone was untouched. GitHub and Overleaf synchronization is manual; the final-report project contains paper sources and figures only. Coordinate edits, upload the paper package, recompile, and verify the PDF.
 
-Synchronization is **manual**, not automatic publication after every keystroke. Overleaf saves editor changes, but these reach GitHub only through its sync action.
-
-1. Coordinate with your teammate before moving shared files.
-2. In Overleaf: Integrations → GitHub → push outstanding Overleaf changes.
-3. Locally: check for uncommitted work, then pull GitHub changes (prefer fast-forward-only).
-4. Review a focused local change, commit it and push to the linked branch.
-5. In Overleaf: Integrations → GitHub → refresh → pull GitHub changes; recompile.
-6. If there is a conflict, compare both versions. Do not force-push or overwrite a teammate's changes.
-
-The integration may synchronize code folders too; this organization is not a LaTeX-only sync filter. Keep environments, recordings, bulk outputs and raw datasets outside the tracked tree. If future experiments grow large, consider a separate code/data repository linked by a pinned version.
-
-## Course requirements
-
-- [Course modules](https://canvas.kth.se/courses/63857/modules)
-- [Proposal assignment](https://canvas.kth.se/courses/63857/modules/items/1540872)
-- [Templates and formatting](https://canvas.kth.se/courses/63857/modules/items/1540850)
-- [Generative AI policy](https://canvas.kth.se/courses/63857/modules/items/1540847)
-
-Checked on 11 September 2026. Canvas shows 16 September for the proposal and 1 October for the research plan. Later dates differ between the supplied slides and Canvas; confirm them with the mentor.
+Course requirements checked on 23 October 2026: [first draft/template](https://canvas.kth.se/courses/63857/assignments/393674), [formatting](https://canvas.kth.se/courses/63857/pages/templates-and-formatting), [final report](https://canvas.kth.se/courses/63857/assignments/393673). Main body: at most ten pages excluding cover, references, appendices. No course submission has been made.

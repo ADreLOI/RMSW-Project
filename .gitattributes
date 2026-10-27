@@ -1,0 +1,5 @@
+code/simulation/results/** linguist-generated=true
+paper/Final_Report/generated/** linguist-generated=true
+paper/professor-template-2026/** linguist-vendored=true whitespace=-blank-at-eol,-blank-at-eof
+paper/research-plan/** linguist-vendored=true whitespace=-blank-at-eol,-blank-at-eof
+paper/Final_Report/myIEEEtran.bst linguist-vendored=true whitespace=-blank-at-eol,-blank-at-eof

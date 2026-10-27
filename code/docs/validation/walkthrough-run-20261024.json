@@ -1,0 +1,13 @@
+{
+  "artifact_hashes_verified": 39,
+  "all_artifact_hashes_match": true,
+  "scientific_runs_compared": 5,
+  "reference_runs": 900,
+  "all_scientific_values_match": true,
+  "differing_run_keys": [],
+  "excluded_from_comparison": [
+    "wall_s",
+    "work.*.cpu_ns"
+  ],
+  "note": "Reconstructed scientific metrics, including warning events and operation counts, are compared exactly."
+}

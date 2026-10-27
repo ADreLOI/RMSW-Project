@@ -1,0 +1,18 @@
+\subsection{Implementational Risks and Mitigation Strategies}
+The project is feasible if it retains the two-dimensional scope and prioritizes the basic case. The principal risks and fallback actions are:
+
+{\small\setstretch{1.05}
+\begin{tabularx}{\linewidth}{@{}p{2.5cm}Y Y@{}}
+\toprule
+Risk & Why it matters & Mitigation / backup\\
+\midrule
+Scope or simulator errors & Invalid coverage or ownership behavior makes policy differences uninterpretable. & Start with deterministic tests; add one feature at a time. Drop optional sensitivity and oracle diagnostics before reducing core comparisons.\\
+Abrupt fades are not predictable & The forecast may have no observable precursor. & Compare persistence and trend; distinguish distance-related warnings from random fade onsets; report misses and null results.\\
+Disconnected idle vehicles & Empty queues outside radio range can prevent recovery and dominate timeouts. & Test this case in the pilot; retain incomplete runs, log causes, and document any revision before evaluation.\\
+Reservation, not prediction, explains gains & A larger backlog alone may improve outcomes. & Keep fixed, reactive, and non-predictive long-backlog controls; hold the allocator/action constant in predictor comparisons.\\
+Model not representative of sea conditions & A generic link and ideal sensing do not establish maritime fidelity or bathymetric accuracy. & Label assumptions, distinguish coverage-state agreement from map accuracy, and use optional sensitivity checks after the core study.\\
+Resource indicators are not energy measurements & Operation counts, host CPU and bytes do not determine vessel energy or lifetime. & Report workload and communication trends jointly with mission outcomes; make no joule or battery-life conversion.\\
+\bottomrule
+\end{tabularx}\par}
+
+If a compatible trace or codebase cannot be verified, use a documented synthetic model rather than imply reuse. If the core experiment cannot be completed, the research questions and claims will be narrowed, and the reasons for the change will be documented. Hydrodynamics, calibrated marine radio measurements, and actual vessel-energy measurements remain explicit limitations; the core resource comparison does not depend on obtaining a specific USV power model.
