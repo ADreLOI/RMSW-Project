@@ -93,7 +93,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">01</span><span data-i18n="map.eyebrow">Simulate · recorded mission replay</span></div>
-              <h1 id="map-title" data-i18n="map.title">Live map</h1>
+              <h1 id="map-title" data-i18n-html="map.title">Live map</h1>
               <p data-i18n="map.lead">Recorded motion, observations and task reservations of both boats. Choose a scenario in the setup panel, press play, or run a new simulation.</p>
             </div>
             <button id="snapshot" class="button secondary" data-tour="snapshot"><svg><use href="#i-download" /></svg><span data-i18n="map.save">Save map (PNG)</span></button>
@@ -219,7 +219,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">02</span><span data-i18n="link.eyebrow">Simulate · boat-to-boat radio</span></div>
-              <h1 id="link-title" data-i18n="link.title">Radio link</h1>
+              <h1 id="link-title" data-i18n-html="link.title">Radio link</h1>
               <p data-i18n="link.lead">Received signal at every 10 s exchange opportunity, the −90 dBm delivery threshold, fades, warnings and the per-session message budget.</p>
             </div>
           </div>
@@ -272,7 +272,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">03</span><span data-i18n="log.eyebrow">Simulate · decision trace</span></div>
-              <h1 id="log-title" data-i18n="log.title">Run log</h1>
+              <h1 id="log-title" data-i18n-html="log.title">Run log</h1>
               <p data-i18n="log.lead">Every exchange of the replayed mission as recorded: radio outcome, warning, allocation and bytes. Select a row to move the replay there.</p>
             </div>
             <a id="raw-download" class="button secondary" href="#"><svg><use href="#i-download" /></svg><span data-i18n="log.raw">Raw event log (.jsonl.gz)</span></a>
@@ -312,7 +312,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">04</span><span data-i18n="core.eyebrow">Results · frozen study · 30 paired seeds per condition</span></div>
-              <h1 id="core-title" data-i18n="core.title">Core study</h1>
+              <h1 id="core-title" data-i18n-html="core.title">Core study</h1>
               <p data-i18n="core.lead">900 evaluation missions: five policies × two progress conditions × three fade durations × 30 seeds.</p>
             </div>
             <a class="button secondary" href="/api/download?name=runs.json"><svg><use href="#i-download" /></svg><span data-i18n="core.allData">All run data (JSON)</span></a>
@@ -327,6 +327,7 @@
             <span id="condition-label" class="muted num"></span>
             <a class="text-button" href="/api/download?name=condition-summary.csv" data-i18n="core.csv">Condition summaries (CSV) ↓</a>
           </div>
+          <div class="headline" id="core-headline" aria-live="polite"></div>
           <div class="two-col">
             <article class="card chart-card" data-tour="core-time">
               <div class="card-head">
@@ -425,7 +426,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">05</span><span data-i18n="ext.eyebrow">Results · extension E1–E3 · seeds 2000–2029</span></div>
-              <h1 id="ext-title" data-i18n="ext.title">Extension study</h1>
+              <h1 id="ext-title" data-i18n-html="ext.title">Extension study</h1>
               <p data-i18n="ext.lead">A separate post-core experiment with its own freeze: a recovery rule for disconnected boats (E1), six further warning models (E2) and a synthetic map-accuracy diagnostic (E3).</p>
             </div>
             <a class="button secondary" href="/api/download?dataset=extension&amp;name=runs.json"><svg><use href="#i-download" /></svg><span data-i18n="ext.allData">Extension run data</span></a>
@@ -441,6 +442,7 @@
               <label><span data-i18n="filter.fade">Mean fade</span><select id="ext-length"><option value="2" data-i18n="filter.fade2">2 exchanges</option><option value="5" selected data-i18n="filter.fade5">5 exchanges</option><option value="10" data-i18n="filter.fade10">10 exchanges</option></select></label>
               <span id="ext-condition-label" class="muted num"></span>
             </div>
+            <div class="headline" id="ext-headline" aria-live="polite"></div>
             <h2 class="group-title"><span class="mono">E1</span><span data-i18n="ext.e1">Recovery: do disconnected boats still finish?</span></h2>
             <div class="two-col">
               <article class="card chart-card" data-tour="ext-time">
@@ -528,7 +530,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">06</span><span data-i18n="runs.eyebrow">Operate · automation &amp; traceability</span></div>
-              <h1 id="runs-title" data-i18n="runs.title">Runs &amp; jobs</h1>
+              <h1 id="runs-title" data-i18n-html="runs.title">Runs &amp; jobs</h1>
               <p data-i18n="runs.lead">Every run you start is a job executed by the Python engine. Its settings, source snapshot, raw logs, figures and checksums stay together in one bundle.</p>
             </div>
             <button id="refresh-jobs" class="button secondary"><svg><use href="#i-restart" /></svg><span data-i18n="runs.refresh">Refresh</span></button>
@@ -557,10 +559,11 @@
                 <button class="button secondary" id="start-tour"><svg><use href="#i-help" /></svg><span data-i18n="guide.tour">Take the full tour</span></button>
               </div>
             </div>
-            <div class="signal-field" aria-hidden="true"><canvas id="guide-field" width="440" height="360"></canvas><span class="field-caption mono">SURFACE ↔ SIGNAL</span></div>
+            <div class="digit-field" aria-hidden="true"><canvas id="guide-field"></canvas><span class="field-caption mono" data-i18n="field.caption">Digits: received signal recorded in the replayed mission [−dBm]</span></div>
+            <div id="guide-numbers" class="guide-numbers"></div>
           </div>
 
-          <article class="card">
+          <article class="card scroll-reveal">
             <span class="card-kicker" data-i18n="arch.kicker">Where the computation happens</span>
             <h2 data-i18n="arch.title">The browser only draws. Python on this computer simulates.</h2>
             <div class="arch" id="architecture" role="img" data-i18n-aria="arch.aria" aria-label="Architecture: browser, local Python server, job queue, workflow, simulation model, results folder, replay"></div>
@@ -568,10 +571,13 @@
           </article>
 
           <div class="two-col">
-            <article class="card">
+            <article class="card scroll-reveal">
               <span class="card-kicker" data-i18n="first.kicker">Step by step</span>
               <h2 data-i18n="first.title">Run your first simulation and read the results</h2>
-              <ol class="steps" id="first-steps"></ol>
+              <div class="step-timeline">
+                <div class="step-sticky" aria-hidden="true"><span class="step-big" id="step-big">1</span><span class="step-title" id="step-title"></span></div>
+                <ol class="steps" id="first-steps"></ol>
+              </div>
             </article>
             <article class="card">
               <span class="card-kicker" data-i18n="concepts.kicker">Key ideas</span>
@@ -592,7 +598,7 @@
           <div class="page-heading">
             <div>
               <div class="section-label"><span class="mono">07</span><span data-i18n="pres.eyebrow">Learn · guided walk-through</span></div>
-              <h1 id="pres-title" data-i18n="pres.title">Presentation</h1>
+              <h1 id="pres-title" data-i18n-html="pres.title">Presentation</h1>
               <p data-i18n="pres.lead">Slides built from the live dashboard: the replayed mission, the radio link, the core comparison and the extension.</p>
             </div>
             <button id="fullscreen" class="button secondary"><svg><use href="#i-expand" /></svg><span data-i18n="pres.fullscreen">Full screen</span></button>

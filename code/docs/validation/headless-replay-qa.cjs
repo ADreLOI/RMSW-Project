@@ -68,6 +68,10 @@ const sandbox = {
   console,
   window: { devicePixelRatio: 1, addEventListener: noop },
   requestAnimationFrame: noop,
+  cancelAnimationFrame: noop,
+  setTimeout: noop,
+  clearTimeout: noop,
+  performance: { now: () => 0 },
   getComputedStyle: () => ({ getPropertyValue: () => "#000000" }),
   matchMedia: () => ({ matches: false, addEventListener: noop }),
   location: { hash: "", search: "" },
@@ -82,7 +86,7 @@ const i18n = fs.readFileSync(path.join(web, "i18n.js"), "utf8");
 const app = fs.readFileSync(path.join(web, "app.js"), "utf8");
 vm.runInContext(
   i18n + "\n" + app.replace(/\ninit\(\);\s*$/, "") +
-    "\nI18N.set('en');globalThis.qa={state,prepare,drawAll,renderComparison,renderMissionCharts,renderEvents,renderForecast,renderBudgetNow};",
+    "\nI18N.set('en');globalThis.qa={state,prepare,rollValue,rollNumbers,roll,fmt,drawAll,renderComparison,renderMissionCharts,renderEvents,renderForecast,renderBudgetNow};",
   sandbox,
 );
 const source = String.raw`import json,tempfile
@@ -115,6 +119,25 @@ assert.equal(
   0,
   execution.stderr || "Python trace generation failed",
 );
+// Rolling numbers: monotonic, never past the target, exact at the end; instant when motion is off.
+for (const [from, to] of [[0, 240], [1493, 1280], [-90, -82.5], [0.175, 0.191]]) {
+  let last = from;
+  for (let k = 0; k <= 20; k++) {
+    const v = sandbox.qa.rollValue(from, to, k / 20);
+    assert(to >= from ? v >= last && v <= to : v <= last && v >= to, `roll overshoot ${from}->${to}`);
+    last = v;
+  }
+  assert.equal(sandbox.qa.rollValue(from, to, 1), to);
+  assert.equal(sandbox.qa.rollValue(from, to, 7), to);
+}
+{
+  const span = { dataset: { roll: "qa", v: "1280", d: "0" }, textContent: "", isConnected: true, classList: { add: noop, remove: noop } };
+  sandbox.qa.state.motionPaused = true;
+  sandbox.qa.rollNumbers({ querySelectorAll: () => [span] }, { from: 0 });
+  assert.equal(span.textContent, sandbox.qa.fmt(1280), "paused motion must show the exact value at once");
+  sandbox.qa.state.motionPaused = false;
+  assert.equal(sandbox.qa.roll("x", null), "—", "unrecorded values are not animated");
+}
 const checks = [];
 for (const trace of JSON.parse(execution.stdout)) {
   trace.dataset = "headless-qa";
@@ -155,7 +178,7 @@ for (const trace of JSON.parse(execution.stdout)) {
         minimumFractionDigits: 1,
       });
       assert(
-        element("kpis").innerHTML.includes(`<strong class="num">${shown}<em>%</em>`),
+        element("kpis").innerHTML.includes(`>${shown}</span><em>%</em>`),
         `coverage KPI at ${trace.policy} / ${time}`,
       );
       if (layer !== "global")

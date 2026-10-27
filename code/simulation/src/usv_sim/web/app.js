@@ -139,7 +139,14 @@ function prepare(trace) {
   trace.sessionAt = new Map(trace.sessions.map((s) => [s.t, s]));
   return trace;
 }
+function refreshHero() {
+  // Hero facts read the loaded trace and extension; re-render them once those arrive.
+  if (state.view !== "guide") return;
+  $("guide-numbers").innerHTML = heroNumbers(studyFacts());
+  rollNumbers($("guide-numbers"));
+}
 function afterLoad() {
+  refreshHero();
   activateTrace();
   renderComparison();
   renderMissionCharts();
@@ -378,19 +385,20 @@ function renderKpis(trace, at, observed) {
   const last = sessions.at(-1);
   const condition = `${t("kpi.seed")} ${r.seed} · ${condLabel(r.slowdown, r.fade_length)}`;
   const completion = r.complete
-    ? kpi(t("kpi.completion"), fmt(r.completion_s), "s", done ? condition : t("kpi.finalOutcome"), "ok")
+    ? kpi(t("kpi.completion"), roll("kpi-completion", r.completion_s), "s", done ? condition : t("kpi.finalOutcome"), "ok")
     : kpi(t("kpi.completion"), t("kpi.censored"), "", t("kpi.censoredNote", { s: fmt(c.timeout_s) }), "censored");
   $("kpis").innerHTML = [
-    kpi(t("kpi.coverage"), fmt((100 * observed) / trace.first_seen.length, 1), "%", t("kpi.cells", { n: observed, total: trace.first_seen.length }) + `<span class="meter"><i style="width:${(100 * observed) / trace.first_seen.length}%"></i></span>`),
+    kpi(t("kpi.coverage"), roll("kpi-coverage", (100 * observed) / trace.first_seen.length, 1), "%", t("kpi.cells", { n: observed, total: trace.first_seen.length }) + `<span class="meter"><i style="width:${(100 * observed) / trace.first_seen.length}%"></i></span>`),
     completion,
-    kpi(t("kpi.redundant"), fmt(repeats), t("kpi.obs"), t("kpi.redundantNote", { final: r.redundant })),
-    kpi(t("kpi.messages"), fmt(attempted), t("kpi.datagrams"), t("kpi.delivered", { n: fmt(delivered) })),
-    kpi(t("kpi.bytes"), fmt(bytes / 1000, 1), "kB", t("kpi.bytesNote")),
-    kpi(t("kpi.missing"), last?.missing ? fmt(100 * Math.max(...last.missing), 1) : "—", "%", t("kpi.missingNote", { mean: r.missing_mean?.[0] == null ? "—" : fmt(50 * (r.missing_mean[0] + r.missing_mean[1]), 1) })),
-    kpi(t("kpi.cpu"), fmt(sumWork(r, "cpu_ns") / 1e6, 2), "ms", t("kpi.cpuNote")),
-    kpi(t("kpi.ops"), fmt(sumWork(r, "arithmetic") / 1000, 1), t("kpi.thousand"), t("kpi.opsNote")),
+    kpi(t("kpi.redundant"), roll("kpi-redundant", repeats), t("kpi.obs"), t("kpi.redundantNote", { final: r.redundant })),
+    kpi(t("kpi.messages"), roll("kpi-messages", attempted), t("kpi.datagrams"), t("kpi.delivered", { n: fmt(delivered) })),
+    kpi(t("kpi.bytes"), roll("kpi-bytes", bytes / 1000, 1), "kB", t("kpi.bytesNote")),
+    kpi(t("kpi.missing"), last?.missing ? roll("kpi-missing", 100 * Math.max(...last.missing), 1) : "—", "%", t("kpi.missingNote", { mean: r.missing_mean?.[0] == null ? "—" : fmt(50 * (r.missing_mean[0] + r.missing_mean[1]), 1) })),
+    kpi(t("kpi.cpu"), roll("kpi-cpu", sumWork(r, "cpu_ns") / 1e6, 2), "ms", t("kpi.cpuNote")),
+    kpi(t("kpi.ops"), roll("kpi-ops", sumWork(r, "arithmetic") / 1000, 1), t("kpi.thousand"), t("kpi.opsNote")),
     kpi(t("kpi.ram"), t("kpi.notRecorded"), "", t("kpi.ramNote"), "na"),
   ].join("");
+  rollNumbers($("kpis"));
 }
 function renderStateContext(trace, at, frame, observed) {
   const c = trace.config, tasks = taskStateAt(trace, at), track = trackAt(trace, at), layer = $("knowledge").value;
@@ -589,7 +597,7 @@ function renderLinkStates(trace) {
   const counts = { connected: 0, fade: 0, budget: 0, range: 0 };
   trace.sessions.forEach((s) => counts[linkState(s)]++);
   const total = trace.sessions.length || 1;
-  $("link-states").innerHTML = Object.entries(counts).map(([k, n]) => `<div class="link-state ${k}"><span class="link-pill ${k}">${esc(t(`link.${k}`))}</span><strong class="num">${n}</strong><small class="num">${fmt((100 * n) / total, 1)}% · ${esc(t(`link.${k}Note`))}</small></div>`).join("");
+  $("link-states").innerHTML = Object.entries(counts).map(([k, n]) => `<div class="link-state ${k}"><span class="link-pill ${k}">${esc(t(`link.${k}`))}</span><strong class="num">${roll(`link-${k}`, n)}</strong><small class="num">${fmt((100 * n) / total, 1)}% · ${esc(t(`link.${k}Note`))}</small></div>`).join("");
 }
 function renderWarningKpis() {
   if (!state.catalog) return;
@@ -597,7 +605,7 @@ function renderWarningKpis() {
   $("warning-kpis").innerHTML = rows.length ? rows.map((r) => {
     const lead = r.lead_s?.length ? r.lead_s.reduce((a, b) => a + b, 0) / r.lead_s.length : null;
     const p = r.method === "trend" ? "S4-T" : "S4-P";
-    return `<article class="kpi" style="--c:${COLORS[p]}"><span class="kpi-label"><i class="policy-swatch"></i>${p} · ${esc(t(`method.${r.method}`))}</span><div class="kpi-row"><span>${esc(t("wq.precision"))}<b class="num">${fmt(r.precision, 3)}</b></span><span>${esc(t("wq.recall"))}<b class="num">${fmt(r.recall, 3)}</b></span><span>F1<b class="num">${fmt(r.f1, 3)}</b></span><span>${esc(t("wq.lead"))}<b class="num">${fmt(lead, 1)} s</b></span></div><small class="num">${esc(t("wq.counts", { tp: r.true_positives, fp: r.false_positives, fn: r.false_negatives }))}</small></article>`;
+    return `<article class="kpi" style="--c:${COLORS[p]}"><span class="kpi-label"><i class="policy-swatch"></i>${p} · ${esc(t(`method.${r.method}`))}</span><div class="kpi-row"><span>${esc(t("wq.precision"))}<b class="num">${roll(`wq-${p}-p`, r.precision, 3)}</b></span><span>${esc(t("wq.recall"))}<b class="num">${roll(`wq-${p}-r`, r.recall, 3)}</b></span><span>F1<b class="num">${roll(`wq-${p}-f`, r.f1, 3)}</b></span><span>${esc(t("wq.lead"))}<b class="num">${roll(`wq-${p}-l`, lead, 1)} s</b></span></div><small class="num">${esc(t("wq.counts", { tp: r.true_positives, fp: r.false_positives, fn: r.false_negatives }))}</small></article>`;
   }).join("") : `<p class="muted">${esc(t("kpi.notRecorded"))}</p>`;
 }
 function renderForecast(trace, at) {
@@ -683,6 +691,10 @@ function contrastChart(id, rows, title, bound) {
 }
 
 /* ---------- core study ---------- */
+// One headline cell per policy: completed / runs and restricted mean time, both rolling.
+function headlineCell(policy, key, done, total, mean) {
+  return `<div class="headline-cell ${done < total ? "censored" : ""}" style="--c:${COLORS[policy]}"><span class="policy-tag"><i class="policy-swatch"></i>${policy}</span><strong>${roll(`${key}-done`, done)}<em>/ ${total}</em></strong><small>${esc(done < total ? t("headline.censored", { n: total - done }) : t("headline.complete"))}</small><span class="headline-time num">${roll(`${key}-mean`, mean)} s</span></div>`;
+}
 const truthy = (v) => v === true || String(v).toLowerCase() === "true";
 function conditionRows() {
   return state.catalog.runs.filter((r) => r.slowdown === ($("study-slow").value === "true") && r.fade_length === +$("study-length").value);
@@ -696,6 +708,8 @@ function renderEvidence() {
   const rows = conditionRows();
   $("condition-label").textContent = t("core.runsInCondition", { n: rows.length });
   const completed = (p) => rows.filter((r) => r.policy === p && r.complete).length, perPolicy = (p) => rows.filter((r) => r.policy === p).length;
+  $("core-headline").innerHTML = summaries.map((r) => headlineCell(r.policy, `core-${r.policy}`, completed(r.policy), perPolicy(r.policy), +r.restricted_mean_s)).join("");
+  rollNumbers($("core-headline"));
   barChart("time-chart", summaries.map((r) => ({ name: r.policy, value: +r.restricted_mean_s, lo: +r.ci_low_s, hi: +r.ci_high_s, censored: completed(r.policy) < perPolicy(r.policy), label: `${completed(r.policy)}/${perPolicy(r.policy)}` })),
     { title: t("ct.chartTitle"), unit: t("chart.restricted"), max: 8000, ticks: [0, 2000, 4000, 6000, 8000] });
   barChart("completion-chart", CORE.map((p) => ({ name: p, value: completed(p) })), { title: t("cc.chartTitle"), unit: t("chart.completedOf", { n: 30 }), max: 33, ticks: [0, 10, 20, 30] });
@@ -764,6 +778,7 @@ async function loadExtension() {
     const profiles = [...new Set(state.ext.hardware.map((r) => r.profile))];
     $("ext-profile").innerHTML = profiles.map((p) => `<option value="${p}">${esc(p.toUpperCase())}</option>`).join("");
     renderExtension();
+    refreshHero();
   } catch (error) {
     $("ext-missing").hidden = false; $("ext-missing").textContent = error.message; $("ext-content").hidden = true;
   }
@@ -797,6 +812,8 @@ function renderExtension() {
     $("ext-recovery-chart").innerHTML = chartShell(t("ext.recTitle"), content, 244);
   }
   const contrasts = e.contrasts.filter((r) => match(r) && r.role !== "predictor");
+  $("ext-headline").innerHTML = summary.map((r) => headlineCell(r.policy, `ext-${r.policy}`, Math.round(r.completion_proportion * r.n), r.n, r.restricted_mean_s)).join("");
+  rollNumbers($("ext-headline"));
   contrastChart("ext-contrast-chart", contrasts, t("ext.contrastTitle"));
   document.querySelectorAll("#view-extension .figure-link").forEach((a) => (a.href = `/api/figure?name=${a.dataset.figure}&slowdown=${slow}&length=${length}`));
   renderPredictors();
@@ -1044,13 +1061,29 @@ function renderGuide() {
   svg += `<style>text{font-family:${UI_FONT}}.lane{font-size:10px;letter-spacing:.08em;fill:${MUTED};font-weight:600;text-transform:uppercase}.h{font-size:12px;font-weight:700;fill:${INK}}.s{font-size:9.5px;fill:${MUTED}}.m{font-size:9.5px;fill:${INK};font-family:'DM Mono','Cascadia Mono',Consolas,monospace}.n{font-size:10px;fill:#fff;font-weight:700}</style></svg>`;
   $("architecture").innerHTML = svg;
   $("arch-steps").innerHTML = ARCH.map(([id], i) => `<li><b>${i + 1}. ${esc(t(`arch.${id}`))}</b> ${esc(t(`arch.${id}Long`))}</li>`).join("");
-  $("first-steps").innerHTML = FIRST_RUN.map((key, i) => `<li><span class="mono step-no">${String(i + 1).padStart(2, "0")}</span><div><b>${esc(t(`tourstep.${key}.t`))}</b><p>${esc(t(`tourstep.${key}.b`))}</p><button class="text-button" data-tour-start="first" data-tour-index="${i}">${esc(t("guide.show"))} ↗</button></div></li>`).join("");
+  $("guide-numbers").innerHTML = heroNumbers(studyFacts());
+  $("first-steps").innerHTML = FIRST_RUN.map((key, i) => `<li data-step="${i}"><span class="mono step-no">${String(i + 1).padStart(2, "0")}</span><div><b>${esc(t(`tourstep.${key}.t`))}</b><p>${esc(t(`tourstep.${key}.b`))}</p><button class="text-button" data-tour-start="first" data-tour-index="${i}">${esc(t("guide.show"))} ↗</button></div></li>`).join("");
   $("policy-concepts").innerHTML = ALL.map((p) => `<div><dt><span class="policy-tag" style="--c:${COLORS[p]}"><i class="policy-swatch"></i>${p}</span> ${esc(policyName(p))}</dt><dd>${esc(t(`policyLong.${p}`))}</dd></div>`).join("");
   const groups = {};
   for (const step of TOUR_FULL) (groups[step.view] ||= []).push(step);
   $("feature-reference").innerHTML = Object.entries(groups).map(([v, steps]) => `<section><h3><button class="text-button" data-view="${v}">${esc(t(`nav.${v}`))} ↗</button></h3><dl>${steps.map((s) => `<div><dt>${esc(t(`tourstep.${s.key}.t`))}</dt><dd>${esc(t(`tourstep.${s.key}.b`))}</dd></div>`).join("")}</dl></section>`).join("");
+  setStep(0);
+  if (stepObserver) document.querySelectorAll("#first-steps li").forEach((li) => stepObserver.observe(li));
+  observeReveal($("view-guide"));
   startField($("guide-field"));
 }
+
+// Scroll timeline: the big serif step number follows the step in the middle of the screen.
+function setStep(index) {
+  const key = FIRST_RUN[index];
+  $("step-big").innerHTML = roll("step", index + 1, 0);
+  $("step-title").textContent = t(`tourstep.${key}.t`);
+  document.querySelectorAll("#first-steps li").forEach((li) => li.classList.toggle("active", +li.dataset.step === index));
+  rollNumbers($("step-big"));
+}
+const stepObserver = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+  for (const entry of entries) if (entry.isIntersecting) setStep(+entry.target.dataset.step);
+}, { rootMargin: "-45% 0px -45% 0px" }) : null;
 
 /* ---------- tour ---------- */
 const TOUR_FULL = [
@@ -1139,40 +1172,143 @@ function tourMove(delta) {
   showTourStep();
 }
 
-/* ---------- decorative signal field (presentation & guide only) ---------- */
+/* ---------- rolling numbers ---------- */
+// Elements with data-roll="key" data-v="value" data-d="decimals" animate from their
+// previous value to the new one. The final text is always fmt(value) exactly; values are
+// interpolated monotonically (no overshoot). Reduced motion, the motion pause and live
+// playback (values already change every frame) switch instantly.
+const ROLLED = new Map(), ROLLING = new Map(), ROLL_TIMERS = new Map();
+const ROLL_MS = 450;
+const easeOut = (p) => 1 - (1 - p) ** 3;
+function rollValue(from, to, progress) {
+  return progress >= 1 ? to : from + (to - from) * easeOut(Math.max(0, progress));
+}
+function rollNumbers(rootNode, { from } = {}) {
+  rootNode?.querySelectorAll("[data-roll]").forEach((el) => {
+    const key = el.dataset.roll, target = +el.dataset.v, digits = +el.dataset.d || 0;
+    const final = `${el.dataset.prefix || ""}${fmt(target, digits)}`;
+    const start = from ?? ROLLED.get(key);
+    ROLLED.set(key, target);
+    cancelAnimationFrame(ROLLING.get(key));
+    clearTimeout(ROLL_TIMERS.get(key));
+    if (start == null || start === target || !Number.isFinite(start) || reduced() || state.motionPaused || state.playing) {
+      el.textContent = final;
+      return;
+    }
+    const began = performance.now();
+    el.classList.add("rolling");
+    let done = false;
+    const finish = () => { done = true; el.textContent = final; el.classList.remove("rolling"); };
+    // Hidden tabs pause animation frames; this timer still lands on the exact value.
+    ROLL_TIMERS.set(key, setTimeout(finish, ROLL_MS + 60));
+    const step = (now) => {
+      if (done) return;
+      const p = (now - began) / ROLL_MS;
+      if (p >= 1 || !el.isConnected) return finish();
+      el.textContent = `${el.dataset.prefix || ""}${fmt(rollValue(start, target, p), digits)}`;
+      ROLLING.set(key, requestAnimationFrame(step));
+    };
+    ROLLING.set(key, requestAnimationFrame(step));
+  });
+}
+const roll = (key, value, digits = 0, prefix = "") =>
+  value == null || !Number.isFinite(+value) ? "—" : `<span data-roll="${key}" data-v="${value}" data-d="${digits}"${prefix ? ` data-prefix="${prefix}"` : ""}>${prefix}${fmt(value, digits)}</span>`;
+
+/* ---------- USV digit field (guide & title slide) ---------- */
+// A grid of monospace digits taken only from received-signal values [−dBm] recorded in the
+// replayed mission. Darker digits draw a survey boat, pulsing radio rings and a moving sea
+// line; digits near the pointer re-read the log faster. Without a trace the field stays empty.
 const fields = new Map();
+function signalDigits() {
+  const sessions = activeTrace()?.sessions || [];
+  return sessions.map((s) => String(Math.round(Math.abs(s.r)))).join("");
+}
 function startField(canvas) {
   if (!canvas || fields.has(canvas)) return;
-  const w = canvas.width, h = canvas.height, cols = 24, rows = Math.floor(h / 17);
-  const points = [];
+  const box = canvas.getBoundingClientRect();
+  if (!box.width) return;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), w = box.width, h = box.height;
+  canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const cw = 11, ch = 15, cols = Math.floor(w / cw), rows = Math.floor(h / ch);
+  // Boat silhouette rasterised once at pixel resolution, then sampled per cell.
+  const off = document.createElement("canvas");
+  off.width = Math.ceil(w); off.height = Math.ceil(h);
+  const o = off.getContext("2d");
+  o.fillStyle = "#000";
+  o.beginPath(); o.moveTo(0.2 * w, 0.6 * h); o.lineTo(0.8 * w, 0.6 * h); o.lineTo(0.7 * w, 0.73 * h); o.lineTo(0.3 * w, 0.73 * h); o.closePath(); o.fill();
+  o.fillRect(0.4 * w, 0.48 * h, 0.2 * w, 0.12 * h);
+  o.fillRect(0.485 * w, 0.26 * h, Math.max(cw, 0.03 * w), 0.22 * h);
+  const mask = o.getImageData(0, 0, off.width, off.height).data;
+  const mast = [0.5 * w, 0.26 * h];
+  const cells = [];
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-    const x = 14 + c * ((w - 28) / (cols - 1)), y = 14 + r * 17;
-    const hull = r > rows * 0.45 && r < rows * 0.78 && Math.abs(c - 11.5) < 8 - Math.max(0, r - rows * 0.62) * 0.9;
-    const mast = c >= 10 && c <= 12 && r > rows * 0.22 && r <= rows * 0.45;
-    const radio = r < rows * 0.42 && Math.abs(Math.hypot(c - 11, r - rows * 0.24) - 5.2) < 0.9 && c > 13;
-    points.push({ x, y, c, r, shaped: hull || mast || radio });
+    const x = c * cw + cw / 2, y = r * ch + ch / 2;
+    const hull = mask[(Math.floor(y) * off.width + Math.floor(x)) * 4 + 3] > 100;
+    cells.push({ x, y, hull, i: (r * cols + c) * 7, next: 0 });
   }
-  const ctx = canvas.getContext("2d"), blue = ACCENT, teal = BOAT[1];
-  let elapsed = 0, previous = 0;
+  let pointer = null, elapsed = 0, previous = 0;
+  canvas.addEventListener("pointermove", (e) => { const b = canvas.getBoundingClientRect(); pointer = [e.clientX - b.left, e.clientY - b.top]; });
+  canvas.addEventListener("pointerleave", () => (pointer = null));
   const draw = (time) => {
-    const still = reduced() || state.motionPaused;
+    const digits = signalDigits(), still = reduced() || state.motionPaused;
     if (!still && previous) elapsed += Math.min(time - previous, 50);
     previous = time;
-    const s = elapsed / 1000, breathe = (1 - Math.cos(s * 0.5)) / 2;
+    const s = elapsed / 1000;
     ctx.clearRect(0, 0, w, h);
-    for (const p of points) {
-      const wave = Math.sin(p.c * 0.25 + s * 0.55 + p.r * 0.12);
-      ctx.globalAlpha = p.shaped ? 0.9 - breathe * 0.3 : 0.14 + breathe * 0.22;
-      ctx.fillStyle = p.c < 12 ? blue : teal;
-      ctx.beginPath();
-      ctx.arc(p.x + breathe * wave * 5, p.y + breathe * wave * 9, p.shaped ? 2.6 : 1.4, 0, Math.PI * 2);
-      ctx.fill();
+    ctx.font = `500 11px ${root.getPropertyValue("--font-mono")}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    if (digits.length) for (const cell of cells) {
+      const near = pointer && Math.hypot(cell.x - pointer[0], cell.y - pointer[1]) < 64;
+      if (!still && (near || s > cell.next)) { cell.i += near ? 1 : 3; cell.next = s + 1.5 + ((cell.i * 7919) % 400) / 100; }
+      const d = Math.hypot(cell.x - mast[0], cell.y - mast[1]), angle = Math.abs(Math.atan2(cell.y - mast[1], Math.abs(cell.x - mast[0])));
+      let ring = 0;
+      for (let k = 0; k < 3; k++) {
+        const radius = (0.07 + 0.055 * k) * w, pulse = still ? 1 : (Math.sin(s * 2.2 - k * 1.1) + 1) / 2;
+        if (Math.abs(d - radius) < 6 && angle < 0.95 && cell.y < mast[1] + 0.06 * h && Math.abs(cell.x - mast[0]) > 0.03 * w) ring = Math.max(ring, 0.25 + 0.7 * pulse);
+      }
+      const sea = 0.84 * h + 0.025 * h * Math.sin(cell.x / (0.09 * w) + (still ? 0 : s * 1.1));
+      const wave = Math.abs(cell.y - sea) < ch * 0.55;
+      ctx.fillStyle = near ? ACCENT : cell.hull ? ACCENT : ring ? BOAT[1] : wave ? ACCENT : INK;
+      ctx.globalAlpha = near ? 0.95 : cell.hull ? 0.92 : ring ? ring : wave ? 0.55 : 0.08;
+      ctx.fillText(digits[cell.i % digits.length], cell.x, cell.y);
     }
     ctx.globalAlpha = 1;
     if (canvas.isConnected && canvas.offsetParent) fields.set(canvas, requestAnimationFrame(draw));
     else fields.delete(canvas);
   };
   fields.set(canvas, requestAnimationFrame(draw));
+}
+
+/* ---------- scroll reveal and hero numbers ---------- */
+const revealObserver = "IntersectionObserver" in window ? new IntersectionObserver((entries) => {
+  for (const entry of entries) if (entry.isIntersecting) {
+    entry.target.classList.add("in");
+    // Hero numbers count up from zero each time they enter the view.
+    if (entry.target.matches(".hero-numbers")) rollNumbers(entry.target, { from: 0 });
+    revealObserver.unobserve(entry.target);
+  }
+}, { threshold: 0.2 }) : null;
+function observeReveal(rootNode) {
+  rootNode.querySelectorAll(".scroll-reveal:not(.in), .hero-numbers").forEach((e) => {
+    if (revealObserver && !reduced() && !state.motionPaused) revealObserver.observe(e);
+    else { e.classList.add("in"); if (e.matches(".hero-numbers")) rollNumbers(e); }
+  });
+}
+function heroNumbers(items) {
+  return `<div class="hero-numbers">${items.map(([key, value, unit, label, prefix]) => `<div class="hero-num"><strong>${roll(`hero-${key}`, value, 0, prefix)}<em>${esc(unit)}</em></strong><span>${esc(label)}</span></div>`).join("")}</div>`;
+}
+function studyFacts() {
+  const c = state.catalog;
+  const trace = activeTrace();
+  return [
+    ["cells", trace ? trace.first_seen.length : null, t("hero.cellsUnit"), t("hero.cells")],
+    ["core", c?.runs.length, t("hero.runsUnit"), t("hero.core")],
+    ["ext", state.ext?.runs.length, t("hero.runsUnit"), t("hero.ext")],
+    ["policies", state.ext ? state.ext.design.policies.length : CORE.length, "", t("hero.policies")],
+    ["dbm", trace ? -trace.config.threshold_dbm : null, "dBm", t("hero.threshold"), "−"],
+  ].filter((item) => item[1] != null);
 }
 
 /* ---------- presentation ---------- */
@@ -1183,19 +1319,20 @@ function renderSlide() {
   const key = SLIDES[state.slide], ext = state.ext;
   const clone = (id) => $(id)?.innerHTML || `<div class="empty small">${esc(t("pres.openView"))}</div>`;
   const body = {
-    title: () => `<div class="slide-title-grid"><div class="reveal"><p class="slide-kicker">${esc(t("pres.s1.kicker"))}</p><h2 class="slide-hero">${t("pres.s1.title")}</h2><p class="slide-lead">${esc(t("pres.s1.lead"))}</p><p class="slide-authors">Andrea Lo Iacono · Ettore Mugisha Cirillo</p><p class="slide-note">${esc(t("pres.s1.note"))}</p></div><div class="signal-field slide-field" aria-hidden="true"><canvas id="slide-field" width="440" height="420"></canvas><span class="field-caption mono">SURFACE ↔ SIGNAL</span></div></div>`,
-    question: () => `<h2 class="slide-h reveal">${esc(t("pres.s2.title"))}</h2><div class="slide-facts reveal"><div><strong class="num">2</strong><span>${esc(t("pres.s2.boats"))}</span></div><div><strong class="num">240</strong><span>${esc(t("pres.s2.cells"))}</span></div><div><strong class="num">10 s</strong><span>${esc(t("pres.s2.exchange"))}</span></div><div><strong class="num">−90 dBm</strong><span>${esc(t("pres.s2.threshold"))}</span></div></div><div class="slide-cols reveal">${CORE.map((p) => `<div class="slide-policy" style="--c:${COLORS[p]}"><span class="mono">${p}</span><b>${esc(policyName(p))}</b><small>${esc(t(`policyLong.${p}`))}</small></div>`).join("")}</div>`,
+    title: () => `<div class="slide-title-grid"><div class="reveal"><p class="slide-kicker">${esc(t("pres.s1.kicker"))}</p><h2 class="slide-hero">${t("pres.s1.title")}</h2><p class="slide-lead">${esc(t("pres.s1.lead"))}</p><p class="slide-authors">Andrea Lo Iacono · Ettore Mugisha Cirillo</p><p class="slide-note">${esc(t("pres.s1.note"))}</p></div><div class="digit-field slide-field" aria-hidden="true"><canvas id="slide-field"></canvas><span class="field-caption mono">${esc(t("field.caption"))}</span></div></div>${heroNumbers(studyFacts())}`,
+    question: () => `<h2 class="slide-h reveal">${esc(t("pres.s2.title"))}</h2><div class="slide-facts reveal"><div><strong class="num">${roll("s2-boats", 2)}</strong><span>${esc(t("pres.s2.boats"))}</span></div><div><strong class="num">${roll("s2-cells", 240)}</strong><span>${esc(t("pres.s2.cells"))}</span></div><div><strong class="num">${roll("s2-ex", 10)} s</strong><span>${esc(t("pres.s2.exchange"))}</span></div><div><strong class="num">${roll("s2-dbm", 90, 0, "−")} dBm</strong><span>${esc(t("pres.s2.threshold"))}</span></div></div><div class="slide-cols reveal">${CORE.map((p) => `<div class="slide-policy" style="--c:${COLORS[p]}"><span class="mono">${p}</span><b>${esc(policyName(p))}</b><small>${esc(t(`policyLong.${p}`))}</small></div>`).join("")}</div>`,
     mechanism: () => `<h2 class="slide-h reveal">${esc(t("pres.s3.title"))}</h2><div class="slide-split reveal"><div><canvas id="slide-map" class="slide-map" aria-label="${esc(t("map.canvas"))}"></canvas><p class="slide-caption"><button id="slide-play" class="button primary small">${esc(state.playing ? t("pres.pauseMission") : t("pres.playMission"))}</button> <span class="mono">${esc(state.active)} · ${esc(t("kpi.seed"))} ${activeTrace()?.result.seed ?? "—"}</span></p></div><ul class="slide-list">${["S2", "S3", "S4-T"].map((p) => `<li style="--c:${COLORS[p]}"><b><i class="policy-swatch"></i>${p} · ${esc(policyName(p))}</b>${esc(t(`policyLong.${p}`))}</li>`).join("")}</ul></div>`,
     link: () => `<h2 class="slide-h reveal">${esc(t("pres.s4.title"))}</h2><div class="slide-chart reveal">${clone("signal-chart")}</div><p class="slide-lead reveal">${esc(t("pres.s4.lead"))}</p>`,
     outcome: () => `<h2 class="slide-h reveal">${esc(t("pres.s5.title"))}</h2><div class="slide-split reveal"><div id="slide-completion" class="slide-chart"></div><div><div class="slide-chart">${clone("contrast-chart")}</div><p class="slide-lead">${esc(t("pres.s5.lead", { s1: completed("S1"), s2: completed("S2"), s3: completed("S3"), t4: completed("S4-T"), p4: completed("S4-P") }))}</p></div></div>`,
     extension: () => ext ? `<h2 class="slide-h reveal">${esc(t("pres.s6.title"))}</h2><div class="slide-split reveal"><div class="slide-chart">${clone("ext-time-chart")}</div><div class="slide-chart">${clone("ext-pq-chart")}</div></div><p class="slide-lead reveal">${esc(t("pres.s6.lead"))}</p>` : `<h2 class="slide-h">${esc(t("pres.s6.title"))}</h2><div class="empty">${esc(t("pres.s6.loading"))}</div>`,
-    reproduce: () => `<h2 class="slide-h reveal">${esc(t("pres.s7.title"))}</h2><div class="slide-facts reveal"><div><strong class="num">${fmt(all.length)}</strong><span>${esc(t("pres.s7.runs"))}</span></div><div><strong class="num">${fmt(d.verification.raw_runs_reconstructed)}</strong><span>${esc(t("pres.s7.logs"))}</span></div><div><strong class="num">${ext ? fmt(ext.runs.length) : "—"}</strong><span>${esc(t("pres.s7.ext"))}</span></div></div><ul class="slide-list reveal"><li><b>${esc(t("pres.s7.freeze"))}</b>${esc(t("pres.s7.freezeText"))}</li><li><b>${esc(t("pres.s7.bundle"))}</b>${esc(t("pres.s7.bundleText"))}</li><li><b>${esc(t("pres.s7.again"))}</b><code>python -m usv_sim.workflow --preset full --workers 4</code></li></ul>`,
+    reproduce: () => `<h2 class="slide-h reveal">${esc(t("pres.s7.title"))}</h2><div class="slide-facts reveal"><div><strong class="num">${roll("s7-runs", all.length)}</strong><span>${esc(t("pres.s7.runs"))}</span></div><div><strong class="num">${roll("s7-logs", d.verification.raw_runs_reconstructed)}</strong><span>${esc(t("pres.s7.logs"))}</span></div><div><strong class="num">${ext ? roll("s7-ext", ext.runs.length) : "—"}</strong><span>${esc(t("pres.s7.ext"))}</span></div></div><ul class="slide-list reveal"><li><b>${esc(t("pres.s7.freeze"))}</b>${esc(t("pres.s7.freezeText"))}</li><li><b>${esc(t("pres.s7.bundle"))}</b>${esc(t("pres.s7.bundleText"))}</li><li><b>${esc(t("pres.s7.again"))}</b><code>python -m usv_sim.workflow --preset full --workers 4</code></li></ul>`,
   }[key];
   $("slide-number").textContent = `${String(state.slide + 1).padStart(2, "0")} / ${String(SLIDES.length).padStart(2, "0")}`;
   $("deck-section").textContent = t(`pres.section.${key}`);
   $("deck-progress").style.width = `${(100 * (state.slide + 1)) / SLIDES.length}%`;
   $("slide-content").innerHTML = body();
   $("slide-content").querySelectorAll(".reveal").forEach((e, i) => e.style.setProperty("--i", i));
+  rollNumbers($("slide-content"), { from: 0 });
   $("slide-dots").innerHTML = SLIDES.map((s, i) => `<button class="${i === state.slide ? "active" : ""}" data-slide="${i}" aria-label="${esc(t("pres.goto", { n: i + 1, name: t(`pres.section.${s}`) }))}" aria-current="${i === state.slide}"></button>`).join("");
   $("previous-slide").disabled = state.slide === 0;
   $("next-slide").disabled = state.slide === SLIDES.length - 1;

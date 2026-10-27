@@ -1,15 +1,15 @@
 {
-  "created_utc": "2026-10-27T11:36:28.915Z",
+  "created_utc": "2026-10-27T12:46:53.560Z",
   "status": "passed",
   "node": "v22.14.0",
   "python": "C:\\Users\\andre/.venvs/rmsw/Scripts/python.exe",
-  "unique_html_ids": 177,
+  "unique_html_ids": 182,
   "checked_web_sha256": {
-    "app.js": "52bc9d42adf1426044864dd9e3dd4179b37caddf8d1bb2b83f3587169dbb376f",
-    "i18n.js": "d91e9ad4a2652749c8e2f1b7972a9bb253e069be959fdb8d2b7cdf1d3fe70e9c",
-    "index.html": "fa751f8bca0328ce45045787e174e624e461310f38a81517ef1473dcce92e438",
-    "style.css": "5047d1371846e47d5cae646ed9d40c1ec974227004752d740578926c35f91017",
-    "tokens.css": "3be65a861b4278dc11c5411042a74a44301827f32d11dd830791e7c2c092610e"
+    "app.js": "25d92f8cd7fb56f2269eff894c53c2230bfd4db2fa0ce9b7fb21f7234db43dd7",
+    "i18n.js": "a662c25910f73ddf37422afdef8bddc99687260e137ddb32749779060ee8ce1e",
+    "index.html": "8a1c83dd2610b5868983c1b2c34ad15fa1a95fede2abc61c5d4681d464848bb9",
+    "style.css": "a3d0f53411024dcd7c8920b83689ce8d6653cc31f48a33e229335a8a81145763",
+    "tokens.css": "19a614450bf7181e24980dccbf52e3e0d57fe208e2ffaa691bb817bf78e41125"
   },
   "checks": [
     {

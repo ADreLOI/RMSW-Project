@@ -228,7 +228,10 @@ class InterfaceTests(unittest.TestCase):
         import re
         text = (self.WEB / "i18n.js").read_text(encoding="utf-8")
         english, italian = text.split("\n  it: {", 1)
-        italian = italian.split("\n};", 1)[0]
+        # Each language block must close before the next starts, so no key escapes its object.
+        self.assertTrue(english.rstrip().endswith("},"), "English block must end right before the Italian one")
+        english = english.split("\n  en: {", 1)[1]
+        italian = italian.split("\n  },\n};", 1)[0]
         keys = lambda block: re.findall(r'^\s+"([^"]+)":', block, re.M)
         return keys(english), keys(italian)
 

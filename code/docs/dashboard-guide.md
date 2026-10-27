@@ -17,6 +17,8 @@ The dashboard runs the actual Python simulator locally. All computation (simulat
 
 The header always shows the replayed dataset, policy, seed, condition and the replay clock against the 7200 s timeout (the tick marks where the mission stopped; a red chip appears when it was censored). **Tour** opens a step-by-step overlay of every control; the Guide's **Run your first simulation** starts a shorter walkthrough. **EN / IT** switches the language (remembered per browser; `?lang=it` forces it). The wave button pauses decorative motion; `prefers-reduced-motion` is honoured automatically.
 
+Numbers respond to what you do: KPIs, link-state counts, warning scores, the per-policy headline cells of Core study and Extension and the presentation facts roll from their previous value to the new one (about 0.45 s, no overshoot, always ending on the exact value) when you change policy, seed, condition, filter or dataset. During playback, with the motion pause or with reduced motion they change instantly; "not recorded" values never animate. The Guide hero and the title slide show a field of digits drawing a survey boat with radio rings and a sea line: every digit comes from the received-signal values [−dBm] recorded in the replayed mission, and digits near the pointer re-read the log faster. Without a loaded trace the field stays empty.
+
 ## Start on Windows
 
 Open PowerShell in the repository root:

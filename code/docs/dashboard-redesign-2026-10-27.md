@@ -41,6 +41,18 @@ Python on the local machine does everything; the browser only draws recorded eve
 - Motion: functional 150–250 ms transitions in working views; the breathing dot field and slide reveals appear only in the Guide hero and the presentation, pausable and off under reduced motion.
 - No 3D/WebGL. No invented metrics: values not in the data are shown as "not recorded".
 
+## Second pass: kthais.com style (same day)
+
+Andrea asked for the style of kthais.com, with numbers that respond to the user, instead of the moving dot field. Taken from kthais.com: light theme with one blue; a canvas of monospace digits whose darker digits draw a shape and react to the pointer; bold grotesk headings with a blue serif word in parentheses ("(Core) study"); large serif numerals that change with scrolling; blur-in reveals.
+
+- The dot field is gone. The Guide hero and title slide use a USV digit field built only from recorded dBm values (`startField` in `app.js`).
+- `rollNumbers` / `roll` animate value changes (monotonic ease-out, exact final value, a timer guarantees the final text even when animation frames are paused).
+- Serif hero numbers (cells, core and extension missions, policies, threshold) count up when they enter the view; all come from loaded data.
+- Per-policy headline cells (completed / runs, restricted mean) in Core study and Extension roll on every condition change.
+- The first-simulation steps form a scroll timeline with a sticky serif step number.
+- Static bathymetric contours behind the Guide hero; headings `(Word) rest` in all views and both languages.
+- Downloads stay paper-style. Screenshots: `validation/redesign-v2-*`.
+
 ## Checklist
 
 One accent only · colour never alone (labels, dash patterns, hatching, icons) · identical axes across policy charts (0–8000 s core/extension time, shared y in map RMSE, symmetric contrast axes) · censored runs hatched/open and labelled · no 3D · no invented metrics · components built from shared tokens.

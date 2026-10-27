@@ -84,7 +84,9 @@
 
   /* Type. */
   --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  --font-display: "Poppins", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Inter", "Segoe UI", system-ui, sans-serif; /* bold grotesk headings */
+  --font-brand: "Poppins", "Inter", system-ui, sans-serif; /* USV·PAC wordmark only */
+  --font-serif: "Times New Roman", Times, Georgia, serif; /* "(word)" accents and hero numbers */
   --font-mono: "DM Mono", "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;

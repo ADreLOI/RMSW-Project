@@ -57,7 +57,7 @@ const STRINGS = {
     "export.figure": "Download publication figure (PNG, 300 dpi)",
 
     "map.eyebrow": "Simulate · recorded mission replay",
-    "map.title": "Live map",
+    "map.title": "<span class='paren'>(Live)</span> map",
     "map.lead": "Recorded motion, observations and task claims of both boats. Choose a scenario in the setup panel, press play, or run a new simulation.",
     "map.save": "Save map (PNG)",
     "map.loading": "Loading recorded evidence…",
@@ -181,7 +181,7 @@ const STRINGS = {
     "cov.note": "Exact observation times. A line ending below 100% means the mission stopped with unobserved cells (open circle: censored).",
 
     "link.eyebrow": "Simulate · boat-to-boat radio",
-    "link.title": "Radio link",
+    "link.title": "<span class='paren'>(Radio)</span> link",
     "link.lead": "Received signal at every 10 s exchange opportunity, the −90 dBm delivery threshold, fades, warnings and the per-session message budget.",
     "sig.kicker": "Signal strength",
     "sig.title": "What did the boats receive?",
@@ -230,7 +230,7 @@ const STRINGS = {
     "method.persistence": "Persistence",
 
     "log.eyebrow": "Simulate · decision trace",
-    "log.title": "Run log",
+    "log.title": "<span class='paren'>(Run)</span> log",
     "log.lead": "Every exchange of the replayed mission as recorded: radio outcome, warning, allocation and bytes. Select a row to move the replay there.",
     "log.raw": "Raw event log (.jsonl.gz)",
     "log.show": "Show",
@@ -254,7 +254,7 @@ const STRINGS = {
     "log.d.none": "No commit",
 
     "core.eyebrow": "Results · frozen study · 30 paired seeds per condition",
-    "core.title": "Core study",
+    "core.title": "<span class='paren'>(Core)</span> study",
     "core.lead": "900 evaluation missions: five policies × two progress conditions × three fade durations × 30 seeds.",
     "core.allData": "All run data (JSON)",
     "core.banner": "The short-queue policy stalls in this no-rendezvous model. Trend warnings show no consistent advantage over the long-queue or persistence controls.",
@@ -348,7 +348,7 @@ const STRINGS = {
     "chart.arith": "Arithmetic [thousand operations]",
 
     "ext.eyebrow": "Results · extension E1–E3 · seeds 2000–2029",
-    "ext.title": "Extension study",
+    "ext.title": "<span class='paren'>(Extension)</span> study",
     "ext.lead": "A separate post-core experiment with its own freeze: a recovery rule for disconnected boats (E1), six further warning models (E2) and a synthetic map-accuracy diagnostic (E3).",
     "ext.allData": "Extension run data",
     "ext.bannerTitle": "Do not mix with the core numbers.",
@@ -410,7 +410,7 @@ const STRINGS = {
     "ext.never": "never",
 
     "runs.eyebrow": "Operate · automation & traceability",
-    "runs.title": "Runs & jobs",
+    "runs.title": "<span class='paren'>(Runs)</span> &amp; jobs",
     "runs.lead": "Every run you start is a job executed by the Python engine. Its settings, source snapshot, raw logs, figures and checksums stay together in one bundle.",
     "runs.refresh": "Refresh",
     "runs.tests": "Check the implementation",
@@ -443,7 +443,7 @@ const STRINGS = {
     "job.replay": "Replay",
 
     "guide.eyebrow": "Learn · how this lab works",
-    "guide.title": "Two survey boats, <em>one intermittent radio link.</em>",
+    "guide.title": "<span class='paren'>(Two)</span> survey boats, one intermittent radio link.",
     "guide.lead": "This dashboard replays and compares recorded simulations of two unmanned surface vehicles (USVs) that share a 240-cell seabed survey. Five coordination policies decide how much work each boat reserves before the radio fades.",
     "guide.firstRun": "Run your first simulation",
     "guide.tour": "Take the full tour",
@@ -569,7 +569,7 @@ const STRINGS = {
     "tourstep.tourButton.b": "Reopen the tour here. The Guide page lists every control with the same explanations.",
 
     "pres.eyebrow": "Learn · guided walk-through",
-    "pres.title": "Presentation",
+    "pres.title": "<span class='paren'>(Guided)</span> presentation",
     "pres.lead": "Slides built from the live dashboard: the replayed mission, the radio link, the core comparison and the extension.",
     "pres.fullscreen": "Full screen",
     "pres.deck": "Slide deck; use the arrow keys",
@@ -589,7 +589,7 @@ const STRINGS = {
     "pres.section.extension": "Extension",
     "pres.section.reproduce": "Reproducibility",
     "pres.s1.kicker": "Research results · synthetic simulation study",
-    "pres.s1.title": "Prediction-aware coordination for <em>two survey USVs</em>",
+    "pres.s1.title": "Prediction-aware coordination for <span class='paren'>(two)</span> survey USVs",
     "pres.s1.lead": "Two-USV seabed survey coverage under intermittent boat-to-boat connectivity.",
     "pres.s1.note": "Controlled synthetic evidence · no measured energy or physical map accuracy",
     "pres.s2.title": "Can a short radio forecast improve a shared survey?",
@@ -625,6 +625,16 @@ const STRINGS = {
     "toast.exported": "Exporting a paper-style PNG (white background, 3× resolution).",
     "toast.exportFailed": "The browser could not encode this image. Use the run bundle's figures instead.",
     "footer.claim": "Synthetic results support this model only. No measured energy or vessel-lifetime claim.",
+    "field.caption": "Digits: received signal recorded in the replayed mission [−dBm]",
+    "hero.cells": "survey cells, 20 m each",
+    "hero.cellsUnit": "",
+    "hero.core": "frozen core missions",
+    "hero.ext": "extension missions",
+    "hero.runsUnit": "",
+    "hero.policies": "coordination policies",
+    "hero.threshold": "delivery threshold",
+    "headline.complete": "all completed",
+    "headline.censored": "{n} censored at 7200 s",
   },
   it: {
     "a11y.skip": "Vai al contenuto",
@@ -680,7 +690,7 @@ const STRINGS = {
     "export.figure": "Scarica la figura per il paper (PNG, 300 dpi)",
 
     "map.eyebrow": "Simula · replay della missione registrata",
-    "map.title": "Mappa live",
+    "map.title": "<span class='paren'>(Mappa)</span> live",
     "map.lead": "Movimento, osservazioni e celle prenotate dalle due barche, come registrati. Scegli uno scenario nel pannello di impostazione, premi play oppure lancia una nuova simulazione.",
     "map.save": "Salva la mappa (PNG)",
     "map.loading": "Caricamento delle evidenze registrate…",
@@ -804,7 +814,7 @@ const STRINGS = {
     "cov.note": "Tempi di osservazione esatti. Una linea che finisce sotto il 100% indica celle non osservate allo stop (cerchio vuoto: censurata).",
 
     "link.eyebrow": "Simula · radio tra le barche",
-    "link.title": "Collegamento radio",
+    "link.title": "<span class='paren'>(Collegamento)</span> radio",
     "link.lead": "Segnale ricevuto a ogni opportunità di scambio (ogni 10 s), soglia di consegna a −90 dBm, fade, warning e budget dei messaggi per sessione.",
     "sig.kicker": "Potenza del segnale",
     "sig.title": "Cosa hanno ricevuto le barche?",
@@ -853,7 +863,7 @@ const STRINGS = {
     "method.persistence": "Persistenza",
 
     "log.eyebrow": "Simula · traccia delle decisioni",
-    "log.title": "Log della run",
+    "log.title": "<span class='paren'>(Log)</span> della run",
     "log.lead": "Ogni scambio della missione come registrato: esito radio, warning, allocazione e byte. Seleziona una riga per spostare lì il replay.",
     "log.raw": "Log grezzo degli eventi (.jsonl.gz)",
     "log.show": "Mostra",
@@ -877,7 +887,7 @@ const STRINGS = {
     "log.d.none": "Nessuna conferma",
 
     "core.eyebrow": "Risultati · studio congelato · 30 seed appaiati per condizione",
-    "core.title": "Studio core",
+    "core.title": "<span class='paren'>(Studio)</span> core",
     "core.lead": "900 missioni di valutazione: cinque policy × due condizioni di avanzamento × tre durate di fade × 30 seed.",
     "core.allData": "Tutti i dati delle run (JSON)",
     "core.banner": "In questo modello senza rendezvous la policy a coda corta si blocca. I warning di trend non mostrano un vantaggio coerente rispetto alla coda lunga o alla persistenza.",
@@ -971,7 +981,7 @@ const STRINGS = {
     "chart.arith": "Aritmetica [migliaia di operazioni]",
 
     "ext.eyebrow": "Risultati · estensione E1–E3 · seed 2000–2029",
-    "ext.title": "Studio di estensione",
+    "ext.title": "<span class='paren'>(Studio)</span> di estensione",
     "ext.lead": "Un esperimento separato, successivo al core e con un proprio freeze: una regola di recupero per barche disconnesse (E1), sei ulteriori modelli di warning (E2) e una diagnostica sintetica dell'accuratezza della mappa (E3).",
     "ext.allData": "Dati delle run dell'estensione",
     "ext.bannerTitle": "Non mescolare con i numeri del core.",
@@ -1033,7 +1043,7 @@ const STRINGS = {
     "ext.never": "mai",
 
     "runs.eyebrow": "Esegui · automazione e tracciabilità",
-    "runs.title": "Run e job",
+    "runs.title": "<span class='paren'>(Run)</span> e job",
     "runs.lead": "Ogni run che avvii è un job eseguito dal motore Python. Impostazioni, snapshot del codice, log grezzi, figure e checksum restano insieme in un unico bundle.",
     "runs.refresh": "Aggiorna",
     "runs.tests": "Verifica l'implementazione",
@@ -1066,7 +1076,7 @@ const STRINGS = {
     "job.replay": "Replay",
 
     "guide.eyebrow": "Impara · come funziona il laboratorio",
-    "guide.title": "Due barche da rilievo, <em>un collegamento radio intermittente.</em>",
+    "guide.title": "<span class='paren'>(Due)</span> barche da rilievo, un collegamento radio intermittente.",
     "guide.lead": "Questa dashboard riproduce e confronta simulazioni registrate di due veicoli di superficie senza equipaggio (USV) che si dividono un rilievo del fondale da 240 celle. Cinque policy di coordinamento decidono quanto lavoro ogni barca si riserva prima che la radio vada in fade.",
     "guide.firstRun": "Esegui la tua prima simulazione",
     "guide.tour": "Fai il tour completo",
@@ -1192,7 +1202,7 @@ const STRINGS = {
     "tourstep.tourButton.b": "Riapri il tour da qui. La pagina Guida elenca tutti i controlli con le stesse spiegazioni.",
 
     "pres.eyebrow": "Impara · percorso guidato",
-    "pres.title": "Presentazione",
+    "pres.title": "<span class='paren'>(Presentazione)</span> guidata",
     "pres.lead": "Slide costruite dalla dashboard live: la missione in replay, il collegamento radio, il confronto core e l'estensione.",
     "pres.fullscreen": "Schermo intero",
     "pres.deck": "Deck di slide; usa le frecce",
@@ -1212,7 +1222,7 @@ const STRINGS = {
     "pres.section.extension": "Estensione",
     "pres.section.reproduce": "Riproducibilità",
     "pres.s1.kicker": "Risultati della ricerca · studio di simulazione sintetico",
-    "pres.s1.title": "Coordinamento predittivo per <em>due USV da rilievo</em>",
+    "pres.s1.title": "Coordinamento predittivo per <span class='paren'>(due)</span> USV da rilievo",
     "pres.s1.lead": "Copertura di un rilievo del fondale con due USV e connettività intermittente tra le barche.",
     "pres.s1.note": "Evidenza sintetica controllata · nessuna energia misurata né accuratezza fisica della mappa",
     "pres.s2.title": "Una breve previsione radio può migliorare un rilievo condiviso?",
@@ -1248,6 +1258,16 @@ const STRINGS = {
     "toast.exported": "Esportazione di un PNG in stile paper (sfondo bianco, risoluzione 3×).",
     "toast.exportFailed": "Il browser non è riuscito a codificare l'immagine. Usa le figure del bundle della run.",
     "footer.claim": "I risultati sintetici valgono solo per questo modello. Nessuna affermazione su energia misurata o durata delle imbarcazioni.",
+    "field.caption": "Cifre: segnale ricevuto registrato nella missione in replay [−dBm]",
+    "hero.cells": "celle del rilievo, da 20 m",
+    "hero.cellsUnit": "",
+    "hero.core": "missioni del core congelato",
+    "hero.ext": "missioni dell'estensione",
+    "hero.runsUnit": "",
+    "hero.policies": "policy di coordinamento",
+    "hero.threshold": "soglia di consegna",
+    "headline.complete": "tutte completate",
+    "headline.censored": "{n} censurate a 7200 s",
   },
 };
 
