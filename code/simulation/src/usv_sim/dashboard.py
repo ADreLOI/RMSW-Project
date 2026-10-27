@@ -19,16 +19,32 @@ from urllib.parse import parse_qs, urlsplit
 import webbrowser
 import psutil
 
+from . import figures
 from .evidence import SIMULATION, inventory, load_design, provenance, sha256, trace, utc_now
 from .experiment import dump
 from .model import POLICIES
 from .plots import export_figures
+from .plotstyle import png_bytes
 from .workflow import new_id, pipeline, run_bundle, validate_request
 
 WEB = Path(__file__).parent / "web"
 CORE = SIMULATION / "results" / "core"
-RUN_NAME = re.compile(r"\d{1,10}-[01]-(?:2|5|10)-(?:S1|S2|S3|S4-T|S4-P)")
+EXTENSION = SIMULATION / "results" / "extension"
+# Core policies plus the extension's S4 variants (E, K, G, L, M) and the S4-O oracle bound.
+RUN_NAME = re.compile(r"\d{1,10}-[01]-(?:2|5|10)-(?:S1|S2|S3|S4-[TPEKGLMO])")
 JOB_ID = re.compile(r"\d{8}T\d{6}-[a-f0-9]{8}")
+STATIC = {"/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/i18n.js": "i18n.js",
+          "/style.css": "style.css", "/tokens.css": "tokens.css", "/favicon.svg": "favicon.svg"}
+FONT = re.compile(r"/fonts/([A-Za-z0-9-]+\.(?:ttf|woff2|txt))")
+TYPES = {".ttf": "font/ttf", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
+         ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
+         ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml"}
+FIGURES = {"core-mission-time", "core-resource-tradeoff", "core-condition", "core-contrasts",
+           "extension-mission-time", "extension-predictor-cost", "extension-map-rmse",
+           "extension-condition", "extension-contrasts"}
+EXTENSION_EXPORTS = {"runs.json", "extension-design.json", "condition-summary.csv", "paired-contrasts.csv",
+                     "predictor-warning-quality.csv", "hardware-projection.csv", "map-accuracy-summary.csv",
+                     "evaluation-manifest.json", "analysis-manifest.json"}
 
 
 def read_json(path, fallback=None):
@@ -45,9 +61,43 @@ def cached_trace(path, modified_ns, size):
     return trace(path)
 
 
+def stamp(root):
+    """Cache key that changes when any retained summary in root changes."""
+    return tuple((p.name, p.stat().st_mtime_ns) for p in sorted(Path(root).glob("*.*")) if p.is_file())
+
+
+@lru_cache(maxsize=2)
+def extension_study(root, _stamp):
+    """Extension E1-E3 summaries for the browser, read from the retained files only."""
+    root = Path(root)
+    if not (root / "extension-design.json").exists():
+        return None
+    design, summary, contrasts, warning = figures.load_extension(root)
+    maps = read_json(root / "map-accuracy-runs.json", [])
+    curves = []
+    for slowdown in (False, True):
+        for length in figures.LENGTHS:
+            for (study, policy), (t, y) in figures.map_curves(maps, slowdown, length).items():
+                curves.append({"study": study, "policy": policy, "slowdown": slowdown, "fade_length": length,
+                               "t": t, "rmse_m": y})
+    keep = ("seed", "slowdown", "fade_length", "policy", "complete", "restricted_s", "coverage", "redundant",
+            "attempted_bytes", "delivered_bytes", "recovery_trips", "reservations", "link_availability", "missing_mean")
+    runs = [{k: r.get(k) for k in keep} for r in read_json(root / "runs.json", [])]
+    available = {p.name.removesuffix(".jsonl.gz") for p in (root / "raw").glob("*.jsonl.gz")}
+    return {"design": {k: design.get(k) for k in ("sha256", "study", "policies", "policy_predictors", "evaluation_seeds",
+                                                  "pilot_seeds", "fade_lengths", "slowdown", "recovery", "recovery_rule",
+                                                  "primary", "secondary", "bootstrap_resamples")},
+            "summary": summary, "contrasts": contrasts, "warning": warning,
+            "hardware": figures.read_rows(root / "hardware-projection.csv"),
+            "maps": figures.read_rows(root / "map-accuracy-summary.csv"), "map_curves": curves,
+            "runs": runs, "available_traces": sorted(available),
+            "manifest": read_json(root / "analysis-manifest.json", {})}
+
+
 class Lab:
-    def __init__(self, root, core=CORE):
-        self.root, self.core = Path(root).resolve(), Path(core).resolve()
+    def __init__(self, root, core=CORE, extension=EXTENSION):
+        self.root, self.core, self.extension = Path(root).resolve(), Path(core).resolve(), Path(extension).resolve()
+        self.figure_lock = threading.Lock()  # pyplot state is not thread-safe
         self.root.mkdir(parents=True, exist_ok=True)
         self.design = load_design(self.core / "frozen-design.json")
         self.token = secrets.token_urlsafe(32)
@@ -141,6 +191,8 @@ class Lab:
             path = self.core / "raw" / f"{name}.jsonl.gz"
             if not path.exists() and name == "1000-1-5-S4-T":
                 path = SIMULATION / "examples" / "trend-seed1000-slowdown-L5.jsonl.gz"
+        elif dataset == "extension":
+            path = self.extension / "raw" / f"{name}.jsonl.gz"
         elif JOB_ID.fullmatch(dataset) and dataset in self.jobs:
             path = self.root / dataset / "raw" / f"{name}.jsonl.gz"
         else:
@@ -175,9 +227,55 @@ class Lab:
                 "evaluation": read_json(self.core / "evaluation-manifest.json", {}),
                 "analysis": read_json(self.core / "analysis-manifest.json", {}),
                 "environment": read_json(self.core / "environment.json", {}),
+                "extension_available": (self.extension / "extension-design.json").exists(),
                 "jobs": self.snapshot()}
 
+    def extension_study(self):
+        data = extension_study(str(self.extension), stamp(self.extension))
+        if data is None:
+            raise FileNotFoundError("Extension results are not present in results/extension.")
+        return data
+
+    def figure(self, name, slowdown="", length=""):
+        """Publication-style PNG of retained summaries; names and conditions are whitelisted."""
+        if name not in FIGURES:
+            raise ValueError("Unknown figure")
+        per_condition = name.endswith(("condition", "contrasts"))
+        slow = {"true": True, "false": False}.get(slowdown)
+        if per_condition and (slow is None or length not in ("2", "5", "10")):
+            raise ValueError("Invalid condition")
+        with self.figure_lock:
+            if name.startswith("core"):
+                summary = figures.read_rows(self.core / "condition-summary.csv")
+                policies, study = figures.CORE_POLICIES, "Frozen core"
+                contrast_rows, contrast_title = (lambda: figures.read_rows(self.core / "paired-contrasts.csv")), "S4-T paired contrasts"
+            else:
+                design, summary, rows, warning = figures.load_extension(self.extension)
+                policies, study = design["policies"], "Extension (recovery)"
+                contrast_rows = lambda: [r for r in rows if r["role"] != "predictor"]
+                contrast_title = "Extension: primary, secondary and context contrasts"
+            if name == "core-mission-time":
+                fig = figures.mission_time(summary, policies)
+            elif name == "core-resource-tradeoff":
+                fig = figures.resource_tradeoff(summary, policies)
+            elif name == "extension-mission-time":
+                fig = figures.mission_time(summary, policies, offset=0.08, ymax=None)
+            elif name == "extension-predictor-cost":
+                fig = figures.predictor_cost(warning, design["policy_predictors"])
+            elif name == "extension-map-rmse":
+                fig = figures.map_rmse(figures.map_curves(read_json(self.extension / "map-accuracy-runs.json", [])))
+            elif name.endswith("condition"):
+                fig = figures.condition_bars(summary, slow, int(length), policies, study)
+            else:
+                fig = figures.contrasts(contrast_rows(), slow, int(length), contrast_title)
+            suffix = f"-slow{int(slow)}-L{length}" if per_condition else ""
+            return png_bytes(fig), f"{name}{suffix}.png"
+
     def download(self, dataset, name):
+        if dataset == "extension":
+            if name not in EXTENSION_EXPORTS:
+                raise ValueError("Unknown extension export")
+            return self.extension / name
         if dataset == "core":
             allowed = {"runs.json", "frozen-design.json", "condition-summary.csv", "paired-contrasts.csv",
                        "component-resources.csv", "warning-summary.json", "verification.json", "host-benchmark.json",
@@ -245,9 +343,16 @@ def handler_for(lab):
                 elif url.path == "/api/download":
                     path = lab.download(arg("dataset", "core"), arg("name"))
                     self.send(200, path.read_bytes(), mimetypes.guess_type(path.name)[0] or "application/octet-stream", path.name)
-                elif url.path in ("/", "/index.html", "/app.js", "/style.css", "/favicon.svg"):
-                    path = WEB / ("index.html" if url.path == "/" else url.path[1:])
-                    self.send(200, path.read_bytes(), mimetypes.guess_type(path.name)[0] or "text/plain")
+                elif url.path == "/api/extension":
+                    self.send(200, lab.extension_study())
+                elif url.path == "/api/figure":
+                    data, filename = lab.figure(arg("name"), arg("slowdown"), arg("length"))
+                    self.send(200, data, "image/png", filename)
+                elif url.path in STATIC or FONT.fullmatch(url.path):
+                    path = WEB / STATIC[url.path] if url.path in STATIC else WEB / "fonts" / FONT.fullmatch(url.path)[1]
+                    if not path.is_file():
+                        raise FileNotFoundError("Not found")
+                    self.send(200, path.read_bytes(), TYPES.get(path.suffix, "application/octet-stream"))
                 else:
                     self.send(404, {"error": "Not found"})
             except (ValueError, KeyError) as error:

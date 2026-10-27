@@ -19,4 +19,4 @@ usv-workflow = "usv_sim.workflow:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-usv_sim = ["web/*.html", "web/*.css", "web/*.js", "web/*.svg"]
+usv_sim = ["web/*.html", "web/*.css", "web/*.js", "web/*.svg", "web/fonts/*.ttf", "web/fonts/*.woff2", "web/fonts/*.txt"]

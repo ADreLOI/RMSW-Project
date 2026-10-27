@@ -8,14 +8,13 @@ import json
 import math
 from pathlib import Path
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 
+from . import figures
 from .events import outage_events, warning_scores
 from .experiment import digest, dump
 from .model import Config, POLICIES, Work, forecast
+from .plotstyle import save
 
 
 def read_events(path):
@@ -263,26 +262,8 @@ def main():
                     "role":"primary" if comparator=="S2" else "secondary"})
     write_csv(root/"condition-summary.csv",summaries); write_csv(root/"paired-contrasts.csv",contrasts)
     write_csv(args.paper/"condition-summary.csv",summaries); write_csv(args.paper/"paired-contrasts.csv",contrasts)
-    colors=["#475569","#ca5038","#b68b22","#007c83","#6b58a6"]
-    plt.rcParams.update({"font.size":11,"axes.spines.top":False,"axes.spines.right":False,"svg.fonttype":"none"})
-    fig,axs=plt.subplots(1,2,figsize=(6.3,3.3),sharey=True)
-    for ax,slow in zip(axs,(False,True)):
-        for p,color in zip(POLICIES,colors):
-            g=[r for r in summaries if r["slowdown"]==slow and r["policy"]==p]
-            ax.errorbar([r["fade_length"] for r in g],[r["restricted_mean_s"] for r in g],
-                        yerr=[[r["restricted_mean_s"]-r["ci_low_s"] for r in g],[r["ci_high_s"]-r["restricted_mean_s"] for r in g]],label=p,color=color,marker="o",capsize=3)
-        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xticks([2,5,10]); ax.set_xlabel("Mean fade [exchanges]")
-        ax.grid(alpha=.15); ax.set_ylim(0,7500)
-    axs[0].set_ylabel("Restricted mean time [s]"); axs[1].legend(ncol=3,fontsize=11,loc="upper center",bbox_to_anchor=(.5,.84),columnspacing=.5,handlelength=1)
-    fig.tight_layout(); fig.savefig(args.paper/"mission-time.png",dpi=200); fig.savefig(args.paper/"mission-time.pdf"); plt.close(fig)
-    fig,axs=plt.subplots(1,2,figsize=(6.3,3.3),sharey=True)
-    for ax,slow in zip(axs,(False,True)):
-        for p,color in zip(POLICIES,colors):
-            g=[r for r in summaries if r["slowdown"]==slow and r["policy"]==p]
-            ax.scatter([r["attempted_bytes"]/1000 for r in g],[r["restricted_mean_s"] for r in g],color=color,label=p,s=35)
-        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xlabel("Attempted data [kB]"); ax.grid(alpha=.15)
-    axs[0].set_ylabel("Restricted mean time [s]"); axs[1].legend(ncol=2,fontsize=11,columnspacing=.5,handlelength=1); fig.tight_layout()
-    fig.savefig(args.paper/"resource-tradeoff.png",dpi=200); fig.savefig(args.paper/"resource-tradeoff.pdf"); plt.close(fig)
+    save(figures.mission_time(summaries,POLICIES),args.paper,"mission-time")
+    save(figures.resource_tradeoff(summaries,POLICIES),args.paper,"resource-tradeoff")
     pooled=[]
     for method in ("trend","persistence"):
         g=[r for r in replay_rows if r["method"]==method]

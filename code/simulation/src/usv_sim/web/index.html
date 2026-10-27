@@ -3,888 +3,634 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#112e35" />
-    <title>USV Research Lab · II2202</title>
+    <meta name="theme-color" content="#ffffff" />
+    <title>USV·PAC Research Lab · II2202</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/tokens.css" />
     <link rel="stylesheet" href="/style.css" />
+    <script src="/i18n.js" defer></script>
     <script src="/app.js" defer></script>
   </head>
   <body>
+    <a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
     <svg class="icon-defs" aria-hidden="true">
       <defs>
-        <symbol id="i-compass" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="9" />
-          <path d="m16 8-2 6-6 2 2-6z" />
-        </symbol>
-        <symbol id="i-map" viewBox="0 0 24 24">
-          <path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15" />
-        </symbol>
-        <symbol id="i-chart" viewBox="0 0 24 24">
-          <path d="M4 3v17h17M8 16V9M13 16V5M18 16v-5" />
-        </symbol>
-        <symbol id="i-play" viewBox="0 0 24 24">
-          <path d="m8 4 13 8-13 8z" />
-        </symbol>
-        <symbol id="i-list" viewBox="0 0 24 24">
-          <path d="M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1" />
-        </symbol>
-        <symbol id="i-download" viewBox="0 0 24 24">
-          <path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" />
-        </symbol>
-        <symbol id="i-check" viewBox="0 0 24 24">
-          <path d="m4 12 5 5L20 6" />
-        </symbol>
-        <symbol id="i-arrow" viewBox="0 0 24 24">
-          <path d="M4 12h16m-6-6 6 6-6 6" />
-        </symbol>
-        <symbol id="i-expand" viewBox="0 0 24 24">
-          <path d="M3 9V3h6m6 0h6v6M3 15v6h6m6 0h6v-6" />
-        </symbol>
+        <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15" /></symbol>
+        <symbol id="i-radio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2" /><path d="M8.5 15.5a5 5 0 0 1 0-7M15.5 8.5a5 5 0 0 1 0 7M5.6 18.4a9 9 0 0 1 0-12.8M18.4 5.6a9 9 0 0 1 0 12.8" /></symbol>
+        <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h1M3 12h1M3 18h1" /></symbol>
+        <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 3v17h17M8 16V9M13 16V5M18 16v-5" /></symbol>
+        <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM3 13l9 5 9-5" /></symbol>
+        <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5" /><path d="M9 10h6v4H9zM9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" /></symbol>
+        <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-6a3 3 0 0 0-3 3" /><path d="M20 4v14h-7" /></symbol>
+        <symbol id="i-present" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5" /><path d="M12 16v4M8 20h8" /></symbol>
+        <symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z" /></symbol>
+        <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14" /></symbol>
+        <symbol id="i-restart" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v5h5" /></symbol>
+        <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4" /></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6" /></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6" /></symbol>
+        <symbol id="i-expand" viewBox="0 0 24 24"><path d="M3 9V3h6m6 0h6v6M3 15v6h6m6 0h6v-6" /></symbol>
+        <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01" /></symbol>
+        <symbol id="i-motion" viewBox="0 0 24 24"><path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" /></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></symbol>
+        <symbol id="i-warning" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01" /></symbol>
+        <symbol id="i-boat" viewBox="0 0 24 24"><path d="M3 15h18l-2.5 4h-13zM6 15V9h9l3 6M10 9V5" /></symbol>
       </defs>
     </svg>
-    <aside class="sidebar">
-      <a class="brand" href="#mission" aria-label="USV Research Lab home"
-        ><span class="brand-mark"
-          ><svg><use href="#i-compass" /></svg></span
-        ><span>USV<span class="brand-sub">RESEARCH LAB</span></span></a
-      >
-      <div class="sidebar-label">WORKSPACE</div>
+
+    <aside class="sidebar" id="sidebar" aria-label="Sections">
+      <a class="brand" href="#guide" aria-label="USV·PAC research lab, guide">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="brand-text"><b>USV·PAC</b><small data-i18n="brand.sub">Research lab · KTH II2202</small></span>
+      </a>
       <nav aria-label="Main navigation">
-        <button class="nav-item active" data-view="mission">
-          <svg><use href="#i-map" /></svg>Mission lab<span
-            class="nav-dot"
-          ></span>
-        </button>
-        <button class="nav-item" data-view="evidence">
-          <svg><use href="#i-chart" /></svg>Study evidence
-        </button>
-        <button class="nav-item" data-view="presentation">
-          <svg><use href="#i-play" /></svg>Presentation
-        </button>
-        <button class="nav-item" data-view="activity">
-          <svg><use href="#i-list" /></svg>Runs & verification<span
-            id="job-count"
-            class="count"
-            >0</span
-          >
-        </button>
+        <div class="nav-group" data-i18n="nav.group.simulate">Simulate</div>
+        <button class="nav-item" data-view="map" data-tour="nav-map"><svg><use href="#i-map" /></svg><span data-i18n="nav.map">Live map</span></button>
+        <button class="nav-item" data-view="link"><svg><use href="#i-radio" /></svg><span data-i18n="nav.link">Radio link</span></button>
+        <button class="nav-item" data-view="log"><svg><use href="#i-list" /></svg><span data-i18n="nav.log">Run log</span></button>
+        <div class="nav-group" data-i18n="nav.group.results">Results</div>
+        <button class="nav-item" data-view="core"><svg><use href="#i-chart" /></svg><span data-i18n="nav.core">Core study</span></button>
+        <button class="nav-item" data-view="extension"><svg><use href="#i-layers" /></svg><span data-i18n="nav.extension">Extension</span></button>
+        <div class="nav-group" data-i18n="nav.group.operate">Operate</div>
+        <button class="nav-item" data-view="runs" data-tour="nav-runs"><svg><use href="#i-cpu" /></svg><span data-i18n="nav.runs">Runs &amp; jobs</span><span id="job-count" class="count">0</span></button>
+        <div class="nav-group" data-i18n="nav.group.learn">Learn</div>
+        <button class="nav-item" data-view="guide"><svg><use href="#i-book" /></svg><span data-i18n="nav.guide">Guide</span></button>
+        <button class="nav-item" data-view="presentation"><svg><use href="#i-present" /></svg><span data-i18n="nav.presentation">Presentation</span></button>
       </nav>
-      <div class="sidebar-study">
-        <span class="eyebrow">THE EXPERIMENT</span>
-        <h3>Two boats.<br />One shared survey.</h3>
-        <p>Coordination under intermittent radio communication.</p>
-        <div class="mini-grid" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span
-          ><span></span><span></span><span></span><span></span><span></span
-          ><span></span><span></span>
-        </div>
-        <div class="study-tag">II2202 · KTH</div>
-      </div>
       <div class="sidebar-footer">
-        <span class="status-dot"></span>LOCAL PYTHON ENGINE<a
-          href="https://github.com/ADreLOI/RMSW-Project"
-          target="_blank"
-          rel="noreferrer"
-          >Source & research plan ↗</a
-        ><span>Andrea Lo Iacono<br />Ettore Mugisha Cirillo</span>
+        <div class="engine"><span class="status-dot" id="engine-dot"></span><span id="connection" data-i18n="engine.connecting">Connecting to the Python engine…</span></div>
+        <p data-i18n="sidebar.note">Every number on these pages comes from recorded runs on this computer.</p>
+        <span class="authors">Andrea Lo Iacono · Ettore Mugisha Cirillo</span>
       </div>
     </aside>
+    <div class="scrim" id="scrim" hidden></div>
+
     <div class="workspace">
       <header class="topbar">
-        <div>
-          <span class="breadcrumb">II2202 /</span>
-          <span id="page-label">Mission lab</span>
+        <button class="icon-button menu-button" id="menu-button" aria-controls="sidebar" aria-expanded="false" data-i18n-aria="a11y.menu" aria-label="Open navigation"><svg><use href="#i-menu" /></svg></button>
+        <div class="run-status" id="run-status-bar" data-tour="run-status" aria-live="polite">
+          <span class="chip dataset" id="hdr-dataset">—</span>
+          <span class="chip policy" id="hdr-policy"><i class="policy-swatch"></i><b>—</b></span>
+          <span class="hdr-field"><small data-i18n="hdr.seed">Seed</small><b id="hdr-seed" class="num">—</b></span>
+          <span class="hdr-field"><small data-i18n="hdr.condition">Condition</small><b id="hdr-condition">—</b></span>
+          <span class="hdr-field hdr-time"><small data-i18n="hdr.elapsed">Elapsed / timeout</small><b class="num"><span id="hdr-elapsed">00:00</span> / <span id="hdr-timeout">120:00</span></b>
+            <span class="timeout-track" role="progressbar" aria-valuemin="0" aria-valuemax="7200" aria-valuenow="0" id="hdr-progress" data-i18n-aria="hdr.progress" aria-label="Elapsed simulated time toward the 7200 s timeout"><i id="hdr-progress-fill"></i><i id="hdr-progress-end" class="end-mark"></i></span>
+          </span>
+          <span class="chip outcome-chip" id="hdr-outcome" hidden></span>
         </div>
-        <div class="topbar-right">
-          <span class="badge">SYNTHETIC STUDY</span
-          ><span id="connection">Connecting to engine…</span>
+        <div class="topbar-tools">
+          <div class="segmented lang" role="group" data-i18n-aria="lang.label" aria-label="Language" data-tour="lang">
+            <button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="it" aria-pressed="false">IT</button>
+          </div>
+          <button class="icon-button" id="motion-toggle" aria-pressed="false" data-i18n-aria="motion.pause" aria-label="Pause decorative motion"><svg><use href="#i-motion" /></svg></button>
+          <button class="button secondary small" id="tour-button" data-tour="tour-button"><svg><use href="#i-help" /></svg><span data-i18n="tour.open">Tour</span></button>
         </div>
       </header>
-      <main>
-        <section
-          id="view-mission"
-          class="view active"
-          aria-labelledby="mission-title"
-        >
+
+      <main id="main" tabindex="-1">
+        <!-- LIVE MAP -->
+        <section id="view-map" class="view" aria-labelledby="map-title">
           <div class="page-heading">
             <div>
-              <div class="eyebrow">TWO-BOAT COORDINATION EXPERIMENT</div>
-              <h1 id="mission-title">Mission replay<span>.</span></h1>
-              <p>
-                Recorded motion, local information and the decisions behind each
-                survey.
-              </p>
+              <div class="section-label"><span class="mono">01</span><span data-i18n="map.eyebrow">Simulate · recorded mission replay</span></div>
+              <h1 id="map-title" data-i18n="map.title">Live map</h1>
+              <p data-i18n="map.lead">Recorded motion, observations and task reservations of both boats. Choose a scenario in the setup panel, press play, or run a new simulation.</p>
             </div>
-            <button id="snapshot" class="button secondary">
-              <svg><use href="#i-download" /></svg>Save map
-            </button>
+            <button id="snapshot" class="button secondary" data-tour="snapshot"><svg><use href="#i-download" /></svg><span data-i18n="map.save">Save map (PNG)</span></button>
           </div>
-          <div id="source-strip" class="source-strip">
-            <span class="verified-mark">✓</span
-            ><span id="source-label">Loading recorded evidence…</span
-            ><button class="text-button" data-view="evidence">
-              Inspect study <span>↗</span>
-            </button>
-          </div>
+          <div id="source-strip" class="source-strip"><svg><use href="#i-check" /></svg><span id="source-label" data-i18n="map.loading">Loading recorded evidence…</span></div>
           <div class="lab-layout">
-            <div class="mission-main">
-              <article class="map-card">
-                <div class="card-top">
-                  <div>
-                    <span class="live-tag">VERIFIED RECORDED EVENTS</span>
-                    <h2 id="active-policy">
-                      S4-T <span>Trend-triggered reservation</span>
-                    </h2>
-                  </div>
-                  <div class="map-tools">
-                    <label
-                      ><input
-                        id="show-trails"
-                        type="checkbox"
-                        checked
-                      />Trails</label
-                    ><label
-                      ><input
-                        id="show-queues"
-                        type="checkbox"
-                        checked
-                      />Tasks</label
-                    ><select id="knowledge" aria-label="Coverage layer">
-                      <option value="global">Observer: global coverage</option>
-                      <option value="0">Boat 1 knowledge</option>
-                      <option value="1">Boat 2 knowledge</option>
-                    </select>
-                  </div>
+            <article class="card map-card" data-tour="map">
+              <div class="card-head">
+                <div>
+                  <span class="card-kicker" data-i18n="map.kicker">Grid 20 × 12 · 20 m cells</span>
+                  <h2 id="active-policy">—</h2>
                 </div>
-                <div class="map-wrap">
-                  <canvas
-                    id="map"
-                    aria-label="Animated survey map showing boat positions, observed cells and task reservations"
-                    role="img"
-                  ></canvas>
-                  <div class="map-caption">
-                    <span id="map-layer"
-                      >Observer view · observed cell centers</span
-                    ><span id="map-clock">00:00</span>
-                  </div>
+                <div class="map-tools" data-tour="map-tools">
+                  <label class="check"><input id="show-trails" type="checkbox" checked /><span data-i18n="map.trails">Trails</span></label>
+                  <label class="check"><input id="show-queues" type="checkbox" checked /><span data-i18n="map.tasks">Claims</span></label>
+                  <label class="check"><input id="show-redundant" type="checkbox" checked /><span data-i18n="map.redundant">Repeats</span></label>
+                  <select id="knowledge" data-i18n-aria="map.layer" aria-label="Coverage layer">
+                    <option value="global" data-i18n="map.layer.global">Observer: global coverage</option>
+                    <option value="0" data-i18n="map.layer.usv1">USV 1 knowledge</option>
+                    <option value="1" data-i18n="map.layer.usv2">USV 2 knowledge</option>
+                  </select>
                 </div>
-                <div class="map-legend">
-                  <span
-                    ><i class="swatch covered"></i>Known observed center</span
-                  ><span><i class="swatch boat-one"></i>Boat 1</span
-                  ><span><i class="swatch boat-two"></i>Boat 2</span
-                  ><span><i class="queue-swatch"></i>Unstarted reservation</span
-                  ><span><i class="target-swatch">×</i>Executing task</span>
-                </div>
-                <div class="replay-status">
-                  <span id="queue-note">Tasks sampled every 10 s</span
-                  ><span id="link-note">No radio sample yet</span>
-                </div>
-                <div class="playback">
-                  <button
-                    id="play"
-                    class="play-button"
-                    aria-label="Play simulation"
-                  >
-                    <svg><use href="#i-play" /></svg></button
-                  ><span id="time-display" class="mono">00:00</span
-                  ><input
-                    id="timeline"
-                    type="range"
-                    min="0"
-                    max="7200"
-                    value="0"
-                    step="1"
-                    aria-label="Mission time in seconds"
-                  /><span id="duration-display" class="mono">120:00</span
-                  ><select id="speed" aria-label="Playback speed">
-                    <option value="10">10×</option>
-                    <option value="60" selected>60×</option>
-                    <option value="240">240×</option>
-                    <option value="600">600×</option></select
-                  ><button
-                    id="restart"
-                    class="icon-button"
-                    aria-label="Restart replay"
-                  >
-                    ↺
-                  </button>
-                </div>
-                <div class="timeline-context">
-                  <span id="slowdown-note">Loading progress condition…</span>
-                  <div class="jump-controls">
-                    <button
-                      class="text-button"
-                      id="jump-slowdown"
-                      type="button"
-                    >
-                      Slowdown onset ↗</button
-                    ><button class="text-button" id="jump-end" type="button">
-                      Mission end ↗
-                    </button>
-                  </div>
-                </div>
-              </article>
-              <div class="observer-note" id="observer-note">
-                Global coverage is available to this viewer. Each boat acts on
-                its own knowledge and committed tasks.
               </div>
-              <div class="metric-grid" id="live-metrics">
-                <article class="metric">
-                  <span>GLOBAL COVERAGE</span
-                  ><strong id="live-coverage">—</strong
-                  ><small id="live-cells">of 240 cells</small>
-                  <div class="metric-progress"><i id="coverage-fill"></i></div>
-                </article>
-                <article class="metric">
-                  <span>LAST RADIO SAMPLE</span
-                  ><strong id="live-signal">—</strong
-                  ><small id="live-radio">No exchange yet</small>
-                </article>
-                <article class="metric">
-                  <span>DATA ATTEMPTED</span><strong id="live-bytes">—</strong
-                  ><small id="live-delivered">Payload bytes, no headers</small>
-                </article>
-                <article class="metric">
-                  <span>LAST RESERVATION DECISION</span
-                  ><strong id="live-warning">—</strong
-                  ><small id="live-queues">Unstarted tasks per boat</small>
-                </article>
+              <div class="map-wrap">
+                <canvas id="map" role="img" data-i18n-aria="map.canvas" aria-label="Survey map with boat positions, observed cells and task claims"></canvas>
+                <div class="map-caption"><span id="map-layer"></span><span id="map-clock" class="num">00:00</span></div>
               </div>
-              <div
-                id="boat-states"
-                class="boat-state-grid"
-                aria-label="Per-boat knowledge and task state"
-              ></div>
-            </div>
-            <aside class="experiment-panel card">
-              <div class="eyebrow">EXPERIMENT SETUP</div>
-              <h2>Scenario & policy</h2>
-              <p>
-                All policies share the scenario’s fade and slowdown streams.
-              </p>
+              <ul class="legend" id="map-legend" aria-label="Map legend" data-tour="legend">
+                <li><i class="sw cell-unobserved"></i><span data-i18n="legend.unobserved">Unobserved</span></li>
+                <li><i class="sw cell-observed"></i><span data-i18n="legend.observed">Observed</span></li>
+                <li><i class="sw cell-claim1"></i><span data-i18n="legend.claim1">Claimed by USV 1</span></li>
+                <li><i class="sw cell-claim2"></i><span data-i18n="legend.claim2">Claimed by USV 2</span></li>
+                <li><i class="sw cell-redundant"></i><span data-i18n="legend.redundant">Observed more than once</span></li>
+                <li><i class="sw target">×</i><span data-i18n="legend.target">Executing task</span></li>
+                <li><i class="sw boat b1">1</i><span data-i18n="legend.usv1">USV 1</span></li>
+                <li><i class="sw boat b2">2</i><span data-i18n="legend.usv2">USV 2</span></li>
+                <li><i class="sw line connected"></i><span data-i18n="link.connected">Connected</span></li>
+                <li><i class="sw line fade"></i><span data-i18n="link.fade">Faded</span></li>
+                <li><i class="sw line budget"></i><span data-i18n="link.budget">Budget exhausted</span></li>
+                <li><i class="sw line range"></i><span data-i18n="link.range">Out of range</span></li>
+              </ul>
+              <div class="playback" data-tour="playback">
+                <button id="play" class="play-button" data-i18n-aria="play.play" aria-label="Play"><svg><use href="#i-play" /></svg></button>
+                <span id="time-display" class="num mono">00:00</span>
+                <input id="timeline" type="range" min="0" max="7200" value="0" step="1" data-i18n-aria="play.timeline" aria-label="Mission time in seconds" />
+                <span id="duration-display" class="num mono">120:00</span>
+                <select id="speed" data-i18n-aria="play.speed" aria-label="Playback speed">
+                  <option value="10">10×</option><option value="60" selected>60×</option><option value="240">240×</option><option value="600">600×</option>
+                </select>
+                <button id="restart" class="icon-button" data-i18n-aria="play.restart" aria-label="Restart replay"><svg><use href="#i-restart" /></svg></button>
+              </div>
+              <div class="timeline-context">
+                <span id="slowdown-note"></span>
+                <span class="jump-controls">
+                  <button class="text-button" id="jump-slowdown" type="button" data-i18n="play.jumpSlowdown">Slowdown onset ↗</button>
+                  <button class="text-button" id="jump-end" type="button" data-i18n="play.jumpEnd">Mission end ↗</button>
+                </span>
+              </div>
+            </article>
+
+            <aside class="card setup-card" data-tour="setup">
+              <span class="card-kicker" data-i18n="setup.kicker">Experiment setup</span>
+              <h2 data-i18n="setup.title">Scenario &amp; policy</h2>
+              <p class="muted" data-i18n="setup.lead">All policies share the scenario's fade and slowdown streams, so differences come from coordination only.</p>
               <form id="run-form">
-                <label class="field"
-                  >Random seed<input
-                    id="seed"
-                    type="number"
-                    min="0"
-                    max="2147483647"
-                    step="1"
-                    value="1000"
-                    required
-                  /><small>Frozen study: 1000–1029</small></label
-                >
-                <div class="field">
-                  <span>Progress condition</span>
-                  <div class="segmented" id="slowdown-control">
-                    <button type="button" data-slow="false">Balanced</button
-                    ><button type="button" data-slow="true" class="selected">
-                      Slowdown
-                    </button>
+                <label class="field"><span data-i18n="setup.seed">Random seed</span><input id="seed" type="number" min="0" max="2147483647" step="1" value="1000" required /><small data-i18n="setup.seedHint">Frozen core: 1000–1029 · extension: 2000–2029</small></label>
+                <div class="field" data-tour="condition">
+                  <span data-i18n="setup.progress">Progress condition</span>
+                  <div class="segmented" id="slowdown-control" role="group">
+                    <button type="button" data-slow="false" aria-pressed="false" data-i18n="cond.balanced">Balanced</button><button type="button" data-slow="true" aria-pressed="true" data-i18n="cond.slowdown">Slowdown</button>
                   </div>
-                  <small id="progress-description"
-                    >Boat 1 at half speed for 300 s</small
-                  >
+                  <small id="progress-description"></small>
                 </div>
-                <label class="field"
-                  >Mean fade duration<select id="length">
-                    <option value="2">2 exchanges · 20 s</option>
-                    <option value="5" selected>5 exchanges · 50 s</option>
-                    <option value="10">10 exchanges · 100 s</option>
-                  </select></label
-                >
-                <label class="field"
-                  >Policy to inspect<select id="policy">
-                    <option value="S1">S1 · Fixed partition</option>
-                    <option value="S2">S2 · Reactive short queue</option>
-                    <option value="S3">S3 · Always-long queue</option>
-                    <option value="S4-T" selected>S4-T · Trend warning</option>
-                    <option value="S4-P">S4-P · Persistence warning</option>
-                  </select></label
-                >
+                <label class="field"><span data-i18n="setup.fade">Mean fade duration</span>
+                  <select id="length">
+                    <option value="2" data-i18n="setup.fade2">2 exchanges · 20 s</option>
+                    <option value="5" selected data-i18n="setup.fade5">5 exchanges · 50 s</option>
+                    <option value="10" data-i18n="setup.fade10">10 exchanges · 100 s</option>
+                  </select></label>
+                <label class="field"><span data-i18n="setup.policy">Policy to inspect</span>
+                  <select id="policy"></select>
+                </label>
                 <details class="advanced">
-                  <summary>Exploratory settings</summary>
-                  <label class="field"
-                    >Distance-loss exponent<input
-                      id="exponent"
-                      type="number"
-                      min="1.5"
-                      max="3"
-                      step="0.1"
-                      value="2"
-                    /><small>Frozen design: 2.0</small></label
-                  ><label class="field"
-                    >Administrative cutoff [s]<input
-                      id="timeout"
-                      type="number"
-                      min="60"
-                      max="7200"
-                      step="1"
-                      value="7200"
-                  /></label>
+                  <summary data-i18n="setup.advanced">Exploratory settings</summary>
+                  <label class="field"><span data-i18n="setup.exponent">Distance-loss exponent</span><input id="exponent" type="number" min="1.5" max="3" step="0.1" value="2" /><small data-i18n="setup.exponentHint">Frozen design: 2.0</small></label>
+                  <label class="field"><span data-i18n="setup.timeout">Administrative cutoff [s]</span><input id="timeout" type="number" min="60" max="7200" step="1" value="7200" /></label>
                 </details>
-                <button id="run-all" class="button primary" type="submit">
-                  <svg><use href="#i-play" /></svg>Run all five policies</button
-                ><button
-                  id="run-one"
-                  class="button secondary full"
-                  type="button"
-                >
-                  Run selected policy
-                </button>
+                <button id="run-all" class="button primary full" type="submit" data-tour="run"><svg><use href="#i-play" /></svg><span data-i18n="setup.runAll">Run all five policies</span></button>
+                <button id="run-one" class="button secondary full" type="button" data-i18n="setup.runOne">Run selected policy</button>
               </form>
-              <div
-                id="run-progress"
-                class="run-progress"
-                role="status"
-                aria-live="polite"
-                hidden
-              >
-                <span id="run-status"></span
-                ><progress id="run-meter" value="0" max="5"></progress>
+              <div id="run-progress" class="run-progress" role="status" aria-live="polite" hidden>
+                <span id="run-status"></span><progress id="run-meter" value="0" max="5"></progress>
               </div>
-              <div class="setup-note">
-                <svg><use href="#i-check" /></svg
-                ><span
-                  >Frozen margins: 4 dB.<br />New runs save to separate
-                  bundles.</span
-                >
-              </div>
+              <p class="setup-note"><svg><use href="#i-cpu" /></svg><span data-i18n="setup.note">Runs execute in Python on this computer and are saved as a new bundle in results/lab. Frozen evidence is never modified.</span></p>
             </aside>
           </div>
+
+          <div class="kpi-grid" id="kpis" data-tour="kpis"></div>
+          <div id="boat-states" class="boat-grid" aria-label="Per-boat knowledge and task state"></div>
+
           <div class="section-heading">
             <div>
-              <div class="eyebrow">ONE SCENARIO · FIVE POLICIES</div>
-              <h2>A synchronized comparison</h2>
+              <span class="card-kicker" data-i18n="cmp.kicker">One scenario · every policy</span>
+              <h2 data-i18n="cmp.title">Synchronized comparison</h2>
             </div>
-            <button id="load-comparison" class="button secondary">
-              Load recorded policies <svg><use href="#i-arrow" /></svg>
-            </button>
+            <button id="load-comparison" class="button secondary" data-tour="compare"><span data-i18n="cmp.load">Load recorded policies</span><svg><use href="#i-arrow" /></svg></button>
           </div>
-          <div id="comparison" class="comparison-grid">
-            <div class="empty">
-              Load a recorded comparison or run all five policies to compare the
-              same scenario.
+          <div id="comparison" class="comparison-grid"><div class="empty" data-i18n="cmp.empty">Load a recorded comparison or run all policies to compare the same scenario.</div></div>
+          <p class="footnote" data-i18n="cmp.note">All maps share the replay clock. A finished mission holds its final state; each card states its outcome.</p>
+
+          <article class="card chart-card">
+            <div class="card-head">
+              <div><span class="card-kicker" data-i18n="cov.kicker">Coverage over time</span><h2 data-i18n="cov.title">How quickly is the area observed?</h2></div>
+              <button class="icon-button chart-export" data-chart="coverage-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
             </div>
-          </div>
-          <p class="comparison-note">
-            All maps share the replay clock. Completed missions hold their
-            recorded final state. Each card labels its final outcome.
-          </p>
-          <article class="card forecast-card">
-            <div class="card-top">
-              <div>
-                <div class="eyebrow">CAUSAL FORECAST INSPECTOR</div>
-                <h2>What could the boat predict at this exchange?</h2>
-              </div>
-              <button
-                class="icon-button chart-export"
-                data-chart="forecast-chart"
-                aria-label="Download forecast chart"
-              >
-                ↓
-              </button>
-            </div>
-            <div class="forecast-layout">
-              <div id="forecast-chart" class="chart"></div>
-              <div class="forecast-explanation">
-                <span class="outcome" id="forecast-status"
-                  >No forecast yet</span
-                >
-                <p id="forecast-description">
-                  Seek to an exchange to inspect its stored forecast.
-                </p>
-                <p>
-                  Only delivered measurements at or before issuance enter the
-                  predictor. Four projected exchanges test whether two
-                  consecutive misses begin within the next three.
-                </p>
-                <p class="forecast-limit">
-                  The fade process has no guaranteed onset precursor. A warning
-                  is a model decision, not knowledge of the future.
-                </p>
-              </div>
-            </div>
+            <div id="coverage-chart" class="chart wide"></div>
+            <p class="footnote" data-i18n="cov.note">Exact observation times. A line ending below 100% means the mission stopped with unobserved cells.</p>
           </article>
-          <div class="two-columns mission-charts">
-            <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">COVERAGE OVER TIME</div>
-                  <h2>How quickly is the area observed?</h2>
-                </div>
-                <button
-                  class="icon-button chart-export"
-                  data-chart="coverage-chart"
-                  aria-label="Download coverage chart"
-                >
-                  ↓
-                </button>
+        </section>
+
+        <!-- RADIO LINK -->
+        <section id="view-link" class="view" aria-labelledby="link-title">
+          <div class="page-heading">
+            <div>
+              <div class="section-label"><span class="mono">02</span><span data-i18n="link.eyebrow">Simulate · boat-to-boat radio</span></div>
+              <h1 id="link-title" data-i18n="link.title">Radio link</h1>
+              <p data-i18n="link.lead">Received signal at every 10 s exchange opportunity, the −90 dBm delivery threshold, fades, warnings and the per-session message budget.</p>
+            </div>
+          </div>
+          <div class="link-states" id="link-states" aria-label="Link state counts"></div>
+          <article class="card chart-card" data-tour="signal">
+            <div class="card-head">
+              <div><span class="card-kicker" data-i18n="sig.kicker">Signal strength</span><h2 data-i18n="sig.title">What did the boats receive?</h2></div>
+              <button class="icon-button chart-export" data-chart="signal-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
+            </div>
+            <div id="signal-chart" class="chart wide"></div>
+            <ul class="legend inline">
+              <li><i class="sw dot"></i><span data-i18n="sig.sample">Exchange sample</span></li>
+              <li><i class="sw line threshold"></i><span data-i18n="sig.threshold">−90 dBm threshold</span></li>
+              <li><i class="sw shade"></i><span data-i18n="sig.fadeband">Fade episode</span></li>
+              <li><i class="sw warn">▲</i><span data-i18n="sig.warning">Predicted-outage warning</span></li>
+              <li><i class="sw cursor"></i><span data-i18n="sig.cursor">Replay time</span></li>
+            </ul>
+            <p class="footnote" data-i18n="sig.note">Observer samples every 10 s, including failed opportunities. A failed sample is never given to the predictor. Click the chart to move the replay.</p>
+          </article>
+          <div class="two-col">
+            <article class="card chart-card" data-tour="budget">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="budget.kicker">Session budget</span><h2 data-i18n="budget.title">How full was each exchange?</h2></div>
+                <button class="icon-button chart-export" data-chart="budget-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
               </div>
-              <div
-                id="coverage-chart"
-                class="chart"
-                aria-label="Coverage over time chart"
-              ></div>
-              <p class="chart-note">
-                Exact observation times; a line ending below 100% indicates
-                incomplete coverage.
-              </p>
+              <div id="budget-now" class="budget-now"></div>
+              <div id="budget-chart" class="chart"></div>
+              <p class="footnote" data-i18n="budget.note">Each session may carry at most 4 datagrams and 8192 payload bytes, atomically. Network headers are excluded.</p>
             </article>
-            <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">LINK & WARNING</div>
-                  <h2>What did the predictor see?</h2>
-                </div>
-                <button
-                  class="icon-button chart-export"
-                  data-chart="signal-chart"
-                  aria-label="Download signal chart"
-                >
-                  ↓
-                </button>
+            <article class="card forecast-card" data-tour="forecast">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="fc.kicker">Causal forecast inspector</span><h2 data-i18n="fc.title">What could the boat predict here?</h2></div>
+                <button class="icon-button chart-export" data-chart="forecast-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
               </div>
-              <div
-                id="signal-chart"
-                class="chart"
-                aria-label="Signal over time chart"
-              ></div>
-              <p class="chart-note">
-                Observer signal samples every 10 s, including failed
-                opportunities. Red line: delivery cutoff. Amber dots: committed
-                warnings. Failed samples are not received by the predictor.
-              </p>
+              <div id="forecast-chart" class="chart"></div>
+              <p><span class="badge" id="forecast-status">—</span></p>
+              <p id="forecast-description" class="muted"></p>
+              <p class="footnote" data-i18n="fc.note">Only delivered measurements at or before issuance enter the predictor. Four projected exchanges test whether two consecutive misses begin within the next three. A warning is a model decision, not knowledge of the future.</p>
             </article>
           </div>
-          <article class="card event-card">
-            <div class="card-top">
-              <div>
-                <div class="eyebrow">DECISION TRACE</div>
-                <h2>Every exchange has a record.</h2>
+          <article class="card" data-tour="warning-quality">
+            <div class="card-head"><div><span class="card-kicker" data-i18n="wq.kicker">Outage warnings · frozen core, held out</span><h2 data-i18n="wq.title">How good are the warnings?</h2></div></div>
+            <div id="warning-kpis" class="kpi-grid compact"></div>
+            <p class="footnote" data-i18n="wq.note">Pooled over 180 fixed-route held-out scenarios. Precision = correct alerts / alerts; recall = detected outages / eligible outages; lead time = seconds between alert and outage onset. Per-run warning scores are not shown in the trace.</p>
+          </article>
+        </section>
+
+        <!-- RUN LOG -->
+        <section id="view-log" class="view" aria-labelledby="log-title">
+          <div class="page-heading">
+            <div>
+              <div class="section-label"><span class="mono">03</span><span data-i18n="log.eyebrow">Simulate · decision trace</span></div>
+              <h1 id="log-title" data-i18n="log.title">Run log</h1>
+              <p data-i18n="log.lead">Every exchange of the replayed mission as recorded: radio outcome, warning, allocation and bytes. Select a row to move the replay there.</p>
+            </div>
+            <a id="raw-download" class="button secondary" href="#"><svg><use href="#i-download" /></svg><span data-i18n="log.raw">Raw event log (.jsonl.gz)</span></a>
+          </div>
+          <article class="card event-card" data-tour="log">
+            <div class="card-head">
+              <div class="filter-row">
+                <label><span data-i18n="log.show">Show</span>
+                  <select id="event-filter">
+                    <option value="all" data-i18n="log.f.all">All exchanges</option>
+                    <option value="warning" data-i18n="log.f.warning">Warnings</option>
+                    <option value="failed" data-i18n="log.f.failed">Radio unavailable</option>
+                    <option value="budget" data-i18n="log.f.budget">Budget exhausted</option>
+                    <option value="commit" data-i18n="log.f.commit">Committed allocation</option>
+                  </select></label>
+                <label><span data-i18n="log.search">Find time [s]</span><input id="event-search" type="number" min="0" step="10" inputmode="numeric" /></label>
               </div>
-              <label class="event-filter"
-                >Show<select id="event-filter">
-                  <option value="all">All exchanges</option>
-                  <option value="warning">Warnings</option>
-                  <option value="failed">Unavailable radio</option>
-                  <option value="commit">Committed allocation</option>
-                </select></label
-              >
+              <span id="event-count" class="muted num"></span>
             </div>
             <div class="event-layout">
               <div class="table-scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Time [s]</th>
-                      <th>Signal [dBm]</th>
-                      <th>Link</th>
-                      <th>Decision</th>
-                      <th>Bytes</th>
-                    </tr>
-                  </thead>
+                <table class="log-table">
+                  <thead><tr><th data-i18n="log.c.time">Time [s]</th><th data-i18n="log.c.signal">Signal [dBm]</th><th data-i18n="log.c.link">Link</th><th data-i18n="log.c.decision">Decision</th><th data-i18n="log.c.bytes">Bytes</th></tr></thead>
                   <tbody id="events-body"></tbody>
                 </table>
               </div>
               <div class="inspector">
-                <div class="eyebrow">SELECT AN EXCHANGE</div>
-                <pre id="event-json">
-Raw decision fields appear here. Select a row to move the replay to that exchange.</pre
-                >
+                <span class="card-kicker" data-i18n="log.inspect">Selected exchange</span>
+                <pre id="event-json"></pre>
               </div>
-            </div>
-            <div class="card-bottom">
-              <span id="event-count"></span
-              ><a id="raw-download" class="text-button" href="#"
-                >Download full raw event log ↓</a
-              >
             </div>
           </article>
         </section>
-        <section
-          id="view-evidence"
-          class="view"
-          aria-labelledby="evidence-title"
-        >
+
+        <!-- CORE STUDY -->
+        <section id="view-core" class="view" aria-labelledby="core-title">
           <div class="page-heading">
             <div>
-              <div class="eyebrow">
-                FROZEN STUDY · 30 PAIRED SEEDS PER CONDITION
-              </div>
-              <h1 id="evidence-title">Study evidence<span>.</span></h1>
-              <p>
-                900 evaluation missions. Five policies. Six controlled
-                conditions.
-              </p>
+              <div class="section-label"><span class="mono">04</span><span data-i18n="core.eyebrow">Results · frozen study · 30 paired seeds per condition</span></div>
+              <h1 id="core-title" data-i18n="core.title">Core study</h1>
+              <p data-i18n="core.lead">900 evaluation missions: five policies × two progress conditions × three fade durations × 30 seeds.</p>
             </div>
-            <a class="button secondary" href="/api/download?name=runs.json"
-              ><svg><use href="#i-download" /></svg>All run data</a
-            >
+            <a class="button secondary" href="/api/download?name=runs.json"><svg><use href="#i-download" /></svg><span data-i18n="core.allData">All run data (JSON)</span></a>
           </div>
-          <div class="evidence-banner">
+          <div class="banner">
             <svg><use href="#i-check" /></svg>
-            <div>
-              <strong id="verified-count">900 raw logs reconstructed</strong>
-              <p>
-                The short-queue policy stalls in this no-rendezvous model. Trend
-                warnings show no consistent advantage over the long-queue or
-                persistence controls.
-              </p>
-            </div>
+            <div><strong id="verified-count"></strong><p data-i18n="core.banner">The short-queue policy stalls in this no-rendezvous model. Trend warnings show no consistent advantage over the long-queue or persistence controls.</p></div>
           </div>
-          <div class="filter-bar">
-            <label
-              >Progress<select id="study-slow">
-                <option value="true">Temporary slowdown</option>
-                <option value="false">Balanced progress</option>
-              </select></label
-            ><label
-              >Mean fade<select id="study-length">
-                <option value="2">2 exchanges</option>
-                <option value="5" selected>5 exchanges</option>
-                <option value="10">10 exchanges</option>
-              </select></label
-            ><span id="condition-label">150 runs in this condition</span
-            ><a
-              class="text-button"
-              href="/api/download?name=condition-summary.csv"
-              >Condition summaries CSV ↓</a
-            >
+          <div class="filter-bar" data-tour="core-filter">
+            <label><span data-i18n="filter.progress">Progress</span><select id="study-slow"><option value="true" data-i18n="cond.slowdownLong">Temporary slowdown</option><option value="false" data-i18n="cond.balancedLong">Balanced progress</option></select></label>
+            <label><span data-i18n="filter.fade">Mean fade</span><select id="study-length"><option value="2" data-i18n="filter.fade2">2 exchanges</option><option value="5" selected data-i18n="filter.fade5">5 exchanges</option><option value="10" data-i18n="filter.fade10">10 exchanges</option></select></label>
+            <span id="condition-label" class="muted num"></span>
+            <a class="text-button" href="/api/download?name=condition-summary.csv" data-i18n="core.csv">Condition summaries (CSV) ↓</a>
           </div>
-          <div class="two-columns">
-            <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">MISSION TIME</div>
-                  <h2>Count the timeouts, too.</h2>
-                </div>
-                <button
-                  class="icon-button chart-export"
-                  data-chart="time-chart"
-                  aria-label="Download mission time chart"
-                >
-                  ↓
-                </button>
+          <div class="two-col">
+            <article class="card chart-card" data-tour="core-time">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="ct.kicker">Mission time</span><h2 data-i18n="ct.title">Count the timeouts, too.</h2></div>
+                <a class="icon-button figure-link" data-figure="core-condition" href="#" data-i18n-aria="export.figure" aria-label="Download publication figure (PNG, 300 dpi)"><svg><use href="#i-download" /></svg></a>
               </div>
               <div id="time-chart" class="chart"></div>
-              <p class="chart-note">
-                Mean restricted time [s], marginal 95% bootstrap intervals.
-                Incomplete missions contribute 7200 s; this is not a mean of
-                completed missions alone.
-              </p>
+              <p class="footnote" data-i18n="ct.note">Restricted mean time [s] with marginal 95% bootstrap intervals. Timed-out missions count as 7200 s and are drawn hatched; this is not a mean of completed missions alone.</p>
             </article>
             <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">MISSION COMPLETION</div>
-                  <h2>Who actually finishes?</h2>
-                </div>
-                <button
-                  class="icon-button chart-export"
-                  data-chart="completion-chart"
-                  aria-label="Download completion chart"
-                >
-                  ↓
-                </button>
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="cc.kicker">Mission completion</span><h2 data-i18n="cc.title">Who actually finishes?</h2></div>
+                <button class="icon-button chart-export" data-chart="completion-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
               </div>
               <div id="completion-chart" class="chart"></div>
-              <p class="chart-note">
-                Completed missions out of 30 for each policy. These are
-                descriptive proportions, without confidence intervals.
-              </p>
+              <p class="footnote" data-i18n="cc.note">Completed missions out of 30 per policy; the remainder were censored at 7200 s. Descriptive counts, without intervals.</p>
             </article>
           </div>
-          <div class="two-columns">
+          <div class="two-col">
             <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">PAIRED POLICY CONTRASTS</div>
-                  <h2>Does the trend policy help?</h2>
-                </div>
-                <button
-                  class="icon-button chart-export"
-                  data-chart="contrast-chart"
-                  aria-label="Download paired contrast chart"
-                >
-                  ↓
-                </button>
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="pc.kicker">Paired policy contrasts</span><h2 data-i18n="pc.title">Does the trend policy help?</h2></div>
+                <a class="icon-button figure-link" data-figure="core-contrasts" href="#" data-i18n-aria="export.figure" aria-label="Download publication figure (PNG, 300 dpi)"><svg><use href="#i-download" /></svg></a>
               </div>
               <div id="contrast-chart" class="chart"></div>
-              <p class="chart-note">
-                S4-T minus comparator [s]. Negative favors S4-T. Whole seeds are
-                resampled together within each condition. Intervals are
-                marginal, without a family-wise claim.
-              </p>
+              <p class="footnote" data-i18n="pc.note">S4-T minus comparator [s]; negative favours S4-T. Whole seeds are resampled together within each condition. Intervals are marginal, without a family-wise claim.</p>
             </article>
             <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">COMMUNICATION COST</div>
-                  <h2>What does coordination send?</h2>
-                </div>
-                <button
-                  class="icon-button chart-export"
-                  data-chart="bytes-chart"
-                  aria-label="Download communication chart"
-                >
-                  ↓
-                </button>
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="cb.kicker">Communication cost</span><h2 data-i18n="cb.title">What does coordination send?</h2></div>
+                <button class="icon-button chart-export" data-chart="bytes-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
               </div>
               <div id="bytes-chart" class="chart"></div>
-              <p class="chart-note">
-                Mean attempted and delivered serialized payload [kB], decimal
-                units. Failed radio attempts count; network headers are
-                excluded.
-              </p>
+              <p class="footnote" data-i18n="cb.note">Mean attempted and delivered serialized payload [kB, decimal]. Failed radio attempts count; network headers are excluded.</p>
             </article>
           </div>
-          <div class="two-columns">
+          <div class="two-col">
             <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">PREDICTION QUALITY</div>
-                  <h2>Warnings on the same fixed routes</h2>
-                </div>
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="cw.kicker">Prediction quality</span><h2 data-i18n="cw.title">Warnings on the same fixed routes</h2></div>
+                <button class="icon-button chart-export" data-chart="warning-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
               </div>
               <div id="warning-chart" class="chart"></div>
-              <p class="chart-note">
-                Held-out replay pooled across 180 fixed-route scenarios.
-                Precision: correct alerts / alerts. Recall: detected outages /
-                eligible outages. F1 balances both; event and boundary rules
-                apply.
-              </p>
+              <p class="footnote" data-i18n="cw.note">Held-out replay pooled over 180 fixed-route scenarios. F1 balances precision and recall; event and boundary rules apply.</p>
             </article>
             <article class="card chart-card">
-              <div class="card-top">
-                <div>
-                  <div class="eyebrow">COUNTED WORK</div>
-                  <h2>Arithmetic, by component</h2>
-                </div>
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="ck.kicker">Counted work</span><h2 data-i18n="ck.title">Arithmetic by component</h2></div>
+                <button class="icon-button chart-export" data-chart="work-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
               </div>
               <div id="work-chart" class="chart"></div>
-              <p class="chart-note">
-                Mean binary64 arithmetic operations per mission, pooled across
-                all six conditions. Logs, square roots and logical tests are
-                recorded separately. No energy conversion.
-              </p>
+              <p class="footnote" data-i18n="ck.note">Mean binary64 arithmetic operations per mission, pooled over all six conditions. No energy conversion.</p>
             </article>
           </div>
           <article class="card">
-            <div class="card-top">
-              <div>
-                <div class="eyebrow">HOST BENCHMARK</div>
-                <h2>Measure the implementation.</h2>
-              </div>
-              <a
-                class="text-button"
-                href="/api/download?name=host-benchmark.json"
-                >Procedure & batches ↓</a
-              >
+            <div class="card-head">
+              <div><span class="card-kicker" data-i18n="hb.kicker">Host benchmark</span><h2 data-i18n="hb.title">Measure the implementation.</h2></div>
+              <a class="text-button" href="/api/download?name=host-benchmark.json" data-i18n="hb.download">Procedure &amp; batches ↓</a>
             </div>
-            <div id="host-metrics" class="host-metrics"></div>
-            <p class="chart-note padded">
-              Host-specific repeated CPU measurements on saved inputs, separate
-              from mission outcomes. Total process memory includes Python, NumPy
-              and the geometry cache; incremental Python allocations are a
-              different measure.
-            </p>
+            <div id="host-metrics" class="kpi-grid compact"></div>
+            <p class="footnote" data-i18n="hb.note">Host-specific repeated CPU measurements on saved inputs, separate from mission outcomes. Peak memory is the whole Python process (Windows working set).</p>
+          </article>
+          <article class="card">
+            <div class="card-head"><div><span class="card-kicker" data-i18n="pf.kicker">Publication figures</span><h2 data-i18n="pf.title">Paper-ready PNG (300 dpi)</h2></div></div>
+            <div class="figure-list">
+              <a class="button secondary" href="/api/figure?name=core-mission-time"><svg><use href="#i-download" /></svg><span data-i18n="pf.time">Mission time, all conditions</span></a>
+              <a class="button secondary" href="/api/figure?name=core-resource-tradeoff"><svg><use href="#i-download" /></svg><span data-i18n="pf.tradeoff">Time vs payload trade-off</span></a>
+            </div>
+            <p class="footnote" data-i18n="pf.note">Drawn by matplotlib on this computer from the retained summaries, in the report's style (Computer Modern, fixed policy colours, axes from zero).</p>
           </article>
           <article class="card data-card">
-            <div class="card-top">
-              <div>
-                <div class="eyebrow">RUN EXPLORER</div>
-                <h2>Inspect the individual missions.</h2>
-              </div>
-              <label
-                >Outcome<select id="outcome-filter">
-                  <option value="all">All outcomes</option>
-                  <option value="complete">Complete</option>
-                  <option value="timeout">Incomplete at cutoff</option>
-                </select></label
-              >
+            <div class="card-head">
+              <div><span class="card-kicker" data-i18n="re.kicker">Run explorer</span><h2 data-i18n="re.title">Inspect individual missions</h2></div>
+              <label><span data-i18n="re.outcome">Outcome</span><select id="outcome-filter"><option value="all" data-i18n="re.all">All outcomes</option><option value="complete" data-i18n="re.complete">Complete</option><option value="timeout" data-i18n="re.timeout">Censored at cutoff</option></select></label>
             </div>
             <div class="table-scroll">
               <table>
-                <thead>
-                  <tr>
-                    <th>Seed</th>
-                    <th>Policy</th>
-                    <th>Outcome</th>
-                    <th>Time [s]</th>
-                    <th>Coverage</th>
-                    <th>Repeated</th>
-                    <th>Attempted [kB]</th>
-                    <th></th>
-                  </tr>
-                </thead>
+                <thead><tr><th data-i18n="re.c.seed">Seed</th><th data-i18n="re.c.policy">Policy</th><th data-i18n="re.c.outcome">Outcome</th><th data-i18n="re.c.time">Time [s]</th><th data-i18n="re.c.coverage">Coverage</th><th data-i18n="re.c.repeated">Repeated</th><th data-i18n="re.c.bytes">Attempted [kB]</th><th></th></tr></thead>
                 <tbody id="runs-body"></tbody>
               </table>
             </div>
-            <div class="card-bottom">
-              <span id="runs-count"></span
-              ><span>Click Replay to inspect a raw trace.</span>
-            </div>
+            <p class="footnote" id="runs-count"></p>
           </article>
           <details class="card provenance">
-            <summary>Design, provenance & interpretation</summary>
-            <p>
-              The two boats move on a Manhattan grid, observe cell centers, and
-              exchange bounded atomic messages. Radio fades and speed
-              disturbances are pre-generated independently of policy. There is
-              no collision avoidance, reconnection controller, calibrated
-              hydrodynamics, energy measurement, or measured map accuracy.
-            </p>
-            <p>
-              Completion ends at full observed coverage; return and upload are
-              excluded. Pilot seeds 0–9 select warning margins; evaluation seeds
-              1000–1029 remain separate. Both margins are frozen at 4 dB.
-              Physical claims need independent measurements.
-            </p>
-            <div class="hash-row">
-              <span>DESIGN SHA-256</span><code id="design-hash"></code>
-            </div>
+            <summary data-i18n="prov.summary">Design, provenance &amp; interpretation</summary>
+            <p data-i18n="prov.p1">The two boats move on a Manhattan grid, observe cell centres and exchange bounded atomic messages. Radio fades and speed disturbances are pre-generated independently of policy. There is no collision avoidance, reconnection controller, calibrated hydrodynamics, energy measurement or measured map accuracy.</p>
+            <p data-i18n="prov.p2">Completion ends at full observed coverage; return and upload are excluded. Pilot seeds 0–9 selected the warning margins; evaluation seeds 1000–1029 stay separate. Both margins are frozen at 4 dB.</p>
+            <div class="hash-row"><span>DESIGN SHA-256</span><code id="design-hash"></code></div>
             <pre id="provenance-json"></pre>
-            <a class="text-button" href="/api/download?name=frozen-design.json"
-              >Download frozen design ↓</a
-            >
+            <a class="text-button" href="/api/download?name=frozen-design.json" data-i18n="prov.download">Download frozen design ↓</a>
           </details>
         </section>
-        <section
-          id="view-presentation"
-          class="view"
-          aria-labelledby="presentation-title"
-        >
+
+        <!-- EXTENSION -->
+        <section id="view-extension" class="view" aria-labelledby="ext-title">
           <div class="page-heading">
             <div>
-              <div class="eyebrow">A GUIDED WALK THROUGH THE EXPERIMENT</div>
-              <h1 id="presentation-title">
-                From mechanism to evidence<span>.</span>
-              </h1>
-              <p>
-                Five scenes, using the recorded study and your active mission.
-              </p>
+              <div class="section-label"><span class="mono">05</span><span data-i18n="ext.eyebrow">Results · extension E1–E3 · seeds 2000–2029</span></div>
+              <h1 id="ext-title" data-i18n="ext.title">Extension study</h1>
+              <p data-i18n="ext.lead">A separate post-core experiment with its own freeze: a recovery rule for disconnected boats (E1), six further warning models (E2) and a synthetic map-accuracy diagnostic (E3).</p>
             </div>
-            <button id="fullscreen" class="button secondary">
-              <svg><use href="#i-expand" /></svg>Full screen
-            </button>
+            <a class="button secondary" href="/api/download?dataset=extension&amp;name=runs.json"><svg><use href="#i-download" /></svg><span data-i18n="ext.allData">Extension run data</span></a>
           </div>
-          <div class="presentation-shell">
-            <div class="slide-count">
-              <span id="slide-number">01 / 05</span
-              ><span>II2202 · SYNTHETIC EXPERIMENT</span
-              ><button id="exit-presentation" class="text-button" hidden>
-                Exit focused view ×
-              </button>
+          <div class="banner warn">
+            <svg><use href="#i-warning" /></svg>
+            <div><strong data-i18n="ext.bannerTitle">Do not mix with the core numbers.</strong><p data-i18n="ext.banner">With recovery on, S2 and S3 behave differently from the core study, so the two studies are always shown in separate charts. S4-O uses the true future fades: it is a bound, not a deployable policy. Hardware figures are assumption-based projections and map RMSE is synthetic.</p></div>
+          </div>
+          <div id="ext-missing" class="empty" hidden data-i18n="ext.missing">Extension results were not found in results/extension.</div>
+          <div id="ext-content">
+            <div class="filter-bar" data-tour="ext-filter">
+              <label><span data-i18n="filter.progress">Progress</span><select id="ext-slow"><option value="true" data-i18n="cond.slowdownLong">Temporary slowdown</option><option value="false" data-i18n="cond.balancedLong">Balanced progress</option></select></label>
+              <label><span data-i18n="filter.fade">Mean fade</span><select id="ext-length"><option value="2" data-i18n="filter.fade2">2 exchanges</option><option value="5" selected data-i18n="filter.fade5">5 exchanges</option><option value="10" data-i18n="filter.fade10">10 exchanges</option></select></label>
+              <span id="ext-condition-label" class="muted num"></span>
             </div>
-            <div id="slide-content"></div>
-            <div class="slide-controls">
-              <button id="previous-slide" class="button secondary">
-                ← Previous
-              </button>
-              <div id="slide-dots"></div>
-              <button id="next-slide" class="button primary">
-                Next scene →
-              </button>
+            <h2 class="group-title"><span class="mono">E1</span><span data-i18n="ext.e1">Recovery: do disconnected boats still finish?</span></h2>
+            <div class="two-col">
+              <article class="card chart-card" data-tour="ext-time">
+                <div class="card-head">
+                  <div><span class="card-kicker" data-i18n="ct.kicker">Mission time</span><h2 data-i18n="ext.timeTitle">Restricted time, all eleven policies</h2></div>
+                  <a class="icon-button figure-link" data-figure="extension-condition" href="#" data-i18n-aria="export.figure" aria-label="Download publication figure (PNG, 300 dpi)"><svg><use href="#i-download" /></svg></a>
+                </div>
+                <div id="ext-time-chart" class="chart"></div>
+                <p class="footnote" data-i18n="ext.timeNote">Same axis as the core chart (0–8000 s). Labels show completed / 30; hatched bars include runs censored at 7200 s.</p>
+              </article>
+              <article class="card chart-card">
+                <div class="card-head">
+                  <div><span class="card-kicker" data-i18n="ext.recKicker">Recovery behaviour</span><h2 data-i18n="ext.recTitle">Recovery trips and idle time</h2></div>
+                  <button class="icon-button chart-export" data-chart="ext-recovery-chart" data-i18n-aria="export.paper" aria-label="Download as paper-style PNG"><svg><use href="#i-download" /></svg></button>
+                </div>
+                <div id="ext-recovery-chart" class="chart"></div>
+                <p class="footnote" data-i18n="ext.recNote">Mean recovery trips to a pre-agreed meeting cell per mission (bars) and mean idle time of both boats [s] (dots).</p>
+              </article>
             </div>
-          </div>
-          <p class="presentation-note">
-            Use ← / → keys to navigate. The mission scene uses the main replay
-            controls. Browser Print exports the current scene. This presentation
-            reflects the observed results, including incomplete missions.
-          </p>
-        </section>
-        <section
-          id="view-activity"
-          class="view"
-          aria-labelledby="activity-title"
-        >
-          <div class="page-heading">
-            <div>
-              <div class="eyebrow">AUTOMATION & TRACEABILITY</div>
-              <h1 id="activity-title">Runs & verification<span>.</span></h1>
-              <p>
-                Settings, source, raw events, verification and exports stay
-                together.
-              </p>
-            </div>
-            <button id="refresh-jobs" class="button secondary">
-              Refresh activity ↺
-            </button>
-          </div>
-          <div class="automation-grid">
-            <article class="card">
-              <span class="step-number">01</span>
-              <h2>Check the implementation</h2>
-              <p>
-                Run motion, protocol, forecast, evidence and dashboard tests.
-                Retain the full test output.
-              </p>
-              <button class="button secondary" data-action="tests">
-                Run test suite <svg><use href="#i-arrow" /></svg>
-              </button>
-            </article>
-            <article class="card">
-              <span class="step-number">02</span>
-              <h2>Rehearse the workflow</h2>
-              <p>
-                Tests → five paired missions → raw-log verification → figures →
-                evidence archive.
-              </p>
-              <button class="button primary" data-action="smoke">
-                Run smoke workflow <svg><use href="#i-arrow" /></svg>
-              </button>
-            </article>
-            <article class="card">
-              <span class="step-number">03</span>
-              <h2>Reproduce the full study</h2>
-              <p>
-                Tests → 900 frozen evaluation missions → statistical analysis →
-                publication figures. Uses two workers; allow several minutes.
-              </p>
-              <button class="button secondary" data-action="full">
-                Run 900-mission workflow <svg><use href="#i-arrow" /></svg>
-              </button>
-            </article>
-          </div>
-          <div id="jobs-list" class="jobs-list"></div>
-          <article class="card job-detail" id="job-detail" hidden>
-            <div class="card-top">
-              <div>
-                <div class="eyebrow">SELECTED RUN BUNDLE</div>
-                <h2 id="job-title"></h2>
+            <article class="card chart-card">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="pc.kicker">Paired policy contrasts</span><h2 data-i18n="ext.contrastTitle">Primary, secondary and context contrasts</h2></div>
+                <a class="icon-button figure-link" data-figure="extension-contrasts" href="#" data-i18n-aria="export.figure" aria-label="Download publication figure (PNG, 300 dpi)"><svg><use href="#i-download" /></svg></a>
               </div>
-              <div id="job-downloads"></div>
+              <div id="ext-contrast-chart" class="chart wide"></div>
+              <p class="footnote" data-i18n="ext.contrastNote">Mean paired difference [s] with marginal 95% intervals, symmetric axis around zero. Predictor-vs-control contrasts are in the downloadable CSV.</p>
+            </article>
+            <h2 class="group-title"><span class="mono">E2</span><span data-i18n="ext.e2">Predictors: warning quality against cost</span></h2>
+            <div class="two-col">
+              <article class="card chart-card" data-tour="ext-predictors">
+                <div class="card-head">
+                  <div><span class="card-kicker" data-i18n="ext.pqKicker">Held-out warning F1 vs counted work</span><h2 data-i18n="ext.pqTitle">Is a heavier model a better warning?</h2></div>
+                  <a class="icon-button" href="/api/figure?name=extension-predictor-cost" data-i18n-aria="export.figure" aria-label="Download publication figure (PNG, 300 dpi)"><svg><use href="#i-download" /></svg></a>
+                </div>
+                <div id="ext-pq-chart" class="chart"></div>
+                <p class="footnote" data-i18n="ext.pqNote">Extension-2000 held-out split. x: arithmetic + transcendental operations per decision (log scale); y: F1 from 0 to 1.</p>
+              </article>
+              <article class="card">
+                <div class="card-head">
+                  <div><span class="card-kicker" data-i18n="ext.ptKicker">Warning metrics</span><h2 data-i18n="ext.ptTitle">Precision, recall, F1 and lead time</h2></div>
+                  <label><span data-i18n="ext.split">Split</span><select id="ext-split"><option value="extension-2000" data-i18n="ext.splitExt">Extension 2000–2029</option><option value="core-1000" data-i18n="ext.splitCore">Core 1000–1029</option></select></label>
+                </div>
+                <div class="table-scroll"><table class="num-table" id="ext-predictor-table"></table></div>
+                <a class="text-button" href="/api/download?dataset=extension&amp;name=predictor-warning-quality.csv" data-i18n="ext.ptCsv">Warning quality (CSV) ↓</a>
+              </article>
             </div>
+            <article class="card">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="ext.hwKicker">Hardware projection (assumption-based)</span><h2 data-i18n="ext.hwTitle">Could an embedded controller run it?</h2></div>
+                <label><span data-i18n="ext.profile">Profile</span><select id="ext-profile"></select></label>
+              </div>
+              <div class="table-scroll"><table class="num-table" id="ext-hardware-table"></table></div>
+              <p class="footnote" data-i18n="ext.hwNote">Projected from counted operations and assumed cycle costs per profile; ranges are low–high assumptions. Not measured energy.</p>
+            </article>
+            <h2 class="group-title"><span class="mono">E3</span><span data-i18n="ext.e3">Synthetic map accuracy over time</span></h2>
+            <article class="card chart-card" data-tour="ext-map">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="ext.mapKicker">Map RMSE · selected condition</span><h2 data-i18n="ext.mapTitle">How fast does the synthetic map converge?</h2></div>
+                <a class="icon-button" href="/api/figure?name=extension-map-rmse" data-i18n-aria="export.figure" aria-label="Download publication figure (PNG, 300 dpi)"><svg><use href="#i-download" /></svg></a>
+              </div>
+              <div class="two-col tight">
+                <div><h3 class="panel-title" data-i18n="ext.mapCore">Frozen core logs (post hoc)</h3><div id="ext-map-core" class="chart"></div></div>
+                <div><h3 class="panel-title" data-i18n="ext.mapExt">Extension logs (recovery on)</h3><div id="ext-map-ext" class="chart"></div></div>
+              </div>
+              <p class="footnote" data-i18n="ext.mapNote">Mean RMSE [m] of a synthetic bathymetry reconstructed from observation events; identical y-axis in both panels; dotted line at 0.5 m. A diagnostic, not physical map accuracy.</p>
+              <div class="table-scroll"><table class="num-table" id="ext-map-table"></table></div>
+            </article>
+            <article class="card data-card">
+              <div class="card-head">
+                <div><span class="card-kicker" data-i18n="re.kicker">Run explorer</span><h2 data-i18n="ext.runsTitle">Replay an extension mission</h2></div>
+                <label><span data-i18n="re.c.policy">Policy</span><select id="ext-run-policy"></select></label>
+              </div>
+              <div class="table-scroll">
+                <table>
+                  <thead><tr><th data-i18n="re.c.seed">Seed</th><th data-i18n="re.c.policy">Policy</th><th data-i18n="re.c.outcome">Outcome</th><th data-i18n="re.c.time">Time [s]</th><th data-i18n="ext.c.trips">Recovery trips</th><th data-i18n="re.c.repeated">Repeated</th><th data-i18n="re.c.bytes">Attempted [kB]</th><th></th></tr></thead>
+                  <tbody id="ext-runs-body"></tbody>
+                </table>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- RUNS -->
+        <section id="view-runs" class="view" aria-labelledby="runs-title">
+          <div class="page-heading">
+            <div>
+              <div class="section-label"><span class="mono">06</span><span data-i18n="runs.eyebrow">Operate · automation &amp; traceability</span></div>
+              <h1 id="runs-title" data-i18n="runs.title">Runs &amp; jobs</h1>
+              <p data-i18n="runs.lead">Every run you start is a job executed by the Python engine. Its settings, source snapshot, raw logs, figures and checksums stay together in one bundle.</p>
+            </div>
+            <button id="refresh-jobs" class="button secondary"><svg><use href="#i-restart" /></svg><span data-i18n="runs.refresh">Refresh</span></button>
+          </div>
+          <div class="step-grid" data-tour="workflows">
+            <article class="card step"><span class="mono step-no">01</span><h2 data-i18n="runs.tests">Check the implementation</h2><p data-i18n="runs.testsLead">Run motion, protocol, forecast, evidence and dashboard tests and keep the full output.</p><button class="button secondary" data-action="tests"><span data-i18n="runs.testsBtn">Run test suite</span><svg><use href="#i-arrow" /></svg></button></article>
+            <article class="card step"><span class="mono step-no">02</span><h2 data-i18n="runs.smoke">Rehearse the workflow</h2><p data-i18n="runs.smokeLead">Tests → five paired missions → raw-log verification → figures → evidence archive.</p><button class="button primary" data-action="smoke"><span data-i18n="runs.smokeBtn">Run smoke workflow</span><svg><use href="#i-arrow" /></svg></button></article>
+            <article class="card step"><span class="mono step-no">03</span><h2 data-i18n="runs.full">Reproduce the full study</h2><p data-i18n="runs.fullLead">Tests → 900 frozen evaluation missions → statistics → publication figures. Uses two workers; allow several minutes.</p><button class="button secondary" data-action="full"><span data-i18n="runs.fullBtn">Run 900-mission workflow</span><svg><use href="#i-arrow" /></svg></button></article>
+          </div>
+          <div id="jobs-list" class="jobs-list" data-tour="jobs"></div>
+          <article class="card job-detail" id="job-detail" hidden>
+            <div class="card-head"><div><span class="card-kicker" data-i18n="runs.selected">Selected run bundle</span><h2 id="job-title"></h2></div><div id="job-downloads" class="job-downloads"></div></div>
             <pre id="job-log"></pre>
           </article>
-          <article class="card documentation">
-            <div class="eyebrow">TAKE THE CONTEXT WITH YOU</div>
-            <h2>One repository, a shared research record.</h2>
-            <p>
-              <code>AGENTS.md</code> gives tools the scientific rules and
-              commands. <code>code/docs/agent-handoff.md</code> records the
-              architecture, current findings and next steps.
-              <code>code/docs/work-log.md</code> records completed work and its
-              verification. The dashboard guide explains every control and
-              metric.
-            </p>
-            <div class="command-block">
-              python -m usv_sim.dashboard<br />python -m usv_sim.workflow
-              --preset smoke<br />python -m usv_sim.workflow --preset full
-              --workers 4
+        </section>
+
+        <!-- GUIDE -->
+        <section id="view-guide" class="view" aria-labelledby="guide-title">
+          <div class="guide-hero">
+            <div class="guide-copy">
+              <div class="section-label"><span class="mono">00</span><span data-i18n="guide.eyebrow">Learn · how this lab works</span></div>
+              <h1 id="guide-title" data-i18n-html="guide.title">Two survey boats, <em>one intermittent radio link.</em></h1>
+              <p class="lead" data-i18n="guide.lead">This dashboard replays and compares recorded simulations of two unmanned surface vehicles (USVs) that share a 240-cell seabed survey. Five coordination policies decide how much work each boat reserves before the radio fades.</p>
+              <div class="hero-actions">
+                <button class="button primary" id="start-first-run"><svg><use href="#i-play" /></svg><span data-i18n="guide.firstRun">Run your first simulation</span></button>
+                <button class="button secondary" id="start-tour"><svg><use href="#i-help" /></svg><span data-i18n="guide.tour">Take the full tour</span></button>
+              </div>
             </div>
+            <div class="signal-field" aria-hidden="true"><canvas id="guide-field" width="440" height="360"></canvas><span class="field-caption mono">SURFACE ↔ SIGNAL</span></div>
+          </div>
+
+          <article class="card">
+            <span class="card-kicker" data-i18n="arch.kicker">Where the computation happens</span>
+            <h2 data-i18n="arch.title">The browser only draws. Python on this computer simulates.</h2>
+            <div class="arch" id="architecture" role="img" data-i18n-aria="arch.aria" aria-label="Architecture: browser, local Python server, job queue, workflow, simulation model, results folder, replay"></div>
+            <ol class="arch-legend" id="arch-steps"></ol>
+          </article>
+
+          <div class="two-col">
+            <article class="card">
+              <span class="card-kicker" data-i18n="first.kicker">Step by step</span>
+              <h2 data-i18n="first.title">Run your first simulation and read the results</h2>
+              <ol class="steps" id="first-steps"></ol>
+            </article>
+            <article class="card">
+              <span class="card-kicker" data-i18n="concepts.kicker">Key ideas</span>
+              <h2 data-i18n="concepts.title">What the policies do</h2>
+              <dl class="concepts" id="policy-concepts"></dl>
+            </article>
+          </div>
+
+          <article class="card">
+            <span class="card-kicker" data-i18n="ref.kicker">Reference</span>
+            <h2 data-i18n="ref.title">Every view and control</h2>
+            <div class="reference" id="feature-reference"></div>
           </article>
         </section>
+
+        <!-- PRESENTATION -->
+        <section id="view-presentation" class="view" aria-labelledby="pres-title">
+          <div class="page-heading">
+            <div>
+              <div class="section-label"><span class="mono">07</span><span data-i18n="pres.eyebrow">Learn · guided walk-through</span></div>
+              <h1 id="pres-title" data-i18n="pres.title">Presentation</h1>
+              <p data-i18n="pres.lead">Slides built from the live dashboard: the replayed mission, the radio link, the core comparison and the extension.</p>
+            </div>
+            <button id="fullscreen" class="button secondary"><svg><use href="#i-expand" /></svg><span data-i18n="pres.fullscreen">Full screen</span></button>
+          </div>
+          <div class="deck" id="deck" tabindex="0" data-i18n-aria="pres.deck" aria-label="Slide deck; use the arrow keys">
+            <div class="deck-head"><span class="wordmark">USV·PAC</span><span class="deck-section" id="deck-section"></span><span class="deck-count mono" id="slide-number">01 / 07</span></div>
+            <div class="deck-body" id="slide-content"></div>
+            <div class="deck-progress"><i id="deck-progress"></i></div>
+            <button id="exit-presentation" class="text-button deck-exit" hidden data-i18n="pres.exit">Exit full screen ×</button>
+          </div>
+          <div class="slide-controls">
+            <button id="previous-slide" class="button secondary" data-i18n="pres.prev">← Previous</button>
+            <div id="slide-dots" class="slide-dots"></div>
+            <button id="next-slide" class="button primary" data-i18n="pres.next">Next →</button>
+          </div>
+          <p class="footnote" data-i18n="pres.note">Use ← / → to navigate and Esc to leave full screen. The mission slide follows the main replay controls. The motion button in the header pauses the animated backgrounds.</p>
+        </section>
+
         <footer class="page-footer">
-          <span>USV RESEARCH LAB <b>·</b> REPRODUCIBLE BY DESIGN</span
-          ><span
-            >Synthetic results support this model only. No measured energy or
-            vessel-lifetime claim.</span
-          >
+          <span class="mono">USV·PAC · REPRODUCIBLE BY DESIGN</span>
+          <span data-i18n="footer.claim">Synthetic results support this model only. No measured energy or vessel-lifetime claim.</span>
         </footer>
       </main>
+    </div>
+
+    <div id="tour" class="tour" hidden>
+      <div class="tour-spot" id="tour-spot"></div>
+      <div class="tour-card" id="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title">
+        <div class="tour-meta mono" id="tour-meta"></div>
+        <h3 id="tour-title"></h3>
+        <p id="tour-body"></p>
+        <div class="tour-actions">
+          <button class="text-button" id="tour-close" data-i18n="tour.close">Close</button>
+          <span class="spacer"></span>
+          <button class="button secondary small" id="tour-prev" data-i18n="tour.prev">Back</button>
+          <button class="button primary small" id="tour-next" data-i18n="tour.next">Next</button>
+        </div>
+      </div>
     </div>
     <div id="toast" role="status" aria-live="polite" hidden></div>
   </body>

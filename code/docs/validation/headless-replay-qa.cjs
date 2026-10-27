@@ -35,15 +35,19 @@ function element(id) {
       innerHTML: "",
       textContent: "",
       dataset: {},
-      style: {},
+      style: { setProperty: noop },
       checked: true,
       value: "",
-      classList: { toggle: noop },
+      clientWidth: 720,
+      options: [],
+      classList: { toggle: noop, add: noop, remove: noop, contains: () => false },
       setAttribute: noop,
       addEventListener: noop,
+      scrollIntoView: noop,
       getBoundingClientRect: () => ({ width: 720, height: 440 }),
       getContext: () => context,
       querySelector: () => element("mock-svg"),
+      querySelectorAll: () => [],
     });
   return elements.get(id);
 }
@@ -53,21 +57,32 @@ element("timeline").max = 7200;
 element("event-filter").value = "all";
 const document = {
   getElementById: (id) => elements.get(id) || null,
+  querySelector: () => null,
   querySelectorAll: () => [],
   addEventListener: noop,
-  body: { classList: { toggle: noop } },
+  documentElement: {},
+  body: { classList: { toggle: noop, add: noop, remove: noop, contains: () => false } },
 };
 const sandbox = {
   document,
   console,
   window: { devicePixelRatio: 1, addEventListener: noop },
   requestAnimationFrame: noop,
+  getComputedStyle: () => ({ getPropertyValue: () => "#000000" }),
+  matchMedia: () => ({ matches: false, addEventListener: noop }),
+  location: { hash: "", search: "" },
+  history: { replaceState: noop },
+  navigator: { language: "en" },
+  innerWidth: 1440,
+  URLSearchParams,
 };
 vm.createContext(sandbox);
+// i18n.js defines the dictionary that app.js reads through the global I18N.
+const i18n = fs.readFileSync(path.join(web, "i18n.js"), "utf8");
 const app = fs.readFileSync(path.join(web, "app.js"), "utf8");
 vm.runInContext(
-  app.replace(/\ninit\(\);\s*$/, "") +
-    "\nglobalThis.qa={state,drawAll,renderComparison,renderMissionCharts,renderEvents};",
+  i18n + "\n" + app.replace(/\ninit\(\);\s*$/, "") +
+    "\nI18N.set('en');globalThis.qa={state,prepare,drawAll,renderComparison,renderMissionCharts,renderEvents,renderForecast,renderBudgetNow};",
   sandbox,
 );
 const source = String.raw`import json,tempfile
@@ -104,7 +119,7 @@ const checks = [];
 for (const trace of JSON.parse(execution.stdout)) {
   trace.dataset = "headless-qa";
   trace.name = `1000-1-5-${trace.policy}`;
-  sandbox.qa.state.traces = { [trace.policy]: trace };
+  sandbox.qa.state.traces = { [trace.policy]: sandbox.qa.prepare(trace) };
   sandbox.qa.state.active = trace.policy;
   sandbox.qa.renderComparison();
   for (const layer of ["global", "0", "1"]) {
@@ -114,12 +129,18 @@ for (const trace of JSON.parse(execution.stdout)) {
       sandbox.qa.drawAll();
       sandbox.qa.renderMissionCharts();
       sandbox.qa.renderEvents();
+      sandbox.qa.renderForecast(trace, Math.min(time, trace.result.stop_s));
+      sandbox.qa.renderBudgetNow(trace, Math.min(time, trace.result.stop_s));
       for (const id of [
         "boat-states",
         "forecast-chart",
-        "live-coverage",
+        "kpis",
         "coverage-chart",
         "signal-chart",
+        "budget-chart",
+        "budget-now",
+        "link-states",
+        "events-body",
       ])
         assert(
           !/NaN|undefined/.test(element(id).innerHTML),
@@ -129,20 +150,16 @@ for (const trace of JSON.parse(execution.stdout)) {
         (100 *
           trace.first_seen.filter((at) => at != null && at <= time).length) /
         trace.first_seen.length;
+      const shown = coverage.toLocaleString("en-GB", {
+        maximumFractionDigits: 1,
+        minimumFractionDigits: 1,
+      });
       assert(
-        element("live-coverage").innerHTML.startsWith(
-          coverage.toLocaleString("en-GB", {
-            maximumFractionDigits: 1,
-            minimumFractionDigits: 1,
-          }),
-        ),
+        element("kpis").innerHTML.includes(`<strong class="num">${shown}<em>%</em>`),
+        `coverage KPI at ${trace.policy} / ${time}`,
       );
       if (layer !== "global")
-        assert(
-          element("observer-note").textContent.includes(
-            "task overlays remain observer records",
-          ),
-        );
+        assert(element("map-layer").innerHTML.includes(`USV ${+layer + 1} knowledge only`));
     }
   }
   checks.push({
@@ -155,7 +172,7 @@ for (const trace of JSON.parse(execution.stdout)) {
   });
 }
 const hashes = {};
-for (const name of ["app.js", "index.html", "style.css"])
+for (const name of ["app.js", "i18n.js", "index.html", "style.css", "tokens.css"])
   hashes[name] = crypto
     .createHash("sha256")
     .update(fs.readFileSync(path.join(web, name)))

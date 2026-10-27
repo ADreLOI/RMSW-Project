@@ -20,17 +20,16 @@ import multiprocessing
 from pathlib import Path
 import time
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 import numpy as np
 
+from . import figures as fig
 from . import hardware, predictors
 from .analysis import interval, reconstruct, require, write_csv
 from .events import warning_scores
 from .experiment import digest, dump, environment
 from .mapping import Survey, SurveyModel, evaluate_log
 from .model import Config, POLICIES, Work, geometry, make_scenario, run
+from .plotstyle import save
 
 ROOT=Path(__file__).resolve().parents[2]
 CORE=ROOT/"results/core"
@@ -251,43 +250,10 @@ def analyze(out: Path, paper: Path):
                       "map":map_summary},indent=1))
 
 
-COLORS={"S1":"#475569","S2":"#ca5038","S3":"#b68b22","S4-T":"#007c83","S4-P":"#6b58a6",
-        "S4-E":"#2f855a","S4-K":"#0b6bcb","S4-G":"#b83280","S4-L":"#805ad5","S4-M":"#dd6b20","S4-O":"#1a202c"}
-
-
 def figures(out,paper,design,summary,warning,maps):
-    plt.rcParams.update({"font.size":10,"axes.spines.top":False,"axes.spines.right":False})
-    fig,axs=plt.subplots(1,2,figsize=(6.5,3.3),sharey=True)
-    for ax,slow in zip(axs,(False,True)):
-        for i,p in enumerate(ALL_POLICIES):
-            g=[r for r in summary if r["slowdown"]==slow and r["policy"]==p]
-            x=np.array([r["fade_length"] for r in g])+(i-5)*0.08
-            ax.errorbar(x,[r["restricted_mean_s"] for r in g],yerr=[[r["restricted_mean_s"]-r["ci_low_s"] for r in g],[r["ci_high_s"]-r["restricted_mean_s"] for r in g]],
-                        label=p,color=COLORS[p],marker="o",ms=3,capsize=2,lw=1)
-        ax.set_title("Temporary slowdown" if slow else "Balanced progress"); ax.set_xticks([2,5,10]); ax.set_xlabel("Mean fade [exchanges]"); ax.grid(alpha=.15)
-    axs[0].set_ylabel("Restricted mean time [s]")
-    handles,labels=axs[0].get_legend_handles_labels()
-    fig.legend(handles,labels,ncol=6,fontsize=7,loc="lower center",bbox_to_anchor=(.5,0),frameon=False)
-    fig.tight_layout(rect=(0,.1,1,1)); fig.savefig(paper/"extension-mission-time.pdf"); fig.savefig(paper/"extension-mission-time.png",dpi=200); plt.close(fig)
-    fig,ax=plt.subplots(figsize=(4.6,3.2))
-    for row in [w for w in warning if w["split"]=="extension-2000"]:
-        policy=next(p for p,n in {**{"S4-T":"trend","S4-P":"persistence"},**EXTRA}.items() if n==row["predictor"])
-        cost=row["arithmetic_per_decision"]+row["transcendental_per_decision"]
-        ax.scatter(cost,row["f1"],color=COLORS[policy],s=30,marker="x" if row["predictor"]=="fade-oracle" else "o",
-                   label=f"{policy} {row['label']}")
-    ax.set_xscale("log"); ax.set_xlabel("Counted operations per decision"); ax.set_ylabel("Held-out warning F1"); ax.grid(alpha=.15)
-    ax.legend(fontsize=6.5,loc="center left",frameon=False)
-    fig.tight_layout(); fig.savefig(paper/"predictor-cost-quality.pdf"); fig.savefig(paper/"predictor-cost-quality.png",dpi=200); plt.close(fig)
-    fig,axs=plt.subplots(1,2,figsize=(6.5,3.0),sharey=True)
-    for ax,study,policies in zip(axs,("core","extension"),(POLICIES,("S1","S2","S3","S4-T","S4-G","S4-O"))):
-        for p in policies:
-            g=[m for m in maps if m["study"]==study and m["policy"]==p and m["slowdown"] and m["fade_length"]==5]
-            t=[x for x,_ in g[0]["curve"]]
-            ax.plot(t,np.mean([[y for _,y in m["curve"]] for m in g],0),label=p,color=COLORS[p],lw=1.3)
-        ax.set_title(f"{'Frozen core' if study=='core' else 'Extension (recovery)'}: slowdown, L=5",fontsize=9)
-        ax.set_xlabel("Mission time [s]"); ax.set_xlim(0,4000); ax.grid(alpha=.15); ax.axhline(.5,color="#999",ls=":",lw=1)
-    axs[0].set_ylabel("Synthetic map RMSE [m]"); axs[0].legend(fontsize=7); axs[1].legend(fontsize=7)
-    fig.tight_layout(); fig.savefig(paper/"map-rmse-time.pdf"); fig.savefig(paper/"map-rmse-time.png",dpi=200); plt.close(fig)
+    save(fig.mission_time(summary,ALL_POLICIES,offset=0.08,ymax=None),paper,"extension-mission-time")
+    save(fig.predictor_cost(warning,design["policy_predictors"]),paper,"predictor-cost-quality")
+    save(fig.map_rmse(fig.map_curves(maps)),paper,"map-rmse-time")
 
 
 def tables(paper,design,summary,contrasts,warning,projection,map_summary):

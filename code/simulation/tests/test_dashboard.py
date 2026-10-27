@@ -220,4 +220,119 @@ class DashboardIntegrationTests(unittest.TestCase):
         self.assertFalse((self.lab.core / "runs.json").exists(), "Exploration must not alter core evidence")
 
 
+class InterfaceTests(unittest.TestCase):
+    """Static checks of the browser assets, the shared palette and the read-only extension API."""
+    WEB = SIMULATION / "src" / "usv_sim" / "web"
+
+    def dictionary(self):
+        import re
+        text = (self.WEB / "i18n.js").read_text(encoding="utf-8")
+        english, italian = text.split("\n  it: {", 1)
+        italian = italian.split("\n};", 1)[0]
+        keys = lambda block: re.findall(r'^\s+"([^"]+)":', block, re.M)
+        return keys(english), keys(italian)
+
+    def test_i18n_keys_match_and_cover_every_use(self):
+        import re
+        english, italian = self.dictionary()
+        self.assertEqual(len(english), len(set(english)), "duplicate English keys")
+        self.assertEqual(len(italian), len(set(italian)), "duplicate Italian keys")
+        self.assertEqual(set(english), set(italian))
+        html = (self.WEB / "index.html").read_text(encoding="utf-8")
+        script = (self.WEB / "app.js").read_text(encoding="utf-8")
+        used = set(re.findall(r'data-i18n(?:-aria|-html)?="([^"]+)"', html)) | set(re.findall(r'\bt\("([^"]+)"', script))
+        families = {"policy.": 11, "policyLong.": 11, "pres.section.": 7, "job.status.": 6, "job.action.": 4, "work.": 3}
+        for prefix, count in families.items():
+            self.assertEqual(sum(k.startswith(prefix) for k in english), count, prefix)
+        steps = set(re.findall(r'key: "(\w+)"', script))
+        used |= {f"tourstep.{s}.{part}" for s in steps for part in "tb"}
+        used |= {f"link.{s}{suffix}" for s in ("connected", "fade", "budget", "range") for suffix in ("", "Note")}
+        used |= {f"arch.{a}{suffix}" for a in ("browser", "post", "queue", "workflow", "model", "results", "replay")
+                 for suffix in ("", "Sub", "Code", "Long")}
+        self.assertEqual(sorted(used - set(english)), [])
+
+    def test_palette_is_shared_between_tokens_and_figures(self):
+        from usv_sim.plotstyle import COLORS, USV, tokens
+        css = tokens()
+        self.assertEqual(set(COLORS), {"S1", "S2", "S3", "S4-T", "S4-P", "S4-E", "S4-K", "S4-G", "S4-L", "S4-M", "S4-O"})
+        self.assertEqual(len(set(COLORS.values())), 11, "policy colours must be distinct")
+        self.assertEqual(USV, (css["usv-1"], css["usv-2"]))
+        self.assertNotIn(css["accent"], COLORS.values(), "the accent is reserved for interface elements")
+        self.assertNotIn(css["accent"], USV)
+
+    def test_figure_rows_round_trip_exactly(self):
+        from usv_sim.figures import read_rows, typed
+        self.assertIs(typed("True"), True)
+        self.assertEqual(typed("30"), 30)
+        self.assertEqual(typed(repr(0.1 + 0.2)), 0.1 + 0.2)
+        self.assertIsNone(typed(""))
+        rows = read_rows(SIMULATION / "results" / "core" / "condition-summary.csv")
+        self.assertEqual(len(rows), 30)
+        self.assertTrue(all(isinstance(r["slowdown"], bool) and isinstance(r["restricted_mean_s"], float) for r in rows))
+
+
+class ExtensionApiTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(dir=Path.cwd())
+        self.lab = Lab(Path(self.temporary.name) / "jobs")
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), handler_for(self.lab))
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+
+    def tearDown(self):
+        self.server.shutdown(); self.server.server_close(); self.thread.join()
+        self.lab.close(); self.temporary.cleanup()
+
+    def get(self, path):
+        connection = http.client.HTTPConnection("127.0.0.1", self.server.server_port)
+        connection.request("GET", path)
+        response = connection.getresponse()
+        result = response.status, response.getheader("Content-Type"), response.read()
+        connection.close()
+        return result
+
+    def test_run_names_accept_extension_policies_only(self):
+        from usv_sim.dashboard import RUN_NAME
+        for name in ("2000-1-5-S4-G", "1000-0-2-S4-O", "1000-1-10-S1"):
+            self.assertTrue(RUN_NAME.fullmatch(name), name)
+        for name in ("2000-1-5-S4-X", "2000-1-5-S5", "2000-2-5-S1", "2000-1-3-S1", "../2000-1-5-S1"):
+            self.assertIsNone(RUN_NAME.fullmatch(name), name)
+        code, _, _ = self.get("/api/trace?dataset=extension&run=2000-1-5-S4-X")
+        self.assertEqual(code, 400)
+
+    @unittest.skipUnless((SIMULATION / "results" / "extension" / "extension-design.json").exists(), "extension summaries absent")
+    def test_extension_summary_comes_from_retained_files(self):
+        code, kind, body = self.get("/api/extension")
+        self.assertEqual(code, 200)
+        data = json.loads(body)
+        self.assertEqual(data["design"]["policies"][-1], "S4-O")
+        self.assertEqual(len(data["summary"]), 6 * len(data["design"]["policies"]))
+        retained = json.loads((SIMULATION / "results" / "extension" / "runs.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(data["runs"]), len(retained))
+        self.assertEqual({r["restricted_s"] for r in data["runs"]}, {r["restricted_s"] for r in retained})
+        code, _, _ = self.get("/api/download?dataset=extension&name=../core/runs.json")
+        self.assertEqual(code, 400)
+        code, _, body = self.get("/api/download?dataset=extension&name=condition-summary.csv")
+        self.assertEqual(code, 200)
+
+    def test_figure_endpoint_is_whitelisted_and_returns_png(self):
+        for path in ("/api/figure?name=../../x", "/api/figure?name=core-condition&slowdown=maybe&length=5",
+                     "/api/figure?name=core-condition&slowdown=true&length=3"):
+            code, _, _ = self.get(path)
+            self.assertEqual(code, 400, path)
+        code, kind, body = self.get("/api/figure?name=core-condition&slowdown=true&length=5")
+        self.assertEqual((code, kind), (200, "image/png"))
+        self.assertTrue(body.startswith(b"\x89PNG"))
+
+    def test_static_assets_and_fonts(self):
+        for path, kind in (("/tokens.css", "text/css"), ("/i18n.js", "text/javascript"), ("/fonts/Poppins-Bold.ttf", "font/ttf"),
+                           ("/fonts/OFL.txt", "text/plain")):
+            code, content_type, _ = self.get(path)
+            self.assertEqual(code, 200, path)
+            self.assertTrue(content_type.startswith(kind), (path, content_type))
+        for path in ("/fonts/../dashboard.py", "/fonts/missing.ttf", "/dashboard.py"):
+            code, _, _ = self.get(path)
+            self.assertIn(code, (400, 404), path)
+
+
 if __name__ == "__main__": unittest.main()

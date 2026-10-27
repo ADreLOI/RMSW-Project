@@ -1,0 +1,113 @@
+/*
+ * USV·PAC design tokens: the single source for colours, type and spacing.
+ * plotstyle.py parses the --policy-* and --usv-* values below, so the
+ * publication figures and the browser always share one palette.
+ *
+ * Retheme by changing --accent only. Domain colours are never reused for
+ * interface chrome, and every domain colour is paired with a text label,
+ * an icon or a line pattern in the views.
+ */
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Poppins";
+  src: url("/fonts/Poppins-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  /* Interface: neutral base + one accent (blue from the presentation deck). */
+  --accent: #2670df;
+  --accent-ink: #1b56b0; /* accent text on white, 6.0:1 */
+  --accent-soft: #e8f0fd;
+  --background: #f7f8fa;
+  --surface: #ffffff;
+  --foreground: #171e28;
+  --muted: #f0f2f5;
+  --muted-foreground: #5a6474; /* 5.9:1 on white */
+  --border: #dce1e8;
+  --border-strong: #c3cad5;
+  --focus: var(--accent);
+
+  /* Status semantics. Amber = predicted outage warning; red = timeout/failure. */
+  --warning: #b45309;
+  --warning-soft: #fdf3e2;
+  --danger: #cb4141;
+  --danger-ink: #b42f2f;
+  --danger-soft: #fbeaea;
+  --success: #2d7d46;
+  --success-soft: #e7f4ea;
+
+  /* Vessels. USV 1 keeps the orange and USV 2 the teal of the earlier
+     dashboard; the deck's blue stays the interface accent. */
+  --usv-1: #d9622b;
+  --usv-1-soft: #fbe6dc;
+  --usv-2: #168f89;
+  --usv-2-soft: #d9f0ee;
+
+  /* Grid cells. */
+  --cell-unobserved: #ffffff;
+  --cell-line: #e3e7ed;
+  --cell-observed: #dfe7ef;
+  --cell-observed-dot: #6b7a8c;
+  --cell-redundant: #4b5563; /* drawn as a diagonal hatch over observed */
+
+  /* Radio link states (always with a dash pattern and a label). */
+  --link-connected: #2d7d46;
+  --link-fade: #8a94a6;
+  --link-budget: #7c3aed;
+  --link-range: #5a6474;
+
+  /* Policies: fixed across every chart, table and exported figure. */
+  --policy-S1: #64748b;
+  --policy-S2: #c2410c;
+  --policy-S3: #a16207;
+  --policy-S4-T: #1d4ed8;
+  --policy-S4-P: #7c3aed;
+  --policy-S4-E: #15803d;
+  --policy-S4-K: #0e7490;
+  --policy-S4-G: #be185d;
+  --policy-S4-L: #4d7c0f;
+  --policy-S4-M: #854d0e;
+  --policy-S4-O: #111827;
+
+  /* Type. */
+  --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-display: "Poppins", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "DM Mono", "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.625rem;
+  --text-2xl: 2.25rem;
+
+  /* Spacing on a 4 px base. */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-6: 24px;
+  --s-8: 32px;
+
+  /* Shape and motion. */
+  --radius: 6px;
+  --radius-lg: 8px;
+  --shadow-overlay: 0 12px 32px -12px rgb(23 30 40 / 0.28);
+  --ease: cubic-bezier(0.25, 1, 0.5, 1);
+  --t-fast: 150ms;
+  --t-base: 200ms;
+  --t-slow: 250ms;
+}
