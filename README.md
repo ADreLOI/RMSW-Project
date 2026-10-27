@@ -13,9 +13,9 @@ The **USV Research Lab** provides an animated simulator, synchronized policy com
 
 Open `http://127.0.0.1:8768`. New runs are saved as separate, reproducible evidence bundles. See the [dashboard guide](code/docs/dashboard-guide.md). Other tools should start with [AGENTS.md](AGENTS.md) and the [agent handoff](code/docs/agent-handoff.md); completed work is recorded in the [work log](code/docs/work-log.md).
 
-Start with the [first-run walkthrough](code/docs/first-run-walkthrough.md) for a worked example, the five methods, decision inspection, results, tests and presentation controls.
+Open the dashboard's **Guide** for a step-by-step first simulation and a tour of every control (English/Italian). The [documentation index](code/docs/README.md) lists everything else, starting from the [27 October summary PDF](code/docs/aggiornamento-per-ettore-2026-10-27.pdf).
 
-![USV Research Lab replay with recorded tasks, local knowledge and sample ages](code/docs/validation/dashboard-mission-evening.png)
+![USV·PAC research lab: guide with the digit field drawn from recorded signal values](code/docs/validation/redesign-v2-desktop-guide.png)
 
 The revised research plan is implemented. The core evaluation contains 900 runs, five configurations, six conditions, and 30 paired evaluation seeds per condition, following a separate 300-run pilot. All 900 evaluation logs passed metric reconstruction. Results are synthetic evidence; the report remains a working draft for both authors to review.
 
