@@ -1,7 +1,18 @@
-- Proposal
-[]
+Ocean engineering
+Leggi l'absrtact + conclusioni + future work
+Swarm
+Simulazione 2d per mappare un fondale
+Machine learning per mappare la profondità
+Undermind: tool per ricerca paper
+Spiega le abbreviazioni.
+importante i dati, distribuzione etc, analizza i dati, il perché, il comportamento e cosa significa.
+Trova paper che hanno del codice, repo etc pubblica.
+la domanda è: What should I care.
+Inizia con il 2d e poi vedi se passare al 3d.
+Tommaso Melodia.
 
-- Project
-[] Ricordarsi di scrivere qualcosa sulla sosteniilità
-
-- General
+Provare a comparar e vedere diversi modelli di predizione di MACHINE LEARNING In base anche all'hardware.
+Mostrare il Trade off tra costo ed efficienza.
+Discutere anche map accuracy.
+Discutere bene dei Criteri.
+confrontare anche tipo la ram, il ciclo di vita etc.
