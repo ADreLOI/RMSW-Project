@@ -32,6 +32,8 @@ This is a controlled synthetic experiment about two unmanned surface vehicles (U
 - Resource counts are separate from host CPU/RAM measurements. Neither establishes measured energy, battery lifetime, or physical map accuracy.
 - Core findings are adverse to a strong forecast claim: S1 180/180 completed; S2 0; S3 158; S4-T 156; S4-P 162. No consistent trend advantage over strong controls.
 
+- Extension E1-E3 (27 Oct 2026) is a separate, post-core experiment: `results/extension/`, its own freeze and seeds 2000-2029. `run(..., predictor=None, recovery=False)` defaults must keep reproducing the core exactly. Its map RMSE is a synthetic diagnostic, and its hardware figures are assumption-based projections; neither is a measurement.
+
 Changing these assumptions creates a new design/experiment. Document why, retain the original, and keep sensitivity results distinct. Consult the user's current instructions and the research plan for scope; routine fixes within the agreed scope can proceed.
 
 ## Commands

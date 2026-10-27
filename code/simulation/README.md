@@ -62,3 +62,22 @@ No software error is recoded as a timeout. Incomplete completion time is null; r
 S1 completed all 180 missions, S2 none, S3 158, S4-T 156 and S4-P 162. The no-rendezvous model allows empty queues beyond radio range. Trend prediction shows no consistent advantage over always-long queues or persistence. Counts, bytes and host resource measurements do not establish measured energy, battery lifetime or map accuracy.
 
 Read the [plan mapping](../docs/plan-to-code.md), [operation conventions](../docs/operation-counts.md), [architecture](../docs/architecture.md), [work log](../docs/work-log.md) and [agent handoff](../docs/agent-handoff.md). Author reproduction, mentor review, report reconciliation and course submission remain separate follow-up.
+
+## Extension study E1–E3 (27 October 2026)
+
+A separately frozen second experiment adds three things. The frozen core is unchanged, and with its hooks off the simulator reproduces it exactly.
+
+- **E1 recovery:** idle, disconnected online boats travel to pre-agreed centre meeting cells.
+- **E2 predictors:** EWMA, Kalman, Gilbert burst HMM, logistic regression, a 16-unit MLP and a non-deployable fade oracle, alongside trend and persistence. Each has per-decision work, memory and an assumption-based hardware projection (`hardware.py`).
+- **E3 map accuracy:** a post-hoc synthetic bathymetry RMSE with IHO S-44 Order 1a noise, computed from observation events of both core and extension logs (`mapping.py`).
+
+```text
+python -m usv_sim.extension tune       # pilot seeds 0-9 only; writes extension-design.json (refuses to overwrite)
+python -m usv_sim.extension evaluate --workers 4   # 11 policies x 6 conditions x seeds 2000-2029 = 1980 runs
+python -m usv_sim.extension analyze    # reconstruct all logs, bootstrap, replay, hardware, maps, tables/figures
+python -m usv_sim.extension all --output results/extension-<name>   # independent reproduction
+```
+
+The full pipeline takes about five minutes on six workers (analysis about four). `analyze` also needs the frozen core raw logs in `results/core/raw/`; they are ignored by Git, so regenerate them with the core workflow or copy them. Outputs go to `results/extension/` (raw logs ignored) and `paper/Final_Report/generated/extension/`. Mission, warning and map metrics are deterministic. Host CPU microseconds are not.
+
+On Windows, keep the virtual environment on a short path (for example `%USERPROFILE%\.venvs\rmsw`). Inside the long OneDrive path, Matplotlib's font tools fail to load a DLL (`The filename or extension is too long`).

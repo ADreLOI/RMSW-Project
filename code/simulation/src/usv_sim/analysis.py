@@ -46,11 +46,12 @@ def validate_snapshot(event, config, positions, scenario=None, t=0):
             commanded*=config.slowdown_factor
         require(state["speed_mps"]==commanded, "Task snapshot commanded speed mismatch")
         mode=("ready" if state["target"] is None and state["queue"] else "idle" if state["target"] is None
+              else "rendezvous" if state.get("transit")
               else "turning" if state["turn_remaining_s"]>0
               else "in_transit" if state["edge_target"] is not None else "ready")
         require(state["mode"]==mode, "Task snapshot movement phase mismatch")
         claims.extend(state["queue"])
-        if state["target"] is not None:
+        if state["target"] is not None and not state.get("transit"):
             claims.append(state["target"])
         require(0 <= state["turn_remaining_s"] <= config.turn_s,
                 "Task snapshot turn remainder outside bounds")
@@ -134,7 +135,8 @@ def reconstruct(path):
             totals["reservations"]+=int(e.get("extra_reserved",0)>0)
             if e["attempted"]:
                 require(sum(len(s.encode("utf-8")) for s in e["payloads"])==e["bytes_attempted"], "Serialized byte mismatch")
-            claims=[v for v in e["targets"] if v is not None]+[x for q in e["queues"] for x in q]
+            transit=[bool(b.get("transit")) for b in e.get("boats") or ({},{})]
+            claims=[v for v,moving in zip(e["targets"],transit) if v is not None and not moving]+[x for q in e["queues"] for x in q]
             require(len(claims)==len(set(claims)), "Multiple committed task owners")
             require(all(set(k)<=covered for k in known), "Invented local coverage")
             require(e["bytes_attempted"]<=c.max_bytes and e["attempted"]<=c.max_datagrams, "Message budget exceeded")

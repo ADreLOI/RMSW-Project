@@ -161,6 +161,7 @@ class Boat:
     turn_remaining: float = 0.0
     distance: float = 0.0
     idle: float = 0.0
+    transit: bool = False  # Extension recovery travel; never a task claim.
 
     def start(self, c):
         while self.target is None and self.queue:
@@ -180,6 +181,7 @@ class Boat:
             if self.edge_target is None:
                 if not self.directions:
                     self.target = None
+                    self.transit = False
                     self.start(c)
                     continue
                 direction = self.directions.pop(0)
@@ -208,6 +210,7 @@ class Boat:
                 observe(self.id, self.cell)
                 if self.cell == self.target:
                     self.target = None
+                    self.transit = False
                     self.start(c)
 
 
@@ -366,18 +369,55 @@ def boat_state(boat: Boat, speed: float):
     rather than repeating full cell sets in every one-second tick.
     """
     mode = ("ready" if boat.target is None and boat.queue else "idle" if boat.target is None
+            else "rendezvous" if boat.transit
             else "turning" if boat.turn_remaining > 0
             else "in_transit" if boat.edge_target is not None else "ready")
-    return {"id": boat.id, "cell": boat.cell, "target": boat.target,
+    # Only extension recovery runs add the key, so frozen logs keep their bytes.
+    extra = {"transit": True} if boat.transit else {}
+    return {**extra, "id": boat.id, "cell": boat.cell, "target": boat.target,
             "queue": list(boat.queue), "heading": boat.heading, "mode": mode,
             "speed_mps": speed, "edge_target": boat.edge_target,
             "edge_remaining_m": boat.edge_remaining,
             "turn_remaining_s": boat.turn_remaining}
 
 
+def rendezvous_cells(c: Config):
+    """Pre-agreed adjacent meeting cells at the grid centre (extension recovery only)."""
+    row=c.height//2*c.width
+    return (row+c.width//2-1,row+c.width//2)
+
+
+def recover(c: Config, boat: Boat, cell: int):
+    """Navigate an idle boat to its meeting cell; transit is not task ownership."""
+    if boat.cell==cell or boat.target is not None or boat.queue:
+        return False
+    boat.target=cell; boat.transit=True
+    boat.directions=route(c,boat.cell,cell,boat.heading)
+    return True
+
+
+def cancel_transit(boat: Boat):
+    """On contact, finish the current edge only; then accept the new allocation."""
+    if not boat.transit:
+        return
+    boat.directions=[]
+    if boat.edge_target is None:
+        boat.target=None; boat.transit=False
+    else:
+        boat.target=boat.edge_target
+
+
 def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
-        forced_radio: Callable[[int],bool] | None=None):
-    if policy not in POLICIES:
+        forced_radio: Callable[[int],bool] | None=None, predictor=None, recovery=False):
+    """predictor and recovery are extension hooks; defaults reproduce the frozen study.
+
+    predictor(c, history, work) -> (warning, projected) replaces the S4 forecast and
+    receives only successful past samples. recovery sends idle, disconnected online
+    boats to pre-agreed meeting cells (a documented post-evaluation design change).
+    """
+    if predictor is not None and not policy.startswith("S4-"):
+        raise ValueError("A custom predictor needs an S4-* reservation policy label")
+    if policy not in POLICIES and predictor is None:
         raise ValueError(policy)
     geometry(c.width,c.height)  # Warm integer lookup tables outside component timing.
     margins=margins or {"trend":0,"persistence":0}
@@ -393,7 +433,11 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
     sessions=[]; history=[]; version=0; reservations=0
     attempted=delivered=bytes_attempted=bytes_delivered=budget_failures=0
     missing_sum=[0.0,0.0]; missing_n=0
-    log.write({"event":"start","schema":LOG_SCHEMA,"config":asdict(c),"scenario":asdict(scenario),"policy":policy,"margins":margins})
+    start={"event":"start","schema":LOG_SCHEMA,"config":asdict(c),"scenario":asdict(scenario),"policy":policy,"margins":margins}
+    if predictor is not None or recovery:
+        start["extension"]={"predictor":getattr(predictor,"name",None),"recovery":bool(recovery)}
+    log.write(start)
+    meeting=rendezvous_cells(c); last_commit=0; recoveries=0
     t=0
     def observe(i,cell):
         nonlocal observations
@@ -420,6 +464,8 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
             if scenario.slowdown and scenario.onset_s <= t < scenario.onset_s+c.slowdown_s:
                 speeds[0]*=c.slowdown_factor
             for b in boats: b.tick(c,speeds[b.id],observe)
+            if recovery and policy!="S1" and not len(covered)==c.cells and t-last_commit>=c.exchange_s:
+                for b in boats: recoveries+=recover(c,b,meeting[b.id])
             log.write({"event":"tick","t":t,"xy":[[b.x,b.y] for b in boats],"idle":[b.idle for b in boats],
                        "boats":[boat_state(b,speeds[b.id]) for b in boats]})
             complete=len(covered)==c.cells
@@ -441,6 +487,8 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                     payloads=[encode(s) for s in state]
                     entry["attempted"]=2; entry["bytes_attempted"]=sum(map(len,payloads))
                     if radio:
+                        if recovery:
+                            for b in boats: cancel_transit(b)
                         start=time.process_time_ns()
                         merged=boats[0].known|boats[1].known
                         work["resync"].decisions+=1
@@ -448,7 +496,9 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                         work["resync"].cpu_ns+=time.process_time_ns()-start
                         trial_history=history+[entry]
                         warning=False; projected=[]
-                        if policy.startswith("S4"):
+                        if predictor is not None:
+                            warning,projected=predictor(c,trial_history,work["forecast"])
+                        elif policy.startswith("S4"):
                             warning,projected=forecast(c,trial_history,method,margins[method],work["forecast"])
                         capacity=c.long_queue if policy=="S3" or warning else c.short_queue
                         proposal=allocate(c,boats,merged,speeds,capacity,work["allocation"])
@@ -456,7 +506,7 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                         entry.update(attempted=4,bytes_attempted=sum(map(len,payloads)))
                         fits=len(payloads)<=c.max_datagrams and sum(map(len,payloads))<=c.max_bytes
                         if fits:
-                            version+=1; history.append(entry)
+                            version+=1; history.append(entry); last_commit=t
                             for b,q in zip(boats,proposal): b.known=set(merged); b.queue=q
                             extra=sum(max(0,len(q)-c.short_queue) for q in proposal) if warning else 0
                             reservations+=int(extra>0)
@@ -473,7 +523,7 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                     attempted+=entry["attempted"]; delivered+=entry["delivered"]
                     bytes_attempted+=entry["bytes_attempted"]; bytes_delivered+=entry["bytes_delivered"]
                     entry["payloads"]=[p.decode("utf-8") for p in payloads]
-                claims=[b.target for b in boats if b.target is not None]+[cell for b in boats for cell in b.queue]
+                claims=[b.target for b in boats if b.target is not None and not b.transit]+[cell for b in boats for cell in b.queue]
                 assert len(claims)==len(set(claims)),"Multiple owners"
                 assert all(b.known<=covered for b in boats),"Invented coverage"
                 assert entry["attempted"]<=c.max_datagrams and entry["bytes_attempted"]<=c.max_bytes
@@ -494,6 +544,8 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                 "missing_stop":[len(covered-b.known)/c.cells for b in boats],
                 "link_availability":sum(s["radio"] for s in sessions)/len(sessions) if sessions else None,
                 "distance_failures":sum(s["distance_failure"] for s in sessions),"work":{name:asdict(w) for name,w in work.items()}}
+        if predictor is not None or recovery:
+            result["recovery_trips"]=recoveries
         log.write({"event":"stop","result":result,"known":[sorted(b.known) for b in boats],
                    "queues":[list(b.queue) for b in boats],"targets":[b.target for b in boats],
                    "boats":[boat_state(b,speeds[b.id]) for b in boats]})

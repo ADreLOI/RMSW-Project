@@ -42,3 +42,6 @@ private/
 /paper/Final_Report/*.pdf
 /paper/Final_Report/compile-pass*.txt
 /paper/Final_Report/bibtex-pass.txt
+
+# Local editable-install metadata
+*.egg-info/

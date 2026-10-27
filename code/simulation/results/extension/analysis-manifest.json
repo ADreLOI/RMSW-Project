@@ -1,0 +1,38 @@
+{
+  "design_sha256": "a36193c7e359f72c014227f7ac24b9c470fbe8e53a4a6aa8cd55b81a4a6526f5",
+  "runs_reconstructed": 1980,
+  "core_runs_mapped": 900,
+  "environment": {
+    "python": "3.13.2 (tags/v3.13.2:4f8bb39, Feb  4 2025, 15:23:48) [MSC v.1942 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "processor": "Intel64 Family 6 Model 154 Stepping 3, GenuineIntel",
+    "logical_cpus": 20,
+    "physical_cpus": 14,
+    "ram_bytes": 34045341696,
+    "numpy": "2.5.4",
+    "matplotlib": "3.11.2",
+    "psutil": "7.2.2",
+    "git_base": "06f3d03c18f83f03ae54567f5fb312b7c3c8ed57",
+    "numerics": "IEEE 754 binary64; no BLAS in forecast/allocator",
+    "timing": "process_time_ns per component; excludes logging and plotting; benchmark.py separately repeats saved inputs"
+  },
+  "source_sha256": {
+    "analysis.py": "7bdd49380667e5a716d6021768dd001a70ef411ef335a09f9a9ee0440f0a2fb1",
+    "benchmark.py": "ef016ed50086e997768549e9a1285b58cfb949a6d24e71b6566ccc9e9a4c87f7",
+    "dashboard.py": "13ddd5af26954608b13d090cc9709e6f7d2177636f7080d4e26ef5e519a7a12f",
+    "events.py": "2465bba499c65ae63109c1e7c43066ab071cd500df628f82ce9dfbe2f577989d",
+    "evidence.py": "4f075e9f3d9d46200b15b1489d26c83921ea49c6044a3882c51c50921c160ee8",
+    "experiment.py": "8b71edb511d55287110e12c74c45421bc9a503844f68c62db5bc5718ea83efdd",
+    "extension.py": "0cc15b1b900f1cf0d150dfac05e44ca27329c02a351a6bb09d88bfea8b11733b",
+    "hardware.py": "c7b6c6892dd0a34d9f8e9a70b9a7dd5ba620cdef8d1a0b4e1f9be2e3204b0fc0",
+    "mapping.py": "694c86c29a907fa43d139f69eb9b4041615a3b2642ac686e20da294663916be5",
+    "model.py": "981ef7669fcb159224e33bc1e184f94683972c6883b878f544739f3f0b62a187",
+    "plots.py": "830e5d2e09a4f2769d739af4333a4377d6a6ad7b546dfa8fdc09f943f053540f",
+    "predictors.py": "041616502daa8d6a20b0350d3706116aff718b9a72ad933bc2422bc6b05869d9",
+    "replay.py": "c2b155e80b52f9907bf94a3a50ac3de06836a9cdb2fafc92903b1662868084f6",
+    "verify.py": "e31817c3681697117e567f45856effc32fcd2040d9ec6116006ab92ebb735028",
+    "workflow.py": "e92a0dbac199cf5c611087933005ce28e20a58852e2a7f7f76b47e1e75aa5f0f",
+    "__init__.py": "9a4846ce88a5c4bc249d02cf6963d92f88e36ba095f252b531aebd180d0de4ce"
+  },
+  "note": "Host CPU timings vary between machines; deterministic mission, warning and map metrics should reproduce exactly."
+}
