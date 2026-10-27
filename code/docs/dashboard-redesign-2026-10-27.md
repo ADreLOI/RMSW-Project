@@ -52,6 +52,7 @@ Andrea asked for the style of kthais.com, with numbers that respond to the user,
 - The first-simulation steps form a scroll timeline with a sticky serif step number.
 - Static bathymetric contours behind the Guide hero; headings `(Word) rest` in all views and both languages.
 - Downloads stay paper-style. Screenshots: `validation/redesign-v2-*`.
+- Follow-up (Andrea): the "(word) heading" titles and the serif numerals were too close to kthais.com. Titles are plain again (Poppins, as in the slides) and the large rolling numbers use the same heading font. Kept: the USV digit field, rolling numbers, hero numbers, step timeline, bathymetric texture.
 
 ## Checklist
 
