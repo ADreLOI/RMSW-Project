@@ -13,7 +13,7 @@ The dashboard runs the actual Python simulator locally. All computation (simulat
 | Results | **Extension** | E1 recovery, E2 predictors (quality, cost, hardware projection), E3 synthetic map accuracy, extension replays |
 | Operate | **Runs & jobs** | Test, smoke and full workflows; job history, bundles and downloads |
 | Learn | **Guide** | Architecture diagram (where computation happens), first-simulation walkthrough, policy glossary, reference of every control |
-| Learn | **Presentation** | 16:9 deck built from the live views, in the style of the earlier USV·PAC slides |
+| Learn | **Presentation** | One 16:9 deck per scheduled event (tutor checkpoint, final presentation draft), built from the live views |
 
 The header always shows the replayed dataset, policy, seed, condition and the replay clock against the 7200 s timeout (the tick marks where the mission stopped; a red chip appears when it was censored). **Tour** opens a step-by-step overlay of every control; the Guide's **Run your first simulation** starts a shorter walkthrough. **EN / IT** switches the language (remembered per browser; `?lang=it` forces it). The wave button pauses decorative motion; `prefers-reduced-motion` is honoured automatically.
 
@@ -134,7 +134,12 @@ Each invocation creates a unique `results/lab/<UTC-id>/`. CLI runs under that de
 
 ## Presentation
 
-Open **Presentation** for seven 16:9 slides in the style of the earlier USV·PAC deck (wordmark, section label, mono counter, progress bar, breathing signal field on the title slide): title, question, mechanism, radio link, core outcome, extension, reproducibility. Use Previous / Next, the dots or ← / →. The mechanism slide animates the active mission with its real data; the link, outcome and extension slides reuse the live charts. Choose the scenario and timeline in Mission lab first. Full screen opens a focused layout and also requests native fullscreen where supported. Embedded browsers can use the focused layout without native fullscreen. Exit with the visible button or Escape. Browser Print exports the current scene.
+Open **Presentation** to choose a deck by scheduled event. The picker above the deck lists every event that owns a deck, with its date and state; the next event that is today or still ahead opens by default, and `?deck=checkpoint` or `?deck=final` opens a specific one. Events and milestone states live in `SCHEDULE` and `DECKS` in `web/app.js`: add an event there (with its slide keys and `i18n.js` strings) to give a new meeting its own deck.
+
+- **Tutor checkpoint (12 Nov 2026), eight slides:** recap and research questions; **Policies · live** and **Algorithms · live**, which load the five recorded core missions of seed 1000, slowdown, L=5 (`1000-1-5-<policy>`), replay them on the map, switch policy by clicking a row and show, at the replay time, the last radio exchange, the forecast state and the queue lengths; data and datasets (on hold for Ettore's revision); first results as large numbers; **The warning margin**, with a margin slider over the recorded S1 mission that shows which received samples the persistence rule would flag; why the margin is not lowered and what is done instead; the plan for 12–25 November. Entering a live slide replaces the replay setup with that scenario. If a trace is not stored locally the row says so and the others still work.
+- **Final presentation (draft):** the original 27 October deck, unchanged, kept as the starting point for the final presentation.
+
+The final-presentation draft has seven 16:9 slides in the style of the earlier USV·PAC deck (wordmark, section label, mono counter, progress bar, breathing signal field on the title slide): title, question, mechanism, radio link, core outcome, extension, reproducibility. Use Previous / Next, the dots or ← / →. The mechanism slide animates the active mission with its real data; the link, outcome and extension slides reuse the live charts. Choose the scenario and timeline in Mission lab first. Full screen opens a focused layout and also requests native fullscreen where supported. Embedded browsers can use the focused layout without native fullscreen. Exit with the visible button or Escape. Browser Print exports the current scene.
 
 The presentation is interactive HTML within the dashboard. It is not a PowerPoint file or a submitted course presentation. Its content deliberately includes the adverse results and the no-rendezvous limitation. Before a class presentation, select a representative mission, load all policies, and run the smoke workflow.
 
