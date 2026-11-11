@@ -24,7 +24,7 @@ const UI_FONT = "Inter, 'Segoe UI', system-ui, sans-serif";
 const state = {
   catalog: null, ext: null, traces: {}, active: "S4-T", dataset: "core", t: 0, playing: false,
   slowdown: true, view: "map", slide: 0, jobs: [], generation: 0, currentJob: null, selectedJob: null,
-  motionPaused: false, tour: null,
+  motionPaused: false, tour: null, deck: "final",
 };
 const store = {
   get(key) { try { return localStorage.getItem(`usvpac.${key}`); } catch { return null; } },
@@ -1311,11 +1311,82 @@ function studyFacts() {
   ].filter((item) => item[1] != null);
 }
 
-/* ---------- presentation ---------- */
-const SLIDES = ["title", "question", "mechanism", "link", "outcome", "extension", "reproduce"];
+/* ---------- presentation: one deck per scheduled event ---------- */
+// Research-plan Section 3.1 milestones (provisional internal targets) and the meetings
+// that own a deck. `status` is the evidence state recorded in code/docs/milestones-status-*.md:
+// "done" means the artifact exists and its checks pass, not that both authors reviewed it.
+const SCHEDULE = [
+  { id: "plan", from: "2026-10-01", to: "2026-10-01", lead: "both", status: "done" },
+  { id: "sources", from: "2026-10-02", to: "2026-10-07", lead: "both", status: "partial" },
+  { id: "coverage", from: "2026-10-08", to: "2026-10-14", lead: "ettore", status: "done" },
+  { id: "reactive", from: "2026-10-15", to: "2026-10-21", lead: "both", status: "done" },
+  { id: "predictors", from: "2026-10-22", to: "2026-10-28", lead: "andrea", status: "done" },
+  { id: "core", from: "2026-10-29", to: "2026-11-11", lead: "andrea", status: "done" },
+  { id: "checkpoint", from: "2026-11-12", to: "2026-11-12", lead: "both", status: "event", deck: "checkpoint" },
+  { id: "analysis", from: "2026-11-12", to: "2026-11-25", lead: "both", status: "progress" },
+  { id: "final", from: "2026-11-26", to: null, lead: "both", status: "todo", deck: "final" },
+];
+const DECKS = {
+  checkpoint: { section: "cp.section.", slides: ["recap", "schedule", "workflow", "policies", "algorithm", "data", "results", "next"] },
+  // The 27 October results deck, kept as the draft of the final presentation.
+  final: { section: "pres.section.", slides: ["title", "question", "mechanism", "link", "outcome", "extension", "reproduce"] },
+};
+const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const dayLabel = (iso, long = false) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(locale(), long ? { day: "numeric", month: "long", year: "numeric" } : { day: "numeric", month: "short" }); };
+const deckEvents = () => SCHEDULE.filter((e) => e.deck);
+function defaultDeck(today = isoToday()) {
+  // The next scheduled event that still lies ahead (or is today); afterwards the last one.
+  const events = deckEvents();
+  return (events.find((e) => (e.to ?? "9999-12-31") >= today) ?? events[events.length - 1]).deck;
+}
+const deckSlides = () => DECKS[state.deck].slides;
+function chooseDeck(deck) {
+  if (!DECKS[deck] || deck === state.deck) return;
+  state.deck = deck;
+  state.slide = 0;
+  renderSlide();
+}
+function renderDeckPicker() {
+  const today = isoToday();
+  $("deck-picker").innerHTML = deckEvents().map((e) => {
+    const when = e.to == null ? (e.from <= today ? "draft" : "upcoming") : e.to < today ? "past" : e.from <= today ? "today" : "upcoming";
+    const date = e.to == null ? t("pres.fromDate", { date: dayLabel(e.from) }) : dayLabel(e.from);
+    const badge = e.deck === "final" ? t("pres.when.draft") : t(`pres.when.${when}`);
+    return `<button class="deck-choice${e.deck === state.deck ? " active" : ""}" data-deck="${e.deck}" aria-pressed="${e.deck === state.deck}"><span class="mono">${esc(date)}</span><b>${esc(t(`pres.deck.${e.deck}`))}</b><small>${esc(badge)} · ${esc(t("pres.slideCount", { n: DECKS[e.deck].slides.length }))}</small></button>`;
+  }).join("");
+}
+const STATUS_TAG = { done: "success", partial: "warning", progress: "accent", event: "accent", todo: "muted" };
+function scheduleTable() {
+  const today = isoToday();
+  const range = (e) => (e.to == null ? t("pres.fromDate", { date: dayLabel(e.from) }) : e.from === e.to ? dayLabel(e.from) : `${dayLabel(e.from)} – ${dayLabel(e.to)}`);
+  return `<table class="slide-table"><thead><tr><th>${esc(t("cp.sched.when"))}</th><th>${esc(t("cp.sched.lead"))}</th><th>${esc(t("cp.sched.milestone"))}</th><th>${esc(t("cp.sched.status"))}</th></tr></thead><tbody>${SCHEDULE.map((e) => {
+    const now = e.from <= today && (e.to ?? "9999-12-31") >= today;
+    return `<tr class="${now ? "now" : ""}"><td class="mono">${esc(range(e))}</td><td>${esc(t(`cp.lead.${e.lead}`))}</td><td><b>${esc(t(`cp.ms.${e.id}`))}</b><small>${esc(t(`cp.msNote.${e.id}`))}</small></td><td><span class="status-tag ${STATUS_TAG[e.status]}">${esc(t(`cp.status.${e.status}`))}</span></td></tr>`;
+  }).join("")}</tbody></table>`;
+}
+// Item lists: each entry is a key prefix with ".t" (title) and ".b" (body).
+const slideItems = (keys, vars = {}) => `<ul class="slide-list">${keys.map((k) => `<li><b>${esc(t(`${k}.t`))}</b>${esc(t(`${k}.b`, vars[k]))}</li>`).join("")}</ul>`;
+function checkpointSlide(key, completed) {
+  const head = (k) => `<h2 class="slide-h reveal">${esc(t(`cp.${k}.title`))}</h2>`;
+  const col = (label, keys, vars) => `<div><p class="slide-kicker">${esc(t(label))}</p>${slideItems(keys, vars)}</div>`;
+  const pick = (k, n) => Array.from({ length: n }, (_, i) => `cp.${k}.i${i + 1}`);
+  const counts = { s1: completed("S1"), s2: completed("S2"), s3: completed("S3"), t4: completed("S4-T"), p4: completed("S4-P") };
+  return {
+    recap: () => `<div class="reveal"><p class="slide-kicker">${esc(t("cp.recap.kicker"))}</p><h2 class="slide-hero">${t("cp.recap.title")}</h2><p class="slide-lead">${esc(t("cp.recap.lead"))}</p></div><div class="slide-grid three reveal">${["rq1", "rq2", "rq3"].map((k) => `<div class="slide-rq"><span class="mono">${k.toUpperCase()}</span>${esc(t(`cp.recap.${k}`))}</div>`).join("")}</div>${heroNumbers(studyFacts())}`,
+    schedule: () => `${head("schedule")}<div class="slide-table-wrap reveal">${scheduleTable()}</div><p class="slide-note reveal">${esc(t("cp.schedule.note"))}</p>`,
+    workflow: () => `${head("workflow")}<div class="slide-grid two reveal">${slideItems(pick("workflow", 3))}${slideItems(pick("workflow", 6).slice(3))}</div>`,
+    policies: () => `${head("policies")}<div class="slide-cols reveal">${CORE.map((p) => `<div class="slide-policy" style="--c:${COLORS[p]}"><span class="mono">${p}</span><b>${esc(policyName(p))}</b><small>${esc(t(`policyLong.${p}`))}</small></div>`).join("")}</div><p class="slide-lead reveal">${esc(t("cp.policies.shared"))}</p><div class="slide-chips reveal"><span class="slide-kicker">${esc(t("cp.policies.extra"))}</span>${EXTRA.map((p) => `<span class="chip policy" style="--c:${COLORS[p]}"><i class="policy-swatch"></i><span class="mono">${p}</span> ${esc(policyName(p))}</span>`).join("")}</div>`,
+    algorithm: () => `${head("algorithm")}<div class="slide-grid two reveal">${col("cp.algorithm.used", pick("algorithm.used", 3))}${col("cp.algorithm.found", pick("algorithm.found", 3))}</div>`,
+    data: () => `${head("data")}<div class="slide-grid two reveal">${col("cp.data.used", pick("data.used", 3))}${col("cp.data.found", pick("data.found", 3))}</div>`,
+    results: () => `${head("results")}<div class="slide-split results reveal"><div id="slide-completion" class="slide-chart"></div>${slideItems(pick("results", 4), { "cp.results.i1": counts })}</div><p class="slide-note reveal">${esc(t("cp.results.note"))}</p>`,
+    next: () => `${head("next")}<div class="slide-grid two reveal">${col("cp.next.plan", pick("next.plan", 3))}${col("cp.next.ask", pick("next.ask", 3))}</div>`,
+  }[key]();
+}
 function renderSlide() {
   if (!state.catalog) return;
+  renderDeckPicker();
   const d = state.catalog, all = d.runs, completed = (p) => all.filter((r) => r.policy === p && r.complete).length;
+  const SLIDES = deckSlides(), deck = DECKS[state.deck];
   const key = SLIDES[state.slide], ext = state.ext;
   const clone = (id) => $(id)?.innerHTML || `<div class="empty small">${esc(t("pres.openView"))}</div>`;
   const body = {
@@ -1328,18 +1399,18 @@ function renderSlide() {
     reproduce: () => `<h2 class="slide-h reveal">${esc(t("pres.s7.title"))}</h2><div class="slide-facts reveal"><div><strong class="num">${roll("s7-runs", all.length)}</strong><span>${esc(t("pres.s7.runs"))}</span></div><div><strong class="num">${roll("s7-logs", d.verification.raw_runs_reconstructed)}</strong><span>${esc(t("pres.s7.logs"))}</span></div><div><strong class="num">${ext ? roll("s7-ext", ext.runs.length) : "—"}</strong><span>${esc(t("pres.s7.ext"))}</span></div></div><ul class="slide-list reveal"><li><b>${esc(t("pres.s7.freeze"))}</b>${esc(t("pres.s7.freezeText"))}</li><li><b>${esc(t("pres.s7.bundle"))}</b>${esc(t("pres.s7.bundleText"))}</li><li><b>${esc(t("pres.s7.again"))}</b><code>python -m usv_sim.workflow --preset full --workers 4</code></li></ul>`,
   }[key];
   $("slide-number").textContent = `${String(state.slide + 1).padStart(2, "0")} / ${String(SLIDES.length).padStart(2, "0")}`;
-  $("deck-section").textContent = t(`pres.section.${key}`);
+  $("deck-section").textContent = t(`${deck.section}${key}`);
   $("deck-progress").style.width = `${(100 * (state.slide + 1)) / SLIDES.length}%`;
-  $("slide-content").innerHTML = body();
+  $("slide-content").innerHTML = state.deck === "final" ? body() : checkpointSlide(key, completed);
   $("slide-content").querySelectorAll(".reveal").forEach((e, i) => e.style.setProperty("--i", i));
   rollNumbers($("slide-content"), { from: 0 });
-  $("slide-dots").innerHTML = SLIDES.map((s, i) => `<button class="${i === state.slide ? "active" : ""}" data-slide="${i}" aria-label="${esc(t("pres.goto", { n: i + 1, name: t(`pres.section.${s}`) }))}" aria-current="${i === state.slide}"></button>`).join("");
+  $("slide-dots").innerHTML = SLIDES.map((s, i) => `<button class="${i === state.slide ? "active" : ""}" data-slide="${i}" aria-label="${esc(t("pres.goto", { n: i + 1, name: t(`${deck.section}${s}`) }))}" aria-current="${i === state.slide}"></button>`).join("");
   $("previous-slide").disabled = state.slide === 0;
   $("next-slide").disabled = state.slide === SLIDES.length - 1;
   if (key === "title") startField($("slide-field"));
   if (key === "mechanism") drawAll();
-  if (key === "outcome") barChart("slide-completion", CORE.map((p) => ({ name: p, value: completed(p) })), { title: t("pres.s5.chart"), unit: t("chart.completedOf", { n: 180 }), max: 200, ticks: [0, 60, 120, 180] });
-  if (key === "extension" && !ext) loadExtension().then(() => state.view === "presentation" && SLIDES[state.slide] === "extension" && renderSlide());
+  if (key === "outcome" || key === "results") barChart("slide-completion", CORE.map((p) => ({ name: p, value: completed(p) })), { title: t("pres.s5.chart"), unit: t("chart.completedOf", { n: 180 }), max: 200, ticks: [0, 60, 120, 180] });
+  if (key === "extension" && !ext) loadExtension().then(() => state.view === "presentation" && deckSlides()[state.slide] === "extension" && renderSlide());
 }
 function presentationFocus(on) {
   state.presentationFocus = on;
@@ -1415,6 +1486,8 @@ document.addEventListener("click", async (event) => {
     await loadSelected(true);
     view("map");
   }
+  const deckChoice = event.target.closest("[data-deck]");
+  if (deckChoice) chooseDeck(deckChoice.dataset.deck);
   const slide = event.target.closest("[data-slide]");
   if (slide) { state.slide = +slide.dataset.slide; renderSlide(); }
   if (event.target.closest("#slide-play")) setPlaying(!state.playing);
@@ -1445,7 +1518,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && state.presentationFocus) exitPresentationFocus();
   if (state.view === "presentation" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
     event.preventDefault();
-    state.slide = Math.min(SLIDES.length - 1, Math.max(0, state.slide + (event.key === "ArrowRight" ? 1 : -1)));
+    state.slide = Math.min(deckSlides().length - 1, Math.max(0, state.slide + (event.key === "ArrowRight" ? 1 : -1)));
     renderSlide();
   }
 });
@@ -1484,7 +1557,7 @@ $("ext-run-policy").addEventListener("change", () => renderExtension());
 $("outcome-filter").addEventListener("change", renderRuns);
 $("snapshot").addEventListener("click", saveMap);
 $("previous-slide").addEventListener("click", () => { state.slide = Math.max(0, state.slide - 1); renderSlide(); });
-$("next-slide").addEventListener("click", () => { state.slide = Math.min(SLIDES.length - 1, state.slide + 1); renderSlide(); });
+$("next-slide").addEventListener("click", () => { state.slide = Math.min(deckSlides().length - 1, state.slide + 1); renderSlide(); });
 $("fullscreen").addEventListener("click", () => {
   presentationFocus(true);
   // Embedded browsers may deny native fullscreen; the focused layout still works.
@@ -1519,6 +1592,9 @@ async function init() {
   const saved = new URLSearchParams(location.search).get("lang") || store.get("lang");
   setLang(saved ||((navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en"));
   setMotion(store.get("motion") === "paused");
+  // ?deck=checkpoint|final opens a specific deck; otherwise the next scheduled event's deck.
+  const deck = new URLSearchParams(location.search).get("deck");
+  state.deck = DECKS[deck] ? deck : defaultDeck();
   try {
     state.catalog = await api("/api/catalog");
     $("connection").textContent = t("engine.connected");

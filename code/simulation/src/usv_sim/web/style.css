@@ -399,14 +399,45 @@ tr.selected { background: var(--accent-soft); }
 .slide-list b { display: flex; align-items: center; gap: 0.6em; color: var(--foreground); }
 .slide-list .policy-swatch { background: var(--c); }
 .slide-chart { min-height: 0; }
-.slide-chart svg { max-height: 30cqi; }
+.slide-chart svg { width: 100%; height: auto; display: block; max-height: 30cqi; }
+/* Deck picker: one presentation per scheduled event (research-plan milestones). */
+.deck-picker { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+.deck-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 180px; padding: var(--s-2) var(--s-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--foreground); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
+.deck-choice:hover { border-color: var(--border-strong); }
+.deck-choice.active { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.deck-choice .mono, .deck-choice small { font-size: var(--text-xs); color: var(--muted-foreground); }
+.slide-grid { display: grid; gap: 2.4cqi; min-height: 0; }
+.slide-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.slide-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.slide-grid .slide-list { gap: 1.2cqi; }
+.slide-grid .slide-kicker { margin-bottom: 1cqi; }
+.slide-rq { display: flex; flex-direction: column; gap: 0.4cqi; padding-top: 1cqi; border-top: 2px solid var(--accent); color: var(--muted-foreground); font-size: 0.92em; line-height: 1.35; }
+.slide-rq .mono { color: var(--accent-ink); font-weight: 600; }
+.slide-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8cqi; }
+.slide-chips .chip { font-size: 0.78em; }
+.deck-body > * { min-width: 0; }
+.slide-table-wrap { max-width: 100%; min-width: 0; overflow-x: auto; }
+.slide-split.results { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+.slide-split.results .slide-list { font-size: 0.9em; gap: 1cqi; }
+.slide-table { width: 100%; border-collapse: collapse; font-size: 0.8em; line-height: 1.25; }
+.slide-table th { text-align: left; font-weight: 600; color: var(--muted-foreground); border-bottom: 1px solid var(--border-strong); padding: 0 0.8cqi 0.5cqi 0; }
+.slide-table td { border-bottom: 1px solid var(--border); padding: 0.45cqi 0.8cqi 0.45cqi 0; vertical-align: top; }
+.slide-table td:first-child { white-space: nowrap; color: var(--muted-foreground); }
+.slide-table td b { font-weight: 600; margin-right: 0.6em; }
+.slide-table td small { color: var(--muted-foreground); }
+.slide-table tr.now td { background: var(--accent-soft); }
+.status-tag { display: inline-block; padding: 1px 0.6em; border-radius: 999px; font-size: 0.9em; font-weight: 600; white-space: nowrap; }
+.status-tag.success { background: var(--success-soft); color: var(--success); }
+.status-tag.warning { background: var(--warning-soft); color: var(--warning); }
+.status-tag.accent { background: var(--accent-soft); color: var(--accent-ink); }
+.status-tag.muted { background: var(--muted); color: var(--muted-foreground); }
 .slide-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); }
 .slide-dots { display: flex; gap: var(--s-2); }
 .slide-dots button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; transition: background var(--t-fast), width var(--t-fast); }
 .slide-dots button.active { width: 26px; border-radius: 5px; background: var(--accent); border-color: var(--accent); }
 .reveal { animation: reveal 650ms var(--ease) both; animation-delay: calc(var(--i, 0) * 90ms); }
 @keyframes reveal { from { opacity: 0; filter: blur(6px); transform: translateY(14px); } to { opacity: 1; filter: none; transform: none; } }
-body.presentation-focus .sidebar, body.presentation-focus .topbar, body.presentation-focus .page-heading, body.presentation-focus .page-footer, body.presentation-focus #view-presentation > .footnote { display: none; }
+body.presentation-focus .sidebar, body.presentation-focus .topbar, body.presentation-focus .page-heading, body.presentation-focus .page-footer, body.presentation-focus #view-presentation > .footnote, body.presentation-focus .deck-picker { display: none; }
 body.presentation-focus .workspace { margin-left: 0; }
 body.presentation-focus main { max-width: none; padding: var(--s-4); }
 body.presentation-focus .deck { max-height: calc(100vh - 90px); max-width: calc((100vh - 90px) * 16 / 9); margin: 0 auto; }
@@ -460,6 +491,17 @@ body.motion-paused .scroll-reveal { opacity: 1; filter: none; transform: none; t
   .slide-h { font-size: 22px; }
   .slide-facts strong { font-size: 24px; }
   .slide-cols { grid-template-columns: minmax(0, 1fr); }
+  .slide-grid.two, .slide-grid.three { grid-template-columns: minmax(0, 1fr); }
+  .slide-table td:first-child { white-space: normal; }
+  .slide-table thead, .slide-table td:nth-child(2) { display: none; }
+  .slide-table, .slide-table tbody, .slide-table tr, .slide-table td { display: block; width: auto; }
+  .slide-table tr { padding: 6px 0; border-bottom: 1px solid var(--border); }
+  .slide-table td { border: 0; padding: 1px 0; }
+  .slide-table td small { display: block; }
+  .slide-table td b { display: block; margin: 0; }
+  .slide-controls { flex-wrap: wrap; }
+  .slide-dots { flex-wrap: wrap; flex: 1 1 100%; order: -1; justify-content: center; }
+  .deck-choice { flex: 1 1 100%; }
 }
 @media (max-width: 640px) {
   .topbar { position: static; }
@@ -481,6 +523,6 @@ body.motion-paused .scroll-reveal { opacity: 1; filter: none; transform: none; t
   #toast { left: var(--s-4); right: var(--s-4); bottom: var(--s-4); }
 }
 @media print {
-  .sidebar, .topbar, .page-footer, .slide-controls, #view-presentation .page-heading { display: none !important; }
+  .sidebar, .topbar, .page-footer, .slide-controls, .deck-picker, #view-presentation .page-heading { display: none !important; }
   .workspace { margin: 0; }
 }
