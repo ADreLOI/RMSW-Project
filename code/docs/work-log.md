@@ -167,3 +167,8 @@ Andrea asked for less text, an interactive view of the simulations with the poli
 - Browser QA used a scratch copy of `results/core` with those five raw logs regenerated (their gzip bytes differ from the frozen hashes, so the copy's hash inventory was updated; the repository's `results/core` was not modified).
 
 Checks: `python -m unittest tests.test_dashboard` (18 tests) passes. Playwright: all ten checkpoint slides and seven final-draft slides in IT and EN at 1440 px without console warnings or overflow; policy switching, play/restart/speed and the margin slider (0 → 0 %, 2 → 20 %, 3.9 → 52 %, 4 → 100 % of the 95 received S1 samples) exercised; no horizontal scroll at 390 px. Not checked on Windows, in native fullscreen, or against the hosted export.
+
+### Follow-up (same day): slides removed on Andrea and Ettore's decision
+
+- Removed the schedule (Gantt) and workflow slides and the tutor questions on the last slide, which now shows only the 12–25 November plan. The checkpoint deck has eight slides; their code, strings and styles were removed with them (`SCHEDULE` stays: it drives the deck picker).
+- Checks: `python -m unittest tests.test_dashboard` passes; Playwright on both decks in IT and EN at 1440 px (no console warnings, no overflow) and at 390 px (no horizontal scroll).

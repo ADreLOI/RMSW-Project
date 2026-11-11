@@ -1314,8 +1314,8 @@ function studyFacts() {
 
 /* ---------- presentation: one deck per scheduled event ---------- */
 // Research-plan Section 3.1 milestones (provisional internal targets) and the meetings
-// that own a deck. `status` is the evidence state recorded in code/docs/milestones-status-*.md:
-// "done" means the artifact exists and its checks pass, not that both authors reviewed it.
+// that own a deck. `status` records the evidence state from code/docs/milestones-status-*.md
+// ("done" = the artifact exists and its checks pass, not that both authors reviewed it).
 const SCHEDULE = [
   { id: "plan", from: "2026-10-01", to: "2026-10-01", lead: "both", status: "done" },
   { id: "sources", from: "2026-10-02", to: "2026-10-07", lead: "both", status: "partial" },
@@ -1328,7 +1328,7 @@ const SCHEDULE = [
   { id: "final", from: "2026-11-26", to: null, lead: "both", status: "todo", deck: "final" },
 ];
 const DECKS = {
-  checkpoint: { section: "cp.section.", slides: ["recap", "schedule", "workflow", "policies", "algorithm", "data", "results", "warning", "procedure", "next"] },
+  checkpoint: { section: "cp.section.", slides: ["recap", "policies", "algorithm", "data", "results", "warning", "procedure", "next"] },
   // The 27 October results deck, kept as the draft of the final presentation.
   final: { section: "pres.section.", slides: ["title", "question", "mechanism", "link", "outcome", "extension", "reproduce"] },
 };
@@ -1356,29 +1356,6 @@ function renderDeckPicker() {
     return `<button class="deck-choice${e.deck === state.deck ? " active" : ""}" data-deck="${e.deck}" aria-pressed="${e.deck === state.deck}"><span class="mono">${esc(date)}</span><b>${esc(t(`pres.deck.${e.deck}`))}</b><small>${esc(badge)} · ${esc(t("pres.slideCount", { n: DECKS[e.deck].slides.length }))}</small></button>`;
   }).join("");
 }
-const STATUS_TAG = { done: "success", partial: "warning", progress: "accent", event: "accent", todo: "muted" };
-function scheduleGantt() {
-  // Gantt of the plan's Section 3.1 windows; open-ended windows run to the chart edge.
-  const day = (iso) => { const [y, m, d] = iso.split("-").map(Number); return Date.UTC(y, m - 1, d) / 864e5; };
-  const start = day("2026-09-28"), end = day("2026-12-07"), span = end - start;
-  const pos = (iso) => `${(100 * (day(iso) - start)) / span}%`;
-  const today = isoToday(), months = ["2026-10-01", "2026-11-01", "2026-12-01"];
-  const inRange = today >= "2026-09-28" && today <= "2026-12-07";
-  const seg = inRange ? `<i class="gantt-today" style="left:${pos(today)}"></i>` : "";
-  const rows = SCHEDULE.map((e) => {
-    const from = day(e.from), to = e.to == null ? end : day(e.to) + 1;
-    const point = e.from === e.to;
-    const bar = point ? `<i class="gantt-point ${STATUS_TAG[e.status]}" style="left:${pos(e.from)}"></i>` : `<i class="gantt-bar ${STATUS_TAG[e.status]}${e.to == null ? " open" : ""}" style="left:${(100 * (from - start)) / span}%;width:${(100 * (to - from)) / span}%"></i>`;
-    return `<div class="gantt-row${e.deck === "checkpoint" ? " now" : ""}"><span class="gantt-label"><b>${esc(t(`cp.ms.${e.id}`))}</b><small>${esc(t(`cp.lead.${e.lead}`))}</small></span><span class="gantt-track">${bar}${seg}</span><span class="status-tag ${STATUS_TAG[e.status]}">${esc(t(`cp.status.${e.status}`))}</span></div>`;
-  }).join("");
-  const axis = months.map((m) => `<span style="left:${pos(m)}">${esc(new Date(day(m) * 864e5).toLocaleDateString(locale(), { month: "short", timeZone: "UTC" }))}</span>`).join("");
-  const now = inRange ? `<i class="gantt-today" style="left:${pos(today)}"><span>${esc(t("cp.sched.today"))}</span></i>` : "";
-  return `<div class="gantt"><div class="gantt-row gantt-axis"><span></span><span class="gantt-track">${axis}${now}</span><span></span></div>${rows}</div>`;
-}
-// Item lists: each entry is a key prefix with ".t" (title) and ".b" (body).
-const slideItems = (keys, vars = {}) => `<ul class="slide-list">${keys.map((k) => `<li><b>${esc(t(`${k}.t`))}</b>${esc(t(`${k}.b`, vars[k]))}</li>`).join("")}</ul>`;
-// A left-to-right box diagram; each step is a key prefix with ".t" and ".b".
-const flow = (keys, cls = "") => `<div class="flow ${cls}">${keys.map((k, i) => `${i ? '<span class="flow-arrow" aria-hidden="true">→</span>' : ""}<div class="flow-box"><b>${esc(t(`${k}.t`))}</b><small>${esc(t(`${k}.b`))}</small></div>`).join("")}</div>`;
 const chipRow = (keys) => `<div class="slide-chips">${keys.map((k) => `<span class="chip">${esc(t(k))}</span>`).join("")}</div>`;
 
 /* Interactive mission slides: one paired scenario, all five core policies. */
@@ -1466,20 +1443,17 @@ function updateSlideLive() {
 }
 function checkpointSlide(key, completed) {
   const head = (k) => `<h2 class="slide-h reveal">${esc(t(`cp.${k}.title`))}</h2>`;
-  const col = (label, keys, vars) => `<div><p class="slide-kicker">${esc(t(label))}</p>${slideItems(keys, vars)}</div>`;
   const pick = (k, n) => Array.from({ length: n }, (_, i) => `cp.${k}.i${i + 1}`);
   const tile = (k, value) => `<div class="big-tile"><strong class="num">${esc(value ?? t(`cp.${k}.v`))}</strong><span>${esc(t(`cp.${k}.b`))}</span></div>`;
   return {
     recap: () => `<div class="reveal"><p class="slide-kicker">${esc(t("cp.recap.kicker"))}</p><h2 class="slide-hero">${t("cp.recap.title")}</h2><p class="slide-lead">${esc(t("cp.recap.lead"))}</p></div><div class="slide-grid three reveal">${["rq1", "rq2", "rq3"].map((k) => `<div class="slide-rq"><span class="mono">${k.toUpperCase()}</span>${esc(t(`cp.recap.${k}`))}</div>`).join("")}</div>${heroNumbers(studyFacts())}`,
-    schedule: () => `${head("schedule")}<div class="reveal">${scheduleGantt()}</div><p class="slide-note reveal">${esc(t("cp.schedule.note"))}</p>`,
-    workflow: () => `${head("workflow")}<div class="flow-stack reveal"><p class="slide-kicker">${esc(t("cp.workflow.branches"))}</p>${flow(["cp.wf.code", "cp.wf.dev", "cp.wf.main"])}<p class="slide-kicker">${esc(t("cp.workflow.evidence"))}</p>${flow(["cp.wf.pilot", "cp.wf.freeze", "cp.wf.core", "cp.wf.ext"])}<p class="slide-kicker">${esc(t("cp.workflow.engine"))}</p>${flow(["cp.wf.sim", "cp.wf.log", "cp.wf.dash"])}</div><p class="slide-note reveal">${esc(t("cp.workflow.roles"))}</p>`,
     policies: () => `${head("policies")}<div class="sim-split reveal">${missionPanel()}<div class="policy-pick">${CORE.map((p) => `<button class="policy-row" data-slide-policy="${p}" style="--c:${COLORS[p]}"><i class="policy-swatch"></i><span class="mono">${p}</span><span><b>${esc(policyName(p))}</b><small>${esc(t(`cp.pol.${p}`))}</small></span>${policyResult(p)}</button>`).join("")}<p class="slide-note">${esc(t("cp.policies.shared"))}</p></div></div>`,
     algorithm: () => `${head("algorithm")}<div class="sim-split reveal">${missionPanel()}<div class="pipeline">${[["radio", "live-radio"], ["forecast", "live-forecast"], ["alloc", "live-alloc"]].map(([k, id], i) => `<div class="pipe-step"><span class="pipe-n mono">${i + 1}</span><div><b>${esc(t(`cp.alg.${k}.t`))}</b><p class="pipe-live mono" id="${id}">—</p>${chipRow([`cp.alg.${k}.c1`, `cp.alg.${k}.c2`, `cp.alg.${k}.c3`])}</div></div>`).join("")}<p class="slide-note">${esc(t("cp.alg.found"))}</p></div></div>`,
     data: () => `${head("data")}<div class="slide-grid two reveal"><div class="data-col"><p class="slide-kicker">${esc(t("cp.data.used"))}</p>${chipRow(["cp.data.u1", "cp.data.u2", "cp.data.u3"])}</div><div class="data-col"><p class="slide-kicker">${esc(t("cp.data.found"))}</p>${chipRow(["cp.data.f1", "cp.data.f2"])}</div></div><p class="slide-lead reveal">${esc(t("cp.data.question"))}</p>`,
     results: () => `${head("results")}<div class="slide-split results reveal"><div id="slide-completion" class="slide-chart"></div><div class="big-tiles">${tile("res.s2", `${completed("S2")}/180`)}${tile("res.s3")}${tile("res.f1")}${tile("res.ext")}</div></div><p class="slide-note reveal">${esc(t("cp.results.note"))}</p>`,
     warning: () => `${head("warning")}<div class="sim-split warn-split reveal"><ol class="chain">${["c1", "c2", "c3", "c4", "c5"].map((k) => `<li><b>${esc(t(`cp.warn.${k}.t`))}</b><small>${esc(t(`cp.warn.${k}.b`))}</small></li>`).join("")}</ol><div id="warn-live" class="warn-live"><div id="warn-chart" class="slide-chart"></div><div id="warn-legend" class="warn-legend"></div><label class="warn-slider"><span>${esc(t("cp.warn.margin"))} <b id="warn-margin-value" class="mono"></b></span><input id="margin-slider" type="range" min="0" max="6" step="0.1" value="${state.margin}"></label><div id="warn-readout" class="warn-readout"></div><p class="slide-note">${esc(t("cp.warn.pilot"))}</p></div></div>`,
     procedure: () => `${head("procedure")}<div class="slide-grid three reveal">${["p1", "p2", "p3"].map((k) => `<div class="proc-card ${k}"><span class="mono">${esc(t(`cp.proc.${k}.k`))}</span><b>${esc(t(`cp.proc.${k}.t`))}</b><small>${esc(t(`cp.proc.${k}.b`))}</small></div>`).join("")}</div><p class="slide-lead reveal">${esc(t("cp.proc.message"))}</p>`,
-    next: () => `${head("next")}<div class="slide-grid two reveal">${col("cp.next.plan", pick("next.plan", 3))}${col("cp.next.ask", pick("next.ask", 3))}</div>`,
+    next: () => `${head("next")}<div class="slide-grid three reveal">${pick("next.plan", 3).map((k) => `<div class="proc-card next"><b>${esc(t(`${k}.t`))}</b><small>${esc(t(`${k}.b`))}</small></div>`).join("")}</div>`,
   }[key]();
 }
 function renderSlide() {

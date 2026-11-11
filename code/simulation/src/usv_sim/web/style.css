@@ -416,50 +416,9 @@ tr.selected { background: var(--accent-soft); }
 .slide-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8cqi; }
 .slide-chips .chip { font-size: 0.78em; }
 .deck-body > * { min-width: 0; }
-.slide-table-wrap { max-width: 100%; min-width: 0; overflow-x: auto; }
 .slide-split.results { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
 .slide-split.results .slide-list { font-size: 0.9em; gap: 1cqi; }
-.slide-table { width: 100%; border-collapse: collapse; font-size: 0.8em; line-height: 1.25; }
-.slide-table th { text-align: left; font-weight: 600; color: var(--muted-foreground); border-bottom: 1px solid var(--border-strong); padding: 0 0.8cqi 0.5cqi 0; }
-.slide-table td { border-bottom: 1px solid var(--border); padding: 0.45cqi 0.8cqi 0.45cqi 0; vertical-align: top; }
-.slide-table td:first-child { white-space: nowrap; color: var(--muted-foreground); }
-.slide-table td b { font-weight: 600; margin-right: 0.6em; }
-.slide-table td small { color: var(--muted-foreground); }
-.slide-table tr.now td { background: var(--accent-soft); }
-.status-tag { display: inline-block; padding: 1px 0.6em; border-radius: 999px; font-size: 0.9em; font-weight: 600; white-space: nowrap; }
-.status-tag.success { background: var(--success-soft); color: var(--success); }
-.status-tag.warning { background: var(--warning-soft); color: var(--warning); }
-.status-tag.accent { background: var(--accent-soft); color: var(--accent-ink); }
-.status-tag.muted { background: var(--muted); color: var(--muted-foreground); }
-/* Checkpoint deck: Gantt, box diagrams, big numbers, live mission panels. */
-.gantt { display: flex; flex-direction: column; gap: 0.5cqi; font-size: 0.82em; }
-.gantt-row { display: grid; grid-template-columns: 26% minmax(0, 1fr) 9%; align-items: center; gap: 1.2cqi; padding: 0.25cqi 0.6cqi; border-radius: var(--radius); }
-.gantt-row.now { background: var(--accent-soft); }
-.gantt-label { display: flex; align-items: baseline; justify-content: space-between; gap: 0.8em; min-width: 0; }
-.gantt-label b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gantt-label small { color: var(--muted-foreground); white-space: nowrap; }
-.gantt-track { position: relative; height: 1.5cqi; min-height: 10px; background: linear-gradient(var(--border), var(--border)) center / 100% 1px no-repeat; }
-.gantt-bar { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
-.gantt-bar.open { border-top-right-radius: 0; border-bottom-right-radius: 0; -webkit-mask: linear-gradient(90deg, #000 70%, transparent); mask: linear-gradient(90deg, #000 70%, transparent); }
-.gantt-point { position: absolute; top: 50%; width: 1.3cqi; height: 1.3cqi; min-width: 9px; min-height: 9px; transform: translate(-50%, -50%) rotate(45deg); border-radius: 2px; }
-.gantt-bar.success, .gantt-point.success { background: var(--success); }
-.gantt-bar.warning, .gantt-point.warning { background: var(--warning); }
-.gantt-bar.accent, .gantt-point.accent { background: var(--accent); }
-.gantt-bar.muted, .gantt-point.muted { background: var(--border-strong); }
-.gantt-axis { padding-bottom: 0; }
-.gantt-axis .gantt-track { background: none; height: 1.4em; }
-.gantt-axis .gantt-track > span { position: absolute; transform: translateX(-50%); color: var(--muted-foreground); font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.04em; }
-.gantt-today { position: absolute; top: -0.5cqi; bottom: -0.5cqi; width: 0; border-left: 1.5px dashed var(--danger); z-index: 1; pointer-events: none; }
-.gantt-axis .gantt-today { top: 0; bottom: -0.3cqi; }
-.gantt-today span { position: absolute; left: 4px; top: 0; white-space: nowrap; color: var(--danger-ink); font-size: 0.85em; font-weight: 600; }
-.gantt .status-tag { justify-self: start; }
-.flow-stack { display: flex; flex-direction: column; gap: 0.6cqi; }
-.flow-stack .slide-kicker { margin-top: 0.8cqi; }
-.flow { display: flex; align-items: stretch; gap: 1cqi; }
-.flow-box { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 0.2cqi; padding: 0.9cqi 1.2cqi; border: 1px solid var(--border); border-top: 3px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
-.flow-box b { font-weight: 600; }
-.flow-box small { color: var(--muted-foreground); font-size: 0.85em; }
-.flow-arrow { align-self: center; color: var(--muted-foreground); font-size: 1.4em; }
+/* Checkpoint deck: big numbers, live mission panels, margin chain and cards. */
 .big-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6cqi; }
 .big-tile { display: flex; flex-direction: column; gap: 0.4cqi; padding-top: 1cqi; border-top: 2px solid var(--accent); }
 .big-tile strong { font: 600 3.4cqi / 1.1 var(--font-display); font-variant-numeric: tabular-nums lining-nums; }
@@ -581,20 +540,8 @@ body.motion-paused .scroll-reveal { opacity: 1; filter: none; transform: none; t
   .slide-cols { grid-template-columns: minmax(0, 1fr); }
   .slide-grid.two, .slide-grid.three { grid-template-columns: minmax(0, 1fr); }
   .sim-split { grid-template-columns: minmax(0, 1fr); }
-  .flow { flex-direction: column; }
-  .flow-arrow { transform: rotate(90deg); }
-  .gantt-row { grid-template-columns: minmax(0, 1fr) auto; }
-  .gantt-row .gantt-track { grid-column: 1 / -1; grid-row: 2; }
-  .gantt-today { display: none; }
   .big-tiles { grid-template-columns: minmax(0, 1fr); }
   .big-tile strong, .warn-readout strong { font-size: 26px; }
-  .slide-table td:first-child { white-space: normal; }
-  .slide-table thead, .slide-table td:nth-child(2) { display: none; }
-  .slide-table, .slide-table tbody, .slide-table tr, .slide-table td { display: block; width: auto; }
-  .slide-table tr { padding: 6px 0; border-bottom: 1px solid var(--border); }
-  .slide-table td { border: 0; padding: 1px 0; }
-  .slide-table td small { display: block; }
-  .slide-table td b { display: block; margin: 0; }
   .slide-controls { flex-wrap: wrap; }
   .slide-dots { flex-wrap: wrap; flex: 1 1 100%; order: -1; justify-content: center; }
   .deck-choice { flex: 1 1 100%; }
