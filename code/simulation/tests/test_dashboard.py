@@ -244,7 +244,7 @@ class InterfaceTests(unittest.TestCase):
         html = (self.WEB / "index.html").read_text(encoding="utf-8")
         script = (self.WEB / "app.js").read_text(encoding="utf-8")
         used = set(re.findall(r'data-i18n(?:-aria|-html)?="([^"]+)"', html)) | set(re.findall(r'\bt\("([^"]+)"', script))
-        families = {"policy.": 11, "policyLong.": 11, "pres.section.": 7, "cp.section.": 8, "job.status.": 6, "job.action.": 4, "work.": 3}
+        families = {"policy.": 11, "policyLong.": 11, "pres.section.": 7, "cp.section.": 10, "job.status.": 6, "job.action.": 4, "work.": 3}
         for prefix, count in families.items():
             self.assertEqual(sum(k.startswith(prefix) for k in english), count, prefix)
         steps = set(re.findall(r'key: "(\w+)"', script))

@@ -157,3 +157,13 @@ Requested by Andrea for the 12 November tutor meeting: show different presentati
 - No change to the simulator, results, CI or paper.
 
 Checks: `python -m unittest tests.test_dashboard` (18 tests) passes on Linux/Python 3.11. Playwright on the local dashboard: every slide of both decks in IT and EN at 1440 px with no console warnings, no missing i18n key and no deck-body overflow; at 390 px no horizontal page scroll. Not checked on Windows or in native fullscreen.
+
+### Follow-up (same day): schematic deck, live slides, margin explanation
+
+Andrea asked for less text, an interactive view of the simulations with the policies, the dataset slide on hold for Ettore, and a clear explanation of the warning-margin finding.
+
+- Checkpoint deck now has ten slides: text cut to short labels; schedule as a Gantt with a today line; workflow as box diagrams; results as large numbers; two live slides (policies, algorithm pipeline) on the recorded core missions `1000-1-5-{S1,S2,S3,S4-T,S4-P}`; a warning-margin slide with a slider over the recorded S1 mission (persistence warns at a received sample exactly when its signal is below threshold + margin); a procedure slide (frozen before evaluation, no margin beats the constant alarm, keep the core and add the baseline; optional separately frozen study as proposed in `/mnt/project-files/notes/proposta-sensibilita-warning-2026-11-11.md`).
+- Independent recomputation of the margin finding (scratch script, not committed): regenerated the S1 fixed routes for pilot seeds 0–9 and evaluation seeds 1000–1029 and replayed both rules at margins 0–6 dB. Constant alarm F1 0.1524 (pilot) / 0.1755 (evaluation); for m ≥ 3.98 dB both rules warn on ≥ 99.8 % of received samples; the best pilot F1 below that is 0.131 (trend, 2–3 dB). This agrees with the verification thread's numbers.
+- Browser QA used a scratch copy of `results/core` with those five raw logs regenerated (their gzip bytes differ from the frozen hashes, so the copy's hash inventory was updated; the repository's `results/core` was not modified).
+
+Checks: `python -m unittest tests.test_dashboard` (18 tests) passes. Playwright: all ten checkpoint slides and seven final-draft slides in IT and EN at 1440 px without console warnings or overflow; policy switching, play/restart/speed and the margin slider (0 → 0 %, 2 → 20 %, 3.9 → 52 %, 4 → 100 % of the 95 received S1 samples) exercised; no horizontal scroll at 390 px. Not checked on Windows, in native fullscreen, or against the hosted export.
