@@ -1,7 +1,8 @@
 % Compile with LuaLaTeX. The page geometry, type size, spacing, and headings
 % are chosen to make page density close to the corresponding Word template.
 \usepackage[margin=1in,headheight=15pt,headsep=24pt,footskip=28pt]{geometry}
-\usepackage[default]{sourcesans}
+% TeX Live 2022 (Debian Bookworm) ships this family under its earlier package name.
+\IfFileExists{sourcesans.sty}{\usepackage[default]{sourcesans}}{\usepackage[default]{sourcesanspro}}
 \usepackage{setspace}
 \usepackage{xcolor}
 \usepackage{mdframed}

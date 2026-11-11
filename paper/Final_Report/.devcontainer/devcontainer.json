@@ -1,0 +1,27 @@
+{
+  "name": "II2202 Final Report",
+  "build": { "dockerfile": "Dockerfile" },
+  "remoteUser": "report",
+  "postCreateCommand": "bash .devcontainer/build-report.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": ["James-Yu.latex-workshop"],
+      "settings": {
+        "latex-workshop.latex.autoBuild.run": "onSave",
+        "latex-workshop.latex.outDir": "%DIR%/build",
+        "latex-workshop.view.pdf.viewer": "tab",
+        "latex-workshop.latex.search.rootFiles.include": ["main.tex"],
+        "latex-workshop.latex.recipes": [
+          { "name": "Final report (LuaLaTeX + BibTeX)", "tools": ["build-final-report"] }
+        ],
+        "latex-workshop.latex.tools": [
+          {
+            "name": "build-final-report",
+            "command": "bash",
+            "args": ["%DIR%/.devcontainer/build-report.sh"]
+          }
+        ]
+      }
+    }
+  }
+}
