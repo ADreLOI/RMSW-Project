@@ -2,6 +2,21 @@
 
 Andrea Lo Iacono and Ettore Mugisha Cirillo. Controlled two-USV coverage under intermittent radio communication.
 
+## Branch workflow
+
+The report and simulator share this repository so that each report version can be matched to the code that produced its results.
+
+| Branch | Purpose | Merge into |
+| --- | --- | --- |
+| `dev-paper` | Write and revise the LaTeX report in `paper/`, including references, tables and figures. | `dev` |
+| `dev-code` | Develop the simulator, tests and analysis scripts in `code/`. | `dev` |
+| `dev` | Integrate paper and code changes. Check that the report compiles and its figures and tables match the experiment outputs. | `main` when the final version is ready |
+| `main` | Hold the agreed final version of the report and its corresponding code. | — |
+
+Both working branches start from `dev`. At the start of each round of edits, bring the latest `dev` changes into your working branch. When opening a pull request from `dev-paper` or `dev-code`, select **`dev` as the base branch**. If a script change affects a figure, merge the script change into `dev` first, sync `dev-paper` with `dev`, then update the figure and its discussion together.
+
+## Project guide
+
 The **USV Research Lab** provides an animated simulator, synchronized policy comparisons, statistical charts, raw-event inspection, experiment controls, automated verification and a five-scene interactive presentation. From the repository root on Windows:
 
 ```powershell
