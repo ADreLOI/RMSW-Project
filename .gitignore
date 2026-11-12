@@ -28,6 +28,7 @@ private/
 *.mp3
 .env
 .env.*
+/.lab-launcher/
 
 # Bulk data should not synchronize to Overleaf
 /results/raw/

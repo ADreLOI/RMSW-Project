@@ -408,7 +408,7 @@ def cancel_transit(boat: Boat):
 
 
 def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
-        forced_radio: Callable[[int],bool] | None=None, predictor=None, recovery=False):
+        forced_radio: Callable[[int],bool] | None=None, predictor=None, recovery=False, on_sample=None):
     """predictor and recovery are extension hooks; defaults reproduce the frozen study.
 
     predictor(c, history, work) -> (warning, projected) replaces the S4 forecast and
@@ -533,6 +533,10 @@ def run(c: Config, scenario: Scenario, policy: str, margins=None, log_path=None,
                              work={name:asdict(w) for name,w in work.items()})
                 sessions.append({key:entry[key] for key in ("t","k","r","d","u","radio","committed","warning","distance_failure","budget_failure")})
                 log.write(entry)
+                if on_sample is not None:
+                    on_sample({"policy": policy, "seed": scenario.seed, "t": t,
+                               "xy": positions, "visited": sorted(covered), "grid": [c.width, c.height],
+                               "cell_m": c.cell_m, "signal": r, "radio": bool(radio), "warning": entry["warning"]})
             if complete: break
         result={"policy":policy,"seed":scenario.seed,"fade_length":scenario.fade_length,"slowdown":scenario.slowdown,
                 "path_exponent":c.path_exponent,"complete":complete,"stop_s":t,"completion_s":t if complete else None,

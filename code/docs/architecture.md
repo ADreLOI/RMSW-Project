@@ -72,6 +72,8 @@ Reconstruction uses explicit exceptions, including under `python -O`, to validat
 
 ## HTTP contract
 
+In the optional split deployment, a single web gateway serves the same assets. An engine connects outbound over an authenticated WebSocket. The gateway sends API commands over this connection. The engine calls the existing loopback HTTP handler with the browser's session token and streams status, content type, attachments and bytes back to the gateway on an authenticated request-specific HTTP POST. The gateway checks browser Host, Origin and hosted login. It never retries a submitted job. New scenario runs publish the latest observed radio-exchange snapshot over the control socket. The gateway fans it out to browser WebSockets with a one-sample buffer per viewer. Verified replay and archived evidence still come from the original workflow. See the [deployment guide](deployment.md).
+
 | Endpoint | Function |
 |---|---|
 | `GET /api/catalog` | Frozen rows, design, precomputed statistics, host benchmark, trace availability, session token |

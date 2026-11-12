@@ -79,11 +79,11 @@ def tune(c: Config, destination: Path):
     return freeze
 
 
-def worker(task):
+def worker(task, on_sample=None):
     cdata,seed,length,slowdown,policy,margins,path=task
     c=Config(**cdata)
     start=time.perf_counter()
-    result,samples=run(c,make_scenario(c,seed,length,slowdown),policy,margins,path)
+    result,samples=run(c,make_scenario(c,seed,length,slowdown),policy,margins,path,on_sample=on_sample)
     result["warnings"]=warning_scores(samples,c.horizon)
     result["wall_s"]=time.perf_counter()-start
     return result

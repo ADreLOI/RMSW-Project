@@ -17,6 +17,8 @@ Both working branches start from `dev`. At the start of each round of edits, bri
 
 ## Project guide
 
+For the split webapp and engine, open **Run-Lab.cmd** on Windows. Choose **3** to start both with Docker Desktop or **4** to start them with native Python. **7** and **8** stop the corresponding pair. The [deployment guide](code/docs/deployment.md) also covers engine-only modes and an HTTPS webapp connected to an engine on a separate PC.
+
 The **USV Research Lab** provides an animated simulator, synchronized policy comparisons, statistical charts, raw-event inspection, experiment controls, automated verification and a five-scene interactive presentation. From the repository root on Windows:
 
 ```powershell

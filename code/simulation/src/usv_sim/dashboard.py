@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import contextmanager
+import os
 from concurrent.futures import ThreadPoolExecutor
 import csv
 from functools import lru_cache
@@ -95,7 +97,8 @@ def extension_study(root, _stamp):
 
 
 class Lab:
-    def __init__(self, root, core=CORE, extension=EXTENSION):
+    def __init__(self, root, core=CORE, extension=EXTENSION, on_sample=None):
+        self.on_sample = on_sample
         self.root, self.core, self.extension = Path(root).resolve(), Path(core).resolve(), Path(extension).resolve()
         self.figure_lock = threading.Lock()  # pyplot state is not thread-safe
         self.root.mkdir(parents=True, exist_ok=True)
@@ -148,7 +151,8 @@ class Lab:
         try:
             action = record["action"]
             if action == "run":
-                rows = run_bundle(destination, record["request"], self.core / "frozen-design.json", progress)
+                publish = (lambda sample: self.on_sample({"job": identity, **sample})) if self.on_sample else None
+                rows = run_bundle(destination, record["request"], self.core / "frozen-design.json", progress, publish)
                 export_figures(destination / "figures", rows)
             elif action in ("smoke", "full"):
                 pipeline(destination, action, progress=progress)
@@ -293,6 +297,24 @@ class Lab:
         return self.root / dataset / name
 
 
+@contextmanager
+def own_data(root):
+    """Do not recover another running engine's jobs."""
+    root.mkdir(parents=True, exist_ok=True)
+    with (root / ".engine.lock").open("a+b") as lock:
+        lock.seek(0)
+        try:
+            if os.name == "nt":
+                import msvcrt
+                msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+            else:
+                import fcntl
+                fcntl.flock(lock.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as error:
+            raise RuntimeError("Another engine owns this results directory") from error
+        yield
+
+
 def handler_for(lab):
     class Handler(BaseHTTPRequestHandler):
         server_version = "USVResearchLab/1.0"
@@ -324,7 +346,9 @@ def handler_for(lab):
             query = parse_qs(url.query)
             arg = lambda key, default="": query.get(key, [default])[0]
             try:
-                if url.path == "/api/catalog":
+                if url.path == "/health":
+                    self.send(200, {"service": "usv-standalone", "engine_connected": True})
+                elif url.path == "/api/catalog":
                     self.send(200, lab.catalog())
                 elif url.path == "/api/jobs":
                     self.send(200, lab.snapshot())
@@ -393,12 +417,17 @@ def main():
     args = parser.parse_args()
     if not 1024 <= args.port <= 65535:
         parser.error("port must be 1024..65535")
+    with own_data(args.data):
+        serve_dashboard(args)
+
+
+def serve_dashboard(args):
     lab = Lab(args.data)
     try:
         server = ThreadingHTTPServer(("127.0.0.1", args.port), handler_for(lab))
     except OSError as error:
         lab.close()
-        parser.exit(1, f"Cannot open port {args.port}: {error}. Try --port 8769.\n")
+        raise SystemExit(f"Cannot open port {args.port}: {error}. Try --port 8769.") from error
     print(f"USV Research Lab: http://127.0.0.1:{args.port}\nEvidence: {lab.root}\nCtrl+C stops the server after active work finishes.", flush=True)
     if not args.no_browser:
         webbrowser.open(f"http://127.0.0.1:{args.port}")

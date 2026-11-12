@@ -59,7 +59,7 @@
       </nav>
       <div class="sidebar-footer">
         <div class="engine"><span class="status-dot" id="engine-dot"></span><span id="connection" data-i18n="engine.connecting">Connecting to the Python engine…</span></div>
-        <p data-i18n="sidebar.note">Every number on these pages comes from recorded runs on this computer.</p>
+        <p data-i18n="sidebar.note">The engine supplies recorded runs and live samples.</p>
         <span class="authors">Andrea Lo Iacono · Ettore Mugisha Cirillo</span>
       </div>
     </aside>
@@ -187,7 +187,12 @@
               <div id="run-progress" class="run-progress" role="status" aria-live="polite" hidden>
                 <span id="run-status"></span><progress id="run-meter" value="0" max="5"></progress>
               </div>
-              <p class="setup-note"><svg><use href="#i-cpu" /></svg><span data-i18n="setup.note">Runs execute in Python on this computer and are saved as a new bundle in results/lab. Frozen evidence is never modified.</span></p>
+                <figure id="live-sample" hidden>
+                  <figcaption data-i18n="live.last">Latest sample from the engine</figcaption>
+                  <canvas width="300" height="180" id="live-grid" style="width:100%;height:auto"></canvas>
+                  <small id="live-reading"></small>
+                </figure>
+                <p class="setup-note"><svg><use href="#i-cpu" /></svg><span data-i18n="setup.note">Runs execute on the engine and are saved in results/lab.</span></p>
             </aside>
           </div>
 
@@ -396,7 +401,7 @@
               <a class="button secondary" href="/api/figure?name=core-mission-time"><svg><use href="#i-download" /></svg><span data-i18n="pf.time">Mission time, all conditions</span></a>
               <a class="button secondary" href="/api/figure?name=core-resource-tradeoff"><svg><use href="#i-download" /></svg><span data-i18n="pf.tradeoff">Time vs payload trade-off</span></a>
             </div>
-            <p class="footnote" data-i18n="pf.note">Drawn by matplotlib on this computer from the retained summaries, in the report's style (Computer Modern, fixed policy colours, axes from zero).</p>
+            <p class="footnote" data-i18n="pf.note">Drawn by matplotlib on the engine from the retained summaries, in the report's style (Computer Modern, fixed policy colours, axes from zero).</p>
           </article>
           <article class="card data-card">
             <div class="card-head">
@@ -565,7 +570,7 @@
 
           <article class="card scroll-reveal">
             <span class="card-kicker" data-i18n="arch.kicker">Where the computation happens</span>
-            <h2 data-i18n="arch.title">The browser only draws. Python on this computer simulates.</h2>
+            <h2 data-i18n="arch.title">The browser only draws. The Python engine simulates.</h2>
             <div class="arch" id="architecture" role="img" data-i18n-aria="arch.aria" aria-label="Architecture: browser, local Python server, job queue, workflow, simulation model, results folder, replay"></div>
             <ol class="arch-legend" id="arch-steps"></ol>
           </article>

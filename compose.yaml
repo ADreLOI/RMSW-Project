@@ -1,0 +1,32 @@
+services:
+  web:
+    build:
+      context: ./code/simulation
+      target: web
+    environment:
+      LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Run-Lab.cmd}
+      LAB_PUBLIC_ORIGIN: ${LAB_PUBLIC_ORIGIN:-http://127.0.0.1:8768}
+      LAB_WEB_PASSWORD: ${LAB_WEB_PASSWORD:-}
+    ports:
+      - "127.0.0.1:8768:8768"
+    init: true
+
+  engine:
+    build:
+      context: ./code/simulation
+      target: engine
+    environment:
+      LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Run-Lab.cmd}
+      LAB_RELAY_URL: ${LAB_RELAY_URL:-http://web:8768}
+      LAB_READY_FILE: /tmp/usv-engine-ready
+    healthcheck:
+      test: ["CMD", "python", "-c", "from pathlib import Path; import sys; sys.exit(not Path('/tmp/usv-engine-ready').exists())"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - ./code/simulation/results/core:/lab/code/simulation/results/core:ro
+      - ./code/simulation/results/extension:/lab/code/simulation/results/extension:ro
+      - ./code/simulation/results/lab:/lab/code/simulation/results/lab
+    init: true
+    stop_grace_period: 24h

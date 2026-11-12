@@ -20,6 +20,8 @@ The dashboard does not change the scientific model. New run controls can explore
 
 ## Implementation and evidence entry points
 
+The split deployment adds `Run-Lab.cmd`, `compose.yaml`, `usv_sim.relay` and `usv_sim.engine`. See [deployment](deployment.md). The original standalone dashboard also remains available.
+
 | Need | Read / run |
 |---|---|
 | Scientific contract | `paper/research-plan/sections/02.*`, `code/docs/plan-to-code.md` |

@@ -40,7 +40,7 @@ def validate_request(data):
     return request
 
 
-def run_bundle(destination, request, design_path, progress=lambda message, done, total: None):
+def run_bundle(destination, request, design_path, progress=lambda message, done, total: None, on_sample=None):
     """One scenario, one or five policies, no tuning on evaluation seeds."""
     request = validate_request(request)
     destination = Path(destination)
@@ -59,7 +59,7 @@ def run_bundle(destination, request, design_path, progress=lambda message, done,
         name = f"{request['seed']}-{int(request['slowdown'])}-{request['length']}-{policy}.jsonl.gz"
         path = destination / "raw" / name
         row = worker((asdict(config), request["seed"], request["length"], request["slowdown"],
-                      policy, design["margins"], path))
+                      policy, design["margins"], path), on_sample=on_sample)
         rebuilt, _ = reconstruct(path)
         assert rebuilt == {k: v for k, v in row.items() if k not in ("warnings", "wall_s")}
         rows.append(row)

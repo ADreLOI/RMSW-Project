@@ -1505,6 +1505,7 @@ function setLang(lang) {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
   I18N.apply(document);
+  if (lastSample) drawLiveSample(lastSample);
   fillPolicySelect();
   setSetup(request());
   setPlaying(state.playing);
@@ -1671,6 +1672,100 @@ let resizeTimer;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { renderMissionCharts(); if (state.catalog) renderEvidence(); if (state.ext) renderExtension(); drawAll(); if (state.tour) placeTour(document.querySelector(tourSteps(state.tour.kind)[state.tour.index].sel)); }, 80); });
 window.addEventListener("scroll", () => { if (state.tour) placeTour(document.querySelector(tourSteps(state.tour.kind)[state.tour.index].sel)); }, { passive: true });
 
+let initialized = false, gatewayOnline = false, lastSample = null;
+let gatewaySession = null;
+let connectionGeneration = 0;
+
+function drawLiveSample(sample) {
+  const canvas = $("live-grid"), ctx = canvas.getContext("2d");
+  const [width, height] = sample.grid;
+  const dx = canvas.width / width, dy = canvas.height / height;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = token("muted");
+  for (const cell of sample.visited) {
+    ctx.fillRect((cell % width) * dx, (height - 1 - Math.floor(cell / width)) * dy, dx - 1, dy - 1);
+  }
+  sample.xy.forEach(([x, y], i) => {
+    ctx.fillStyle = BOAT[i];
+    ctx.beginPath();
+    ctx.arc(x / sample.cell_m * dx, canvas.height - y / sample.cell_m * dy, 5, 0, 2 * Math.PI);
+    ctx.fill();
+  });
+  $("live-reading").textContent = t("live.reading", {policy: sample.policy, seed: sample.seed,
+    time: clock(sample.t), cells: sample.visited.length, signal: fmt(sample.signal, 1),
+    link: t(sample.radio ? "live.radioUp" : "live.radioDown")});
+  $("live-sample").hidden = false;
+}
+
+async function connectDashboard(generation) {
+  try {
+    const catalog = await api("/api/catalog");
+    if (generation !== connectionGeneration) return;
+    state.catalog = catalog;
+    $("connection").textContent = t("engine.connected");
+    $("engine-dot").classList.add("on");
+    renderEvidence();
+    await refreshJobs();
+    if (!initialized) {
+      const first = location.hash.slice(1) || (store.get("visited") ? "map" : "guide");
+      store.set("visited", "1");
+      view(first);
+      await loadSelected(true);
+      if (generation !== connectionGeneration) return;
+      initialized = true;
+      requestAnimationFrame(animate);
+      setInterval(() => {
+        if (!document.hidden && state.catalog) refreshJobs().catch(() => {
+          $("connection").textContent = t("engine.disconnected");
+          $("engine-dot").classList.remove("on");
+        });
+      }, 2500);
+    }
+    if (state.catalog.extension_available) loadExtension();
+  } catch (error) {
+    if (generation !== connectionGeneration) return;
+    $("connection").textContent = t("engine.unavailable");
+    toast(error.message, true);
+    if (gatewayOnline) setTimeout(() => {
+      if (generation === connectionGeneration) connectDashboard(generation);
+    }, 3000);
+  }
+}
+
+function gatewayState(online) {
+  if (online === gatewayOnline && online) return;
+  gatewayOnline = online;
+  ++connectionGeneration;
+  if (online) {
+    connectDashboard(connectionGeneration);
+  } else {
+    state.catalog = null;
+    lastSample = null;
+    $("live-sample").hidden = true;
+    $("connection").textContent = t("engine.disconnected");
+    $("engine-dot").classList.remove("on");
+  }
+}
+
+function watchGateway() {
+  const url = new URL("/live", location.href);
+  url.protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  const socket = new WebSocket(url);
+  socket.onmessage = (message) => {
+    const update = JSON.parse(message.data);
+    if (update.online && gatewaySession !== update.session) {
+      gatewayOnline = false;
+      gatewaySession = update.session;
+    }
+    gatewayState(update.online);
+    if (update.sample) {
+      lastSample = update.sample;
+      drawLiveSample(lastSample);
+    }
+  };
+  socket.onclose = () => { gatewayState(false); setTimeout(watchGateway, 2000); };
+}
+
 async function init() {
   const saved = new URLSearchParams(location.search).get("lang") || store.get("lang");
   setLang(saved ||((navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en"));
@@ -1679,18 +1774,8 @@ async function init() {
   const deck = new URLSearchParams(location.search).get("deck");
   state.deck = DECKS[deck] ? deck : defaultDeck();
   try {
-    state.catalog = await api("/api/catalog");
-    $("connection").textContent = t("engine.connected");
-    $("engine-dot").classList.add("on");
-    renderEvidence();
-    await refreshJobs();
-    const first = location.hash.slice(1) || (store.get("visited") ? "map" : "guide");
-    store.set("visited", "1");
-    view(first);
-    await loadSelected(true);
-    requestAnimationFrame(animate);
-    setInterval(() => { if (!document.hidden) refreshJobs().catch(() => { $("connection").textContent = t("engine.disconnected"); $("engine-dot").classList.remove("on"); }); }, 2500);
-    if (state.catalog.extension_available) loadExtension();
+    if ((await api("/health").catch(() => ({}))).service === "usv-web") watchGateway();
+    else await connectDashboard(connectionGeneration);
   } catch (error) {
     $("connection").textContent = t("engine.unavailable");
     toast(error.message, true);

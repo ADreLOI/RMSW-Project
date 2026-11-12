@@ -172,3 +172,11 @@ Checks: `python -m unittest tests.test_dashboard` (18 tests) passes. Playwright:
 
 - Removed the schedule (Gantt) and workflow slides and the tutor questions on the last slide, which now shows only the 12–25 November plan. The checkpoint deck has eight slides; their code, strings and styles were removed with them (`SCHEDULE` stays: it drives the deck picker).
 - Checks: `python -m unittest tests.test_dashboard` passes; Playwright on both decks in IT and EN at 1440 px (no console warnings, no overflow) and at 390 px (no horizontal scroll).
+
+## 12 November 2026 - local-first split deployment
+
+Added the Windows menu and the two-service deployment on dev-code-deploy. The engine connects to a local or hosted web gateway over an outbound WebSocket. The existing loopback dashboard still dispatches and verifies every job. The web forwards the existing API and attachments and fans out sampled positions, observed cells and radio state during browser-submitted scenarios. Native and Docker engines write to the existing lab job directory. See [deployment.md](deployment.md) for local testing and hosted configuration.
+
+Local checks on Windows: all 21 simulator tests and 13 extension tests passed. Across all five policies at seed 1000, slowdown enabled and fade length 5, enabling the sample callback reproduced the same mission outcomes, warning sessions and stopping times. The existing headless replay check passed for six traces, three knowledge layers and four times. Docker Compose configuration, JavaScript syntax, Python compilation and the Windows menu were checked.
+
+End-to-end startup and interactive browser verification are pending. This runner could not reach the Docker Linux daemon, fetch the missing aiohttp and psutil dependencies or launch Edge under Playwright. CI now exercises the real gateway on Docker/Linux and native Windows, including a new job, two live viewers, replay, figure and archive downloads. The Linux job also exercises the browser. No hosted instance was provisioned.
