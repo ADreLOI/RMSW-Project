@@ -34,12 +34,14 @@ private/
 /results/raw/
 /data/raw/
 
-/code/simulation/results/*/raw/
-/code/simulation/results/smoke/
-/code/simulation/results/single/
-/code/simulation/results/lab/
-/code/simulation/results/core/analysis-console.json
-/code/simulation/results/core/benchmark-console.json
+# A second checkout can retain untracked data under the former simulator path.
+/code/simulation/results/
+/code/simulator/results/*/raw/
+/code/simulator/results/smoke/
+/code/simulator/results/single/
+/code/simulator/results/lab/
+/code/simulator/results/core/analysis-console.json
+/code/simulator/results/core/benchmark-console.json
 /paper/Final_Report/*.pdf
 /paper/Final_Report/compile-pass*.txt
 /paper/Final_Report/bibtex-pass.txt

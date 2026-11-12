@@ -4,18 +4,18 @@ This is a controlled synthetic experiment about two unmanned surface vehicles (U
 
 ## Start here
 
-1. Read `code/docs/agent-handoff.md`, `code/docs/work-log.md`, and `code/docs/plan-to-code.md`.
+1. Read `docs/agent-handoff.md`, `docs/work-log.md`, and `docs/plan-to-code.md`.
 2. Read the relevant sections of `paper/research-plan/`. This is the live-plan snapshot downloaded on 23 October 2026. It supersedes the earlier proposal.
 3. Inspect `git status`, branch and remotes before editing. Preserve other authors' work. There is an older dirty checkout outside this implementation checkout; do not modify it.
-4. Use `code/docs/dashboard-guide.md` for commands, controls and metric definitions. Read `code/docs/architecture.md` before changing the event/replay boundary.
+4. Use `docs/dashboard-guide.md` for commands, controls and metric definitions. Read `docs/architecture.md` before changing the event/replay boundary.
 
 ## Repository boundaries
 
 - `paper/` contains LaTeX, references, templates and publication figures only.
-- `code/` contains implementation, data and technical documentation. Root metadata, this file and the launcher are intentional exceptions.
+- `code/` contains the simulator, its data and the web app. Technical documentation lives in the root docs/ directory. Root metadata, this file and the launcher are intentional exceptions.
 - Do not overwrite an active Overleaf project from a potentially stale local source. Coordinate and inspect its live state before paper synchronization.
 - Preserve `paper/Proposal/`, `paper/professor-template-2026/` and the research-plan snapshot as reference sources.
-- `results/core/` is retained frozen evidence. New experiments belong in unique `code/simulation/results/lab/<UTC-id>/` directories. Do not add exploratory runs to the 900-run table.
+- `results/core/` is retained frozen evidence. New experiments belong in unique `code/simulator/results/lab/<UTC-id>/` directories. Do not add exploratory runs to the 900-run table.
 - Bulk raw logs, local environments and lab output are ignored by Git. Retain their hashes and reproduction commands. Never commit credentials or private data.
 
 ## Scientific invariants
@@ -41,14 +41,14 @@ Changing these assumptions creates a new design/experiment. Document why, retain
 From the repository root on Windows:
 
 ```powershell
-.\Run-Lab.ps1 -Setup       # once: local venv, dependencies, then dashboard
-.\Run-Lab.ps1              # opens http://127.0.0.1:8768
-.\Run-Lab.ps1 -Action Test
-.\Run-Lab.ps1 -Action Smoke
-.\Run-Lab.ps1 -Action Full -Workers 4
+.\code/simulator/scripts/Run-Study.ps1 -Setup       # once: local venv, dependencies, then dashboard
+.\code/simulator/scripts/Run-Study.ps1              # opens http://127.0.0.1:8768
+.\code/simulator/scripts/Run-Study.ps1 -Action Test
+.\code/simulator/scripts/Run-Study.ps1 -Action Smoke
+.\code/simulator/scripts/Run-Study.ps1 -Action Full -Workers 4
 ```
 
-From `code/simulation`, with an installed editable package (or `PYTHONPATH=src`):
+From `code/simulator`, after installing both packages with `python -m pip install -e ..`:
 
 ```text
 python -m unittest discover -s tests -v
@@ -65,7 +65,7 @@ The localhost integration tests need socket access. If a restricted runner forbi
 - Run relevant meaningful tests. Simulation/protocol changes also require raw-log reconstruction and a new independent evaluation as appropriate; compare deterministic scientific values, excluding host timing.
 - For UI changes inspect the actual browser, including replay, run submission, evidence filters, downloads and presentation. A Python test is not browser QA.
 - Schema-2 logs record task/motion state every 1 s and at stopping; post-exchange snapshots supersede ticks at the same time. Radio/forecast measurements remain every 10 s. Legacy schema-1 logs have sampled tasks and unavailable terminal queues. Never invent missing state or show observer data as a boat's knowledge.
-- Regenerate report tables with `python code/simulation/scripts/build_report.py`; this writes generated tables only. Package the active report with `python code/simulation/scripts/package_report.py --output <new.zip>`. Never restore the historical prose scaffolder over edited sources.
+- Regenerate report tables with `python code/simulator/scripts/build_report.py`; this writes generated tables only. Package the active report with `python code/simulator/scripts/package_report.py --output <new.zip>`. Never restore the historical prose scaffolder over edited sources.
 - Keep dashboard writes on the loopback server, with token/origin checks, fixed allowed actions, validated inputs and bounded paths. Do not expose it publicly.
 - Update the work log with what changed, actual validation, output locations and remaining limitations. Update the handoff if architecture or research interpretation changes.
 - Do not merge the open PR, submit the course work, or claim independent human review unless that action is separately requested and verified.

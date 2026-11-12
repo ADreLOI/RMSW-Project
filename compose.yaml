@@ -1,10 +1,10 @@
 services:
   web:
     build:
-      context: ./code/simulation
+      context: ./code
       target: web
     environment:
-      LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Run-Lab.cmd}
+      LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Manage-Lab.cmd}
       LAB_PUBLIC_ORIGIN: ${LAB_PUBLIC_ORIGIN:-http://127.0.0.1:8768}
       LAB_WEB_PASSWORD: ${LAB_WEB_PASSWORD:-}
     ports:
@@ -13,10 +13,10 @@ services:
 
   engine:
     build:
-      context: ./code/simulation
+      context: ./code
       target: engine
     environment:
-      LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Run-Lab.cmd}
+      LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Manage-Lab.cmd}
       LAB_RELAY_URL: ${LAB_RELAY_URL:-http://web:8768}
       LAB_READY_FILE: /tmp/usv-engine-ready
     healthcheck:
@@ -25,8 +25,8 @@ services:
       timeout: 2s
       retries: 30
     volumes:
-      - ./code/simulation/results/core:/lab/code/simulation/results/core:ro
-      - ./code/simulation/results/extension:/lab/code/simulation/results/extension:ro
-      - ./code/simulation/results/lab:/lab/code/simulation/results/lab
+      - ./code/simulator/results/core:/lab/code/simulator/results/core:ro
+      - ./code/simulator/results/extension:/lab/code/simulator/results/extension:ro
+      - ./code/simulator/results/lab:/lab/code/simulator/results/lab
     init: true
     stop_grace_period: 24h
