@@ -29,7 +29,7 @@ For the split webapp and engine, open **Manage-Lab.cmd** on Windows. Choose **3*
 | code/simulator/scripts/ | Generate paper figures, tables and a submission ZIP. Run-Study.ps1 also supports native scientific workflows. |
 | docs/ | Operating guides, design decisions and validation records. |
 
-The GitHub workflow runs on pushes to main, dev and branches starting with dev-code. Pull requests use the same target branches. Jobs are skipped for pull requests from dev-paper. The scientific check runs unit tests and five reference missions. The Windows integration check starts both services natively on a GitHub runner. Ubuntu builds both Docker images and exercises the API and the browser. These jobs stop their services after testing.
+The GitHub workflow runs on pushes to main, dev and branches starting with dev-code. Pull requests use the same target branches. Jobs are skipped for pull requests from dev-paper. The scientific check runs unit tests and five reference missions. To test the full stack locally, start the web app and engine through the Windows menu.
 
 Open `http://127.0.0.1:8768`. New runs are saved as separate, reproducible evidence bundles. See the [dashboard guide](docs/dashboard-guide.md). Other tools should start with [AGENTS.md](AGENTS.md) and the [agent handoff](docs/agent-handoff.md); completed work is recorded in the [work log](docs/work-log.md).
 
