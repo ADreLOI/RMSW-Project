@@ -1,0 +1,32 @@
+{
+  "kind": "post-hoc analysis; not part of the pre-specified core evaluation",
+  "requested": "tutor meeting, 12 November 2026",
+  "inputs_sha256": {
+    "runs.json": "9d49796daef544cfa3cf052361f8835822323639ce9c540d75d9bc812efafe3a",
+    "mechanism-diagnostics.csv": "fc52685006dc38e5f22c37fbc7c454e9c9f94dc360a44f778ad737c3db5f94ba",
+    "frozen-design.json": "21c119d917778511fbe91b327cbbbbee184d1d92e99ccf62d80b8b645619d44d"
+  },
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 20261112,
+  "fade_exposure_window_s": 1280,
+  "ideal_link_reference": "300 new runs: evaluation seeds, both progress settings, fade stream disabled; not core evidence",
+  "outputs": [
+    "communication-cost.csv",
+    "correlations.csv",
+    "fig-cost-benefit.pdf",
+    "fig-cost-benefit.png",
+    "fig-link-loss.pdf",
+    "fig-link-loss.png",
+    "fig-per-100-outages.pdf",
+    "fig-per-100-outages.png",
+    "fig-resilience.pdf",
+    "fig-resilience.png",
+    "fig-time-vs-link.pdf",
+    "fig-time-vs-link.png",
+    "ideal-link-runs.csv",
+    "link-loss-summary.csv",
+    "per-100-outages.csv",
+    "per-run.csv",
+    "resilience.csv"
+  ]
+}
