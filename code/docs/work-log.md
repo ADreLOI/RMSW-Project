@@ -180,3 +180,7 @@ Added the Windows menu and the two-service deployment on dev-code-deploy. The en
 Local checks on Windows: all 21 simulator tests and 13 extension tests passed. Across all five policies at seed 1000, slowdown enabled and fade length 5, enabling the sample callback reproduced the same mission outcomes, warning sessions and stopping times. The existing headless replay check passed for six traces, three knowledge layers and four times. Docker Compose configuration, JavaScript syntax, Python compilation and the Windows menu were checked.
 
 End-to-end startup and interactive browser verification are pending. This runner could not reach the Docker Linux daemon, fetch the missing aiohttp and psutil dependencies or launch Edge under Playwright. CI now exercises the real gateway on Docker/Linux and native Windows, including a new job, two live viewers, replay, figure and archive downloads. The Linux job also exercises the browser. No hosted instance was provisioned.
+
+### 12 November 2026 - deployment browser check
+
+In [run 34](https://github.com/ADreLOI/RMSW-Project/actions/runs/43258819268/job/131324235256#step:8:275), the Ubuntu Docker stack started and the API checks completed. The browser check stopped on the Guide page because both its Presentation shortcut and the main navigation matched the same selector. The test now selects each view within the main navigation. A local check found one button and one target section for each of the eight views. The Windows Docker launcher still needs an end-to-end check on the demo PC.

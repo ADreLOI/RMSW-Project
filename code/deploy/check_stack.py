@@ -88,8 +88,9 @@ async def check_browser():
             await page.goto(ORIGIN + "/?lang=en#map")
             await page.wait_for_selector("#engine-dot.on")
             await page.wait_for_function("Boolean(state.traces[state.active])")
+            navigation = page.get_by_role("navigation", name="Main navigation", exact=True)
             for name in ("link", "log", "core", "extension", "runs", "guide", "presentation", "map"):
-                await page.locator(f'button[data-view="{name}"]').click()
+                await navigation.locator(f'button[data-view="{name}"]').click()
                 await page.wait_for_selector(f"#view-{name}.active")
             await page.locator('[data-lang="it"]').click()
             await page.locator("#run-form details.advanced summary").click()
