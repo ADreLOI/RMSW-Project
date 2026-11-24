@@ -184,3 +184,13 @@ At the 12 November meeting the tutor said the results do not show the trends tha
 - Not done: no change to the report, the slides or the dashboard; no energy conversion (the plan excludes joules); literature review of reported metrics, formal objective statement and the constant-alarm baseline table remain open (actions A5, A6, B1 in the notes).
 
 Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 57 tests, including five new ones in `tests/test_linkloss.py` (Spearman with ties, outage counts equal to the frozen `outage-diagnostics.csv`, 900 derived rows, S1 balanced fade exposure equal to its measured unavailability, core file hashes unchanged after a run). The five figures were inspected by eye. Nothing pushed. No human review yet.
+
+## 24 November 2026 — post-hoc critical-window analysis
+
+Andrea found the results weak: the graphs show no pattern. Inspecting individual runs showed that online outcomes are bimodal and that every stall starts at the same point of the route. New `usv_sim/critical.py` and `usv_sim/critical_figures.py` make this reproducible; output in `code/simulation/results/posthoc/critical-window-2026-11-24/` (CSV tables, four figures, `manifest.json`, `README.md`, and `report-draft.tex` with proposed report text that is not yet in `paper/`).
+
+- Finding: the boats first leave radio range at 260 s under every online policy. If the exchanges at 240 s and 250 s are both faded, the 230 s allocation leaves them 326 m apart (10 m out of range) and the mission stalls. The rule agrees with 180/180 S3, 178/180 S4-T and 176/180 S4-P frozen runs. Stall probability q(1 − 1/L) explains the non-monotonic pattern across L as sampling noise.
+- New runs, diagnostic only and stored only in the post-hoc bundle: 1080 intervention runs (window forced faded or clear on the 540 online scenarios) and 2145 blackout-map runs on the fade-free balanced mission.
+- No change to the model, the frozen results, the report or the slides. The finding was identified after seeing the results; the intervention is the check.
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 63 tests, including six new ones in `tests/test_critical.py` (derived window and range, rule agreement on S3, theory against the stream generator, Wilson interval, intervention flip on one scenario, core hashes unchanged). The four figures were inspected by eye. Nothing pushed.

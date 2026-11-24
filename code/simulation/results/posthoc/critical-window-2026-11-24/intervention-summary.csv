@@ -1,0 +1,4 @@
+policy,scenarios,stall_when_window_forced_faded,stall_when_window_forced_clear,mean_s_forced_faded,mean_s_forced_clear,max_completed_s_forced_clear
+S3,180,180,0,7200.0,1470.7555555555555,1962
+S4-T,180,178,2,7136.333333333333,1551.6666666666667,1985
+S4-P,180,174,0,7009.322222222222,1492.7722222222221,1985
