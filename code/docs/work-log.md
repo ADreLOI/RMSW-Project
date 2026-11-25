@@ -172,3 +172,25 @@ Checks: `python -m unittest tests.test_dashboard` (18 tests) passes. Playwright:
 
 - Removed the schedule (Gantt) and workflow slides and the tutor questions on the last slide, which now shows only the 12–25 November plan. The checkpoint deck has eight slides; their code, strings and styles were removed with them (`SCHEDULE` stays: it drives the deck picker).
 - Checks: `python -m unittest tests.test_dashboard` passes; Playwright on both decks in IT and EN at 1440 px (no console warnings, no overflow) and at 390 px (no horizontal scroll).
+
+## 12 November 2026 — post-hoc link-loss analysis after the tutor meeting
+
+At the 12 November meeting the tutor said the results do not show the trends that matter for this work: how often the link is lost, outcomes normalised "out of 100 broken links", a measure of resilience, and a cost comparison. Summary and action list: `/mnt/project-files/notes/meeting-tutor-2026-11-12-azioni.md` (automatic transcript next to it). Andrea asked to start implementing the corrections.
+
+- New `usv_sim/linkloss.py` and `usv_sim/linkloss_figures.py`; output in `code/simulation/results/posthoc/link-loss-2026-11-12/` (six CSV tables, five figures as PNG/PDF, `manifest.json` with input hashes, `README.md` with definitions, findings and limits).
+- It is a declared post-evaluation analysis. It reads `results/core/runs.json`, `mechanism-diagnostics.csv` and `frozen-design.json` and writes nothing there; the CLI refuses an output path inside the core bundle. No model, predictor, margin or frozen result changed.
+- One addition executes new runs: an ideal-link reference (300 runs: evaluation seeds, both progress settings, five policies, fade stream disabled) used only to define retention. These are not core evidence and are stored only in the post-hoc bundle.
+- Main readings (details in the bundle README): in completed online missions 31–50 % of missed exchanges are distance failures; S4-T reserved before 82 % of eligible outages without a better outcome than S3; among completed missions fades delay S3/S4 by 12–32 s on average, so the loss is concentrated in stalls; fade exposure correlates weakly with restricted time (Spearman 0.26–0.34) for online policies; traffic follows mission duration.
+- Not done: no change to the report, the slides or the dashboard; no energy conversion (the plan excludes joules); literature review of reported metrics, formal objective statement and the constant-alarm baseline table remain open (actions A5, A6, B1 in the notes).
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 57 tests, including five new ones in `tests/test_linkloss.py` (Spearman with ties, outage counts equal to the frozen `outage-diagnostics.csv`, 900 derived rows, S1 balanced fade exposure equal to its measured unavailability, core file hashes unchanged after a run). The five figures were inspected by eye. Nothing pushed. No human review yet.
+
+## 24 November 2026 — post-hoc critical-window analysis
+
+Andrea found the results weak: the graphs show no pattern. Inspecting individual runs showed that online outcomes are bimodal and that every stall starts at the same point of the route. New `usv_sim/critical.py` and `usv_sim/critical_figures.py` make this reproducible; output in `code/simulation/results/posthoc/critical-window-2026-11-24/` (CSV tables, four figures, `manifest.json`, `README.md`, and `report-draft.tex` with proposed report text that is not yet in `paper/`).
+
+- Finding: the boats first leave radio range at 260 s under every online policy. If the exchanges at 240 s and 250 s are both faded, the 230 s allocation leaves them 326 m apart (10 m out of range) and the mission stalls. The rule agrees with 180/180 S3, 178/180 S4-T and 176/180 S4-P frozen runs. Stall probability q(1 − 1/L) explains the non-monotonic pattern across L as sampling noise.
+- New runs, diagnostic only and stored only in the post-hoc bundle: 1080 intervention runs (window forced faded or clear on the 540 online scenarios) and 2145 blackout-map runs on the fade-free balanced mission.
+- No change to the model, the frozen results, the report or the slides. The finding was identified after seeing the results; the intervention is the check.
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 63 tests, including six new ones in `tests/test_critical.py` (derived window and range, rule agreement on S3, theory against the stream generator, Wilson interval, intervention flip on one scenario, core hashes unchanged). The four figures were inspected by eye. Nothing pushed.

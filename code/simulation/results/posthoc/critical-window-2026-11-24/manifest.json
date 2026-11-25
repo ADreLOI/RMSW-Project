@@ -1,0 +1,47 @@
+{
+  "kind": "post-hoc analysis; not part of the pre-specified core evaluation",
+  "requested": "24 November 2026, after the 12 November tutor feedback on results",
+  "inputs_sha256": {
+    "runs.json": "9d49796daef544cfa3cf052361f8835822323639ce9c540d75d9bc812efafe3a",
+    "frozen-design.json": "21c119d917778511fbe91b327cbbbbee184d1d92e99ccf62d80b8b645619d44d"
+  },
+  "facts": {
+    "window_exchanges": [
+      24,
+      25
+    ],
+    "window_s": [
+      240,
+      250
+    ],
+    "first_out_of_range_s": 260,
+    "radio_range_m": 316.22776601683796,
+    "fade_breaks_link_beyond_m": 100.0
+  },
+  "theory_stream_seeds": [
+    1000000,
+    1004999
+  ],
+  "new_runs": {
+    "intervention": "540 scenarios (S3, S4-T, S4-P x 2 progress x 3 fade lengths x 30 evaluation seeds), each run twice: window forced faded (-10 dB) and forced clear",
+    "blackout_map": "S3, S4-T, S4-P on the fade-free balanced mission; full blackout (-1000.0 dB) of [1, 2, 3, 6, 12] exchanges starting at every exchange",
+    "status": "new executions for diagnosis only; not core evidence"
+  },
+  "outputs": [
+    "blackout-map.csv",
+    "fig-blackout-map.pdf",
+    "fig-blackout-map.png",
+    "fig-critical-mechanism.pdf",
+    "fig-critical-mechanism.png",
+    "fig-outcome-distribution.pdf",
+    "fig-outcome-distribution.png",
+    "fig-stall-vs-theory.pdf",
+    "fig-stall-vs-theory.png",
+    "intervention-runs.csv",
+    "intervention-summary.csv",
+    "rule-confusion.csv",
+    "rule-per-run.csv",
+    "stall-rates.csv",
+    "timeline.csv"
+  ]
+}
