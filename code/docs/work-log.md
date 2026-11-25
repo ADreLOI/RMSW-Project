@@ -2,6 +2,11 @@
 
 Record completed work, actual checks, evidence locations and remaining limits here. Entries describe work done; proposed research changes belong in a separate decision record until implemented and evaluated.
 
+## 25 November 2026 — final report revision
+
+- Synced the compiled Overleaf draft to the report sources. The revision clarifies the two-exchange intervention and its exceptions, adds related-work comparisons, and distinguishes the original evaluation from the recovery extension.
+- Verified the draft in Overleaf with LuaLaTeX. The body occupies pages 2–11, before references and appendices. Checked the Git copy against the corresponding source archive. This revision uses the archived simulation results.
+
 ## 23 October 2026 — revised-plan implementation and paper setup
 
 Relevant commits: `472e8bb` (implementation and separation), `8ee8b64` (source/evidence review notes), `dff1764` (stronger reconstruction and print polish). See Git history for exact changes.
