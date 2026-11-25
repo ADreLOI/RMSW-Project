@@ -81,3 +81,26 @@ python -m usv_sim.extension all --output results/extension-<name>   # independen
 The full pipeline takes about five minutes on six workers (analysis about four). `analyze` also needs the frozen core raw logs in `results/core/raw/`; they are ignored by Git, so regenerate them with the core workflow or copy them. Outputs go to `results/extension/` (raw logs ignored) and `paper/Final_Report/generated/extension/`. Mission, warning and map metrics are deterministic. Host CPU microseconds are not.
 
 On Windows, keep the virtual environment on a short path (for example `%USERPROFILE%\.venvs\rmsw`). Inside the long OneDrive path, Matplotlib's font tools fail to load a DLL (`The filename or extension is too long`).
+
+## Post-hoc analyses
+
+The retained analyses from Andrea are in `results/posthoc/link-loss-2026-11-12/`
+and `results/posthoc/critical-window-2026-11-24/`, with tables, figures, definitions
+and input hashes. These are post-evaluation diagnostics, separate from the frozen
+900-run study. Computational modules: `usv_sim/linkloss.py` and `usv_sim/critical.py`;
+figure code: `usv_sim/charts/`.
+
+From this directory, reproduce into fresh lab directories (replace the example
+names for each run):
+
+```text
+python -m usv_sim.linkloss --output results/lab/link-loss-new
+python -m usv_sim.critical --output results/lab/critical-window-new
+```
+
+With Docker services started through menu option 3, the same commands work from
+the repository root with `docker compose exec engine` prepended. Post-hoc retained
+results are mounted read-only; new lab outputs persist on the host. `--no-ideal`
+(linkloss) and `--no-new-runs` (critical) skip the additional diagnostic missions.
+Both modules are covered by the existing test discovery and CI. The dashboard's
+current views are unchanged; these analyses are available as files and CLI tools.

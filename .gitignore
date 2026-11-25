@@ -48,3 +48,4 @@ private/
 
 # Local editable-install metadata
 *.egg-info/
+/.pages-artifact/

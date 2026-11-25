@@ -36,6 +36,7 @@ EXTENSION = SIMULATION / "results" / "extension"
 RUN_NAME = re.compile(r"\d{1,10}-[01]-(?:2|5|10)-(?:S1|S2|S3|S4-[TPEKGLMO])")
 JOB_ID = re.compile(r"\d{8}T\d{6}-[a-f0-9]{8}")
 STATIC = {"/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/i18n.js": "i18n.js",
+          "/config.js": "config.js", "/connection.js": "connection.js",
           "/style.css": "style.css", "/tokens.css": "tokens.css", "/favicon.svg": "favicon.svg"}
 FONT = re.compile(r"/fonts/([A-Za-z0-9-]+\.(?:ttf|woff2|txt))")
 TYPES = {".ttf": "font/ttf", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",

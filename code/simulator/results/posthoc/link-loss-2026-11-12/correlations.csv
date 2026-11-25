@@ -1,0 +1,321 @@
+scope,policy,x,y,label,n,spearman_rho,ci_low,ci_high
+all conditions,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,180,0.47417762768498956,0.3329323546694619,0.6017702885435096
+all conditions,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,180,0.20913817606469048,0.05843002413710371,0.3488612416722527
+all conditions,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,180,0.32449600369674125,0.16963879575051227,0.4677024713135573
+all conditions,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,180,0.3251047798926751,0.16999476745546072,0.468411344648587
+all conditions,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,180,0.3144690614284467,0.15515292824969457,0.45509547356470226
+all conditions,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,180,-0.008140436134316543,-0.15398473347760958,0.1418128541185101
+all conditions,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,180,,,
+all conditions,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,180,0.26011431848168715,0.11308991433735573,0.3969128645694916
+all conditions,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,180,0.3053344397778097,0.16023172948945252,0.4342753102834205
+all conditions,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,180,0.339242764354984,0.2024504912962077,0.4717174640536389
+all conditions,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),180,-0.0714625394049009,-0.2086139658551097,0.07814987141422752
+all conditions,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),180,,,
+all conditions,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),180,-0.5270180847940408,-0.64447249440215,-0.3914010023304977
+all conditions,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),180,-0.6131914717266853,-0.7143692429224324,-0.5004010281035675
+all conditions,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),180,-0.5842202931648164,-0.6925898895798693,-0.4541104491836362
+all conditions,S1,outages,idle_s,outages experienced vs idle time (endogenous),180,0.11340318739563883,-0.03771634866080236,0.26366343915159873
+all conditions,S2,outages,idle_s,outages experienced vs idle time (endogenous),180,-0.20996038092341912,-0.32839690164424856,-0.07559588672393867
+all conditions,S3,outages,idle_s,outages experienced vs idle time (endogenous),180,-0.18735261892666466,-0.34782855490208836,-0.030613604760227828
+all conditions,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),180,-0.13604432951155168,-0.30210082722627263,0.023300890694812913
+all conditions,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),180,-0.06651020638143884,-0.2276246600638707,0.10440768680147554
+all conditions,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),180,0.11325478733952465,-0.044820270291080114,0.25792344892742447
+all conditions,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),180,,,
+all conditions,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),180,-0.17598190732864125,-0.327071240926763,-0.011211372878045188
+all conditions,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),180,-0.15037814274259811,-0.30448199572788415,0.011074402174154277
+all conditions,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),180,-0.07871657127287814,-0.24475063762897822,0.09465342749855123
+all conditions,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,180,,,
+all conditions,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,180,,,
+all conditions,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,180,,,
+all conditions,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,180,-0.429786798920674,-0.5609672048486645,-0.27207777592951854
+all conditions,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,180,-0.42752453459475953,-0.5644039112500308,-0.2874041270273123
+all conditions,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,180,,,
+all conditions,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,180,,,
+all conditions,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,180,0.8545967018427055,0.8052624608326894,0.8892550806941206
+all conditions,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,180,0.9086427479109694,0.8697392390382559,0.9354476136132055
+all conditions,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,180,0.9166495556386786,0.8825298411778089,0.9411045935656772
+all conditions,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,180,,,
+all conditions,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,180,,,
+all conditions,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,180,,,
+all conditions,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,180,-0.07324876708112543,-0.21557757969396976,0.06746549547933076
+all conditions,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,180,0.13083653532388426,-0.008051846178926493,0.2705370645070315
+completed runs only,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,180,0.47417762768498956,0.32933798214602944,0.5987701401399165
+completed runs only,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,0,,,
+completed runs only,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,158,0.5414037091899366,0.4084272462255559,0.6494865920921595
+completed runs only,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,156,0.5561570441720387,0.41939938311355185,0.6625369377637955
+completed runs only,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,162,0.5618082443850367,0.4312196420976736,0.6643352196868891
+completed runs only,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,180,-0.008140436134316543,-0.15829311915028088,0.13959131521742096
+completed runs only,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,0,,,
+completed runs only,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,158,0.18461513747585184,0.016515741060650683,0.3371255314073148
+completed runs only,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,156,0.23808999508089726,0.07871701234719228,0.3891387320346643
+completed runs only,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,162,0.21013861893225672,0.04519936760274922,0.3560928120618515
+completed runs only,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),180,-0.0714625394049009,-0.21088030260962903,0.07999107800874544
+completed runs only,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),0,,,
+completed runs only,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),158,-0.29160656515095834,-0.4419370516483022,-0.13578553733030121
+completed runs only,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),156,-0.4023292813405148,-0.530543251945385,-0.25370274087387396
+completed runs only,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),162,-0.4266574463809928,-0.5519611992495282,-0.27651446384940515
+completed runs only,S1,outages,idle_s,outages experienced vs idle time (endogenous),180,0.11340318739563883,-0.0348775801070924,0.2649247045552731
+completed runs only,S2,outages,idle_s,outages experienced vs idle time (endogenous),0,,,
+completed runs only,S3,outages,idle_s,outages experienced vs idle time (endogenous),158,0.14985095295975245,-0.0016992837592927723,0.3006649294596744
+completed runs only,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),156,0.24190199031035023,0.08779569701052485,0.3889640582583036
+completed runs only,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),162,0.22969333207662035,0.07239051812404548,0.38037153302981025
+completed runs only,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),180,0.11325478733952465,-0.04099901791256388,0.2587536948141145
+completed runs only,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),0,,,
+completed runs only,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),158,0.1680111612817077,0.011899984107645594,0.3188904912262072
+completed runs only,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),156,0.22574032832286353,0.06847190236464866,0.3726114020567059
+completed runs only,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),162,0.21493564629632,0.06199595262393212,0.3630292443303148
+completed runs only,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,180,,,
+completed runs only,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,0,,,
+completed runs only,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,158,,,
+completed runs only,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,156,-0.11780458474635863,-0.2744915611481716,0.04278833732210773
+completed runs only,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,162,-0.20989645930963519,-0.3617459494253571,-0.050373201481815115
+completed runs only,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,180,,,
+completed runs only,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,0,,,
+completed runs only,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,158,0.7834115727903961,0.7253176412943163,0.8244625926788787
+completed runs only,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,156,0.8603574766995659,0.8039690998235746,0.8960046738251076
+completed runs only,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,162,0.8856354941956536,0.8417526628880082,0.9169653916710243
+completed runs only,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,180,,,
+completed runs only,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,0,,,
+completed runs only,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,158,,,
+completed runs only,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,156,0.017186817201101042,-0.1351205907095046,0.16832976533341823
+completed runs only,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,162,0.04854856927605036,-0.11528702833794,0.19419389795738906
+slowdown=False L=10,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.6982293969113818,0.37161839904095256,0.8783125325283355
+slowdown=False L=10,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.2198675062027105,-0.16523271866370073,0.5336288405018735
+slowdown=False L=10,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.45940203999057044,0.03516440691660116,0.790088948069854
+slowdown=False L=10,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.4690516233879292,0.059733290675610756,0.7961190471529009
+slowdown=False L=10,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.4615589289737252,0.06278716913260235,0.7878103877365372
+slowdown=False L=10,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=False L=10,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=False L=10,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.4724498160110017,0.179051417090421,0.6811237941367884
+slowdown=False L=10,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.5268349039449715,0.17062962440281595,0.750333836483915
+slowdown=False L=10,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.5837599162951533,0.2648171051793717,0.7809602633668608
+slowdown=False L=10,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=False L=10,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=False L=10,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.6001610326387022,-0.798466045863137,-0.28500944259530386
+slowdown=False L=10,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.6524740953889521,-0.8440389939423939,-0.33299201893540353
+slowdown=False L=10,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.6931314873638534,-0.8613396524596314,-0.4005361607150426
+slowdown=False L=10,S1,outages,idle_s,outages experienced vs idle time (endogenous),30,,,
+slowdown=False L=10,S2,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.1467177488615109,-0.2691030939902441,-0.07269603816479032
+slowdown=False L=10,S3,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.327823646208551,-0.6091527829067293,0.050133280376369604
+slowdown=False L=10,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.15302552992224963,-0.5143988418145653,0.2744128620257419
+slowdown=False L=10,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.09919159326996696,-0.45869090425798514,0.33716504616222265
+slowdown=False L=10,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=False L=10,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=False L=10,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.3306644976113828,-0.629021972347903,0.014473223923213147
+slowdown=False L=10,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.1554281805111747,-0.529142722365803,0.2850568643881251
+slowdown=False L=10,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.10150044305720791,-0.474534966912878,0.3418120021349075
+slowdown=False L=10,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=10,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=10,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=10,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.5828897035847959,-0.8065828424992117,-0.28001115183799113
+slowdown=False L=10,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.4950015946920305,-0.7493140517679344,-0.1597518099838891
+slowdown=False L=10,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=False L=10,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=False L=10,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.6544193338797903,0.3305440600887421,0.8377373544028263
+slowdown=False L=10,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.6974506609130731,0.3787816478542826,0.8824487014415886
+slowdown=False L=10,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.7380499617817432,0.46082526675422736,0.8906301736586062
+slowdown=False L=10,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=10,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=10,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=10,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,0.03108671883707574,-0.34566600743583725,0.3867822645863643
+slowdown=False L=10,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,0.19972299456358386,-0.17475261013407034,0.5430682281950944
+slowdown=False L=2,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.849205954089921,0.6922291593941824,0.9252347262158783
+slowdown=False L=2,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.32036741887695996,-0.009294472506649097,0.5908963957082662
+slowdown=False L=2,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.4706510427560427,0.10675504016104216,0.7463596781954901
+slowdown=False L=2,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.4916112841221802,0.14649095314288169,0.7665454882555998
+slowdown=False L=2,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.4916112841221802,0.1310870200475762,0.755849749545413
+slowdown=False L=2,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=False L=2,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=False L=2,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.14530241906035235,-0.23658254463908657,0.5034988681534495
+slowdown=False L=2,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.4118895731231625,0.025188508521218962,0.7117360341706297
+slowdown=False L=2,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.4118895731231625,0.012635322990150783,0.7019611057933497
+slowdown=False L=2,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=False L=2,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=False L=2,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.3268002406171781,-0.6534507381927916,0.15707075274670704
+slowdown=False L=2,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.5309642192829215,-0.7813115641748769,-0.14291341269346414
+slowdown=False L=2,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.5309642192829215,-0.7842853213461267,-0.15775381687578316
+slowdown=False L=2,S1,outages,idle_s,outages experienced vs idle time (endogenous),30,,,
+slowdown=False L=2,S2,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.32962892749481615,-0.4897777231639825,-0.1750752438129634
+slowdown=False L=2,S3,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.18380227294715737,-0.5684378060771295,0.2856496306314883
+slowdown=False L=2,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),30,0.012908466092977388,-0.4148560689949059,0.44318718737313245
+slowdown=False L=2,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),30,0.012908466092977388,-0.41338579261367076,0.4400380816319732
+slowdown=False L=2,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=False L=2,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=False L=2,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.17776698046557218,-0.5661327491146193,0.300749287256806
+slowdown=False L=2,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,0.03883647679718979,-0.38474313583731534,0.5048657386389832
+slowdown=False L=2,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,0.03883647679718979,-0.38723050716981317,0.475000104109896
+slowdown=False L=2,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=2,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=2,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=2,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.3787414454022988,-0.6653532051300582,-0.017943466751381833
+slowdown=False L=2,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.06490451174467439,-0.47687175825701034,0.38145736986219403
+slowdown=False L=2,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=False L=2,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=False L=2,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.21258808923407496,-0.2597873369461135,0.5961570738316767
+slowdown=False L=2,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.17026727914883227,-0.2893038827922855,0.5548061978089983
+slowdown=False L=2,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.3458471099091726,-0.11884376795932394,0.6599369082925022
+slowdown=False L=2,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=2,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=2,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=2,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,-0.1432706200483342,-0.4861973701734195,0.2318589485112686
+slowdown=False L=2,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,0.2984732273558471,-0.016217593299951493,0.6191007473613037
+slowdown=False L=5,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.7264389453825946,0.47617398106849795,0.8758132667472309
+slowdown=False L=5,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.21382339289645955,-0.18625916082391905,0.5653724035122556
+slowdown=False L=5,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.14558961652611122,-0.24167455372003022,0.5169510097405482
+slowdown=False L=5,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.16129058638878344,-0.2236862107079145,0.5418186322562629
+slowdown=False L=5,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.1492637615965967,-0.2513089758500526,0.5577146429824963
+slowdown=False L=5,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=False L=5,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=False L=5,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.30591503425837263,-0.1362998714115826,0.6516345869532332
+slowdown=False L=5,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.3765015337852684,0.0042802295800060996,0.6949607523822964
+slowdown=False L=5,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.4366970868561297,0.06412675960017929,0.7149092626487217
+slowdown=False L=5,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=False L=5,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=False L=5,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.7301290940774082,-0.8581271198079834,-0.5123920555452949
+slowdown=False L=5,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.7637359847645873,-0.8843515415942095,-0.5338765238186198
+slowdown=False L=5,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.5676567562254805,-0.7921469574627763,-0.22137078837846688
+slowdown=False L=5,S1,outages,idle_s,outages experienced vs idle time (endogenous),30,,,
+slowdown=False L=5,S2,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.07857044522007543,-0.45124262819714017,0.3585655039155743
+slowdown=False L=5,S3,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.5654230771845541,-0.7542401125932269,-0.2648066674406327
+slowdown=False L=5,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.37231314364402857,-0.6572048424262941,0.016513061773823334
+slowdown=False L=5,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.24929779659617182,-0.5832572617652003,0.15133650908416812
+slowdown=False L=5,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=False L=5,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=False L=5,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.558851149488366,-0.7668511384344208,-0.3072078431394168
+slowdown=False L=5,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.3784416890183518,-0.6813508235855247,0.005302655264999507
+slowdown=False L=5,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.24862067597209392,-0.5941736384474575,0.1582295151525041
+slowdown=False L=5,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=5,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=5,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=False L=5,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.5880230974683496,-0.8126004156645509,-0.19564059713489915
+slowdown=False L=5,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.3895954645210517,-0.7076772361894471,0.039681624019362115
+slowdown=False L=5,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=False L=5,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=False L=5,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.6422331222584492,0.31773921416782047,0.8209795524363847
+slowdown=False L=5,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.7566562521310519,0.5214551176079475,0.8800200657645159
+slowdown=False L=5,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.7158058103977739,0.4588085950125684,0.8707561017810188
+slowdown=False L=5,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=5,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=5,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=False L=5,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,0.011043386608552008,-0.31294408697141446,0.36327016530239026
+slowdown=False L=5,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,0.2344880475849328,-0.10594105457353183,0.5675817677210578
+slowdown=True L=10,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.4860530075939288,0.13363521090987168,0.7510426046522264
+slowdown=True L=10,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.2198675062027105,-0.1294804444708434,0.5241821830259871
+slowdown=True L=10,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.324863392393297,-0.1163572537995337,0.699301003887407
+slowdown=True L=10,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.344886853348463,-0.08231801039281425,0.7042343250765267
+slowdown=True L=10,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.3432068475770091,-0.08878459503442711,0.7111052762483189
+slowdown=True L=10,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,-0.016030605171390908,-0.37657652016928395,0.3344644374206114
+slowdown=True L=10,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=True L=10,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.5829952182333183,0.26131327247345976,0.765685392264937
+slowdown=True L=10,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.6157643851809987,0.3249337195183637,0.787810086392483
+slowdown=True L=10,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.5661682801103154,0.26312051286772653,0.7390159356542689
+slowdown=True L=10,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,0.00521635799588286,-0.36052826827582285,0.3983041435938277
+slowdown=True L=10,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=True L=10,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.6217401765402328,-0.8319884325824805,-0.30474645634430647
+slowdown=True L=10,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.7192183301018392,-0.8738861068116238,-0.4398266670034728
+slowdown=True L=10,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.7909291706558436,-0.9020390039072852,-0.585168901054853
+slowdown=True L=10,S1,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.10976989072040517,-0.4456755776786245,0.2648273941201807
+slowdown=True L=10,S2,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.1467177488615109,-0.2669647185445502,-0.07269603816479032
+slowdown=True L=10,S3,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.1363694159252335,-0.4914674537577847,0.26922581080060787
+slowdown=True L=10,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.12861299163094858,-0.4935287922809459,0.29400921139386144
+slowdown=True L=10,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.15496577601533343,-0.5105922955941058,0.26527519669544714
+slowdown=True L=10,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.11120583299314023,-0.45406613092112214,0.282433622621252
+slowdown=True L=10,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=True L=10,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.041487245328483684,-0.42826607202017664,0.39629449907856074
+slowdown=True L=10,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.1543009120390864,-0.5267273680088573,0.2624623455879737
+slowdown=True L=10,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.14744983709384876,-0.5223029647245439,0.29535632298049613
+slowdown=True L=10,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=10,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=10,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=10,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.47070082060374147,-0.7632910284184047,-0.0887703112724769
+slowdown=True L=10,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.3190387544262338,-0.6543836721354155,0.09944044410648697
+slowdown=True L=10,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=True L=10,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=True L=10,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.4465974339263356,0.05130488557836048,0.7540549888132482
+slowdown=True L=10,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.8783266578991447,0.7073093694947407,0.9625429333692869
+slowdown=True L=10,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.9379400286258103,0.8146679200371314,0.9858348554393506
+slowdown=True L=10,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=10,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=10,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=10,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,-0.17751151906163457,-0.478228455264765,0.18663447626838606
+slowdown=True L=10,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,-0.01586314853836387,-0.38969448647864463,0.37491283500081396
+slowdown=True L=2,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.6529446992391021,0.3542123550569606,0.8313318210218534
+slowdown=True L=2,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.32036741887695996,-0.00014308517065579867,0.6042384220043454
+slowdown=True L=2,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.34015509100000046,-0.08947081738193025,0.6909097666485553
+slowdown=True L=2,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.3288426459359956,-0.08716105509394836,0.6524583137471489
+slowdown=True L=2,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.3163142443617037,-0.07505673424729148,0.6449048416897151
+slowdown=True L=2,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.05052063114084467,-0.33484502601702215,0.40150777102883045
+slowdown=True L=2,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=True L=2,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.279542511035874,-0.11743741671900487,0.6281488774050368
+slowdown=True L=2,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,-0.045720073292159054,-0.40777915644650353,0.2987252104151857
+slowdown=True L=2,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,-0.2900214646598936,-0.563007625752309,0.04601641763120596
+slowdown=True L=2,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,0.027032604087084352,-0.3338578753326416,0.3775918029825586
+slowdown=True L=2,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=True L=2,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.043471410169975244,-0.44516217601292,0.3998587198761419
+slowdown=True L=2,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.1525177405762488,-0.5168496155336335,0.2624793305023601
+slowdown=True L=2,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.06103481323885299,-0.4517779263158353,0.3214691811670644
+slowdown=True L=2,S1,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.13643165338228372,-0.4792725037205227,0.2230072612408809
+slowdown=True L=2,S2,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.32962892749481615,-0.4926726917237418,-0.17471298439519406
+slowdown=True L=2,S3,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.12015951625336194,-0.5243759253038895,0.31655276220408457
+slowdown=True L=2,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.0319098797654775,-0.4813059985472075,0.4151575731910101
+slowdown=True L=2,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.033821968156459305,-0.46607045139846376,0.4228661428504128
+slowdown=True L=2,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.1364505379630901,-0.4805321751272527,0.23067915914569453
+slowdown=True L=2,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=True L=2,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.2885032515327437,-0.6498560676032892,0.1225373116626074
+slowdown=True L=2,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.18864213874903019,-0.5941744673216856,0.20934221457505361
+slowdown=True L=2,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.3072527475526404,-0.624857059606914,0.07853208302211398
+slowdown=True L=2,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=2,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=2,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=2,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.04974798940553149,-0.43818001642345555,0.35939488205504444
+slowdown=True L=2,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,30,0.06810530228286582,-0.3368816260923972,0.46834554218537827
+slowdown=True L=2,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=True L=2,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=True L=2,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.46968678749759596,0.08085462305314901,0.774191583607591
+slowdown=True L=2,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.7674417315398981,0.5479097581819115,0.8976473449980089
+slowdown=True L=2,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.8451362907238074,0.6558614282559074,0.9442656809774979
+slowdown=True L=2,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=2,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=2,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=2,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,-0.19317528522799132,-0.5850643727204733,0.2706657887956491
+slowdown=True L=2,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,-0.09765466016259826,-0.42820495717392076,0.24653223554565834
+slowdown=True L=5,S1,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.5742778886079533,0.21958713170130734,0.8262634347428353
+slowdown=True L=5,S2,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.21382339289645955,-0.18145245327000187,0.5518485306775812
+slowdown=True L=5,S3,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.28843602815971553,-0.11071577346522334,0.6588222108616576
+slowdown=True L=5,S4-T,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.19980906267439302,-0.18831006697036795,0.5610534235152863
+slowdown=True L=5,S4-P,fade_exposure,outages,exogenous fade exposure vs outages experienced,30,0.19099035330096584,-0.21746801244401914,0.602578466536288
+slowdown=True L=5,S1,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,-0.1035704253950166,-0.43767901522956704,0.25538667761543743
+slowdown=True L=5,S2,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,,,
+slowdown=True L=5,S3,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.42736167648877127,0.07578391173788077,0.7358070817876701
+slowdown=True L=5,S4-T,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.3622301460617695,-0.02171497955020752,0.6613132857676562
+slowdown=True L=5,S4-P,fade_exposure,restricted_s,exogenous fade exposure vs restricted completion time,30,0.4896619679518689,0.1501289758641582,0.7497281028959867
+slowdown=True L=5,S1,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,0.18410395295006243,-0.16946372811216276,0.5269965830440501
+slowdown=True L=5,S2,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,,,
+slowdown=True L=5,S3,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.7286524724537983,-0.899544974472148,-0.44757605522404337
+slowdown=True L=5,S4-T,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.6661223578601396,-0.8620764210781979,-0.3327083731993317
+slowdown=True L=5,S4-P,link_availability,restricted_s,own link availability vs restricted completion time (endogenous),30,-0.4996669542034649,-0.7609584703053497,-0.1043469817802039
+slowdown=True L=5,S1,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.4221908498069599,-0.6979796880470727,-0.09497885345747291
+slowdown=True L=5,S2,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.07857044522007543,-0.46163711289329185,0.36229435432403023
+slowdown=True L=5,S3,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.3577277194334571,-0.7104525127681084,0.08006083257265538
+slowdown=True L=5,S4-T,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.3148991358077573,-0.6500114889576926,0.11956853326654013
+slowdown=True L=5,S4-P,outages,idle_s,outages experienced vs idle time (endogenous),30,-0.09475618267336179,-0.49929556453446694,0.32854785282225135
+slowdown=True L=5,S1,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.4241461856446864,-0.7055232070793891,-0.10767679224788623
+slowdown=True L=5,S2,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,,,
+slowdown=True L=5,S3,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.25653953552856934,-0.6006024992626203,0.17598252263272113
+slowdown=True L=5,S4-T,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.3877022976928698,-0.7078615706207829,0.01730862429264716
+slowdown=True L=5,S4-P,outages,restricted_s,outages experienced vs restricted completion time (endogenous),30,-0.21275707120716608,-0.5683572575751531,0.200515037658588
+slowdown=True L=5,S1,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=5,S2,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=5,S3,reservations,restricted_s,committed reservation actions vs restricted completion time,30,,,
+slowdown=True L=5,S4-T,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.40430990367137676,-0.7145580139539557,0.02530783694138661
+slowdown=True L=5,S4-P,reservations,restricted_s,committed reservation actions vs restricted completion time,30,-0.21448610029175982,-0.5944998718302066,0.21889937971569104
+slowdown=True L=5,S1,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=True L=5,S2,stop_s,attempted_bytes,mission duration vs attempted bytes,30,,,
+slowdown=True L=5,S3,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.38564004496522397,-0.016658453083647582,0.7047238001012937
+slowdown=True L=5,S4-T,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.8565071179577894,0.6609085073641531,0.9391004437386685
+slowdown=True L=5,S4-P,stop_s,attempted_bytes,mission duration vs attempted bytes,30,0.8051019228990759,0.5571283889040267,0.9242943851666023
+slowdown=True L=5,S1,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=5,S2,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=5,S3,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,,,
+slowdown=True L=5,S4-T,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,-0.09465547718195226,-0.4792620596973759,0.30723430765321297
+slowdown=True L=5,S4-P,timely_alerts,restricted_s,timely alerts vs restricted completion time,30,0.1466717589432491,-0.15851057318256712,0.4500360297353853

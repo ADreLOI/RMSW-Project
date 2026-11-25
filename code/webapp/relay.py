@@ -6,13 +6,14 @@ from pathlib import Path
 import re
 import secrets
 import signal
+import time
 from urllib.parse import urlsplit
 
 from aiohttp import BasicAuth, WSMsgType, web
 
 from webapp import STATIC_DIR as WEB
 API = {"catalog", "extension", "figure", "trace", "raw", "jobs", "job", "download"}
-ASSETS = {"index.html", "i18n.js", "app.js", "tokens.css", "style.css", "favicon.svg"}
+ASSETS = {"index.html", "i18n.js", "app.js", "connection.js", "config.js", "tokens.css", "style.css", "favicon.svg"}
 CHUNK = 64 * 1024
 
 
@@ -25,7 +26,7 @@ def same_secret(a, b):
 
 
 class Relay:
-    def __init__(self, key, origin, password=None):
+    def __init__(self, key, origin, password=None, browser_origin=None):
         self.key = key
         self.origin = origin.rstrip("/")
         parsed = urlsplit(self.origin)
@@ -34,6 +35,8 @@ class Relay:
             self.hosts = {f"localhost:{parsed.port}", f"127.0.0.1:{parsed.port}"}
         self.scheme = parsed.scheme
         self.password = password
+        self.browser_origin = browser_origin
+        self.tickets = {}
         self.engine = None
         self.session = None
         self.pending = {}
@@ -48,17 +51,61 @@ class Relay:
         else:
             if request.host.lower() not in self.hosts:
                 return failure(403, "Unknown host")
-            if self.password:
+            origin = request.headers.get("Origin")
+            same_origin = f"{self.scheme}://{request.host.lower()}"
+            permitted = origin == same_origin or bool(self.browser_origin and origin == self.browser_origin)
+            if origin and not permitted:
+                return failure(403, "Browser origin not allowed")
+            if request.method == "OPTIONS":
+                if not permitted or request.path not in {"/live-ticket", *(f"/api/{name}" for name in API)}:
+                    return failure(403, "Preflight not allowed")
+                if request.headers.get("Access-Control-Request-Method") not in {"GET", "POST"}:
+                    return failure(403, "Method not allowed")
+                names = {x.strip().lower() for x in request.headers.get("Access-Control-Request-Headers", "").split(",") if x.strip()}
+                if names - {"authorization", "content-type", "x-lab-token"}:
+                    return failure(403, "Headers not allowed")
+                return web.Response(status=204, headers={
+                    "Access-Control-Allow-Methods": "GET, POST",
+                    "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Lab-Token",
+                    "Access-Control-Max-Age": "300"})
+            if request.path == "/health" and request.method == "GET":
+                return await handler(request)
+            ticket_ok = False
+            if request.path == "/live" and "ticket" in request.query:
+                entry = self.tickets.pop(request.query["ticket"], None)
+                ticket_ok = bool(entry and entry[0] > time.monotonic() and entry[1] == origin)
+                if not ticket_ok:
+                    return failure(401, "Live ticket expired or already used")
+            if self.password and not ticket_ok:
                 try:
                     auth = BasicAuth.decode(request.headers.get("Authorization", ""))
                 except ValueError:
                     auth = None
                 if not auth or auth.login != "lab" or not same_secret(auth.password, self.password):
+                    if self.browser_origin and origin == self.browser_origin:
+                        return failure(401, "Browser password required")
                     raise web.HTTPUnauthorized(headers={"WWW-Authenticate": 'Basic realm="USV Research Lab"'})
             if request.method == "POST" or request.path == "/live":
-                if request.headers.get("Origin") != f"{self.scheme}://{request.host.lower()}":
+                if not permitted:
                     return failure(403, "Open the dashboard on its configured origin")
         return await handler(request)
+
+    async def cors(self, request, response):
+        # Streaming downloads prepare their headers before the middleware returns.
+        if (self.browser_origin and request.headers.get("Origin") == self.browser_origin
+                and not request.path.startswith("/_engine/") and request.host.lower() in self.hosts):
+            response.headers["Access-Control-Allow-Origin"] = self.browser_origin
+            response.headers["Access-Control-Expose-Headers"] = "Content-Disposition"
+            response.headers["Vary"] = "Origin"
+
+    async def live_ticket(self, request):
+        now = time.monotonic()
+        self.tickets = {key: entry for key, entry in self.tickets.items() if entry[0] > now}
+        if len(self.tickets) >= 64:
+            return failure(429, "Too many pending live connections")
+        ticket = secrets.token_urlsafe(32)
+        self.tickets[ticket] = (now + 30, request.headers.get("Origin"))
+        return web.json_response({"ticket": ticket}, headers={"Cache-Control": "no-store"})
 
     def broadcast(self, snapshot):
         snapshot["session"] = self.session
@@ -175,13 +222,20 @@ class Relay:
 
     def application(self):
         app = web.Application(middlewares=[self.access], client_max_size=8192)
+        app.on_response_prepare.append(self.cors)
         app.router.add_get("/_engine/connect", self.connect)
         app.router.add_post("/_engine/reply/{id}", self.reply)
         app.router.add_get("/live", self.live)
+        app.router.add_route("*", "/live-ticket", self.ticket_route)
         app.router.add_get("/health", self.health)
         app.router.add_route("*", "/api/{name}", self.api)
         app.router.add_get("/{name:.*}", self.asset)
         return app
+
+    async def ticket_route(self, request):
+        if request.method != "POST":
+            return failure(405, "POST required")
+        return await self.live_ticket(request)
 
     async def health(self, request):
         online = self.engine is not None and self.engine.prepared and not self.engine.closed
@@ -190,7 +244,7 @@ class Relay:
 
 async def main():
     port = int(os.getenv("PORT", "8768"))
-    origin = os.getenv("LAB_PUBLIC_ORIGIN") or f"http://127.0.0.1:{port}"
+    origin = os.getenv("LAB_PUBLIC_ORIGIN") or os.getenv("RENDER_EXTERNAL_URL") or f"http://127.0.0.1:{port}"
     parsed = urlsplit(origin)
     password = os.getenv("LAB_WEB_PASSWORD")
     if parsed.hostname not in ("127.0.0.1", "localhost") and (parsed.scheme != "https" or not password):
@@ -198,7 +252,12 @@ async def main():
     key = os.environ["LAB_ENGINE_KEY"]
     if not key:
         raise SystemExit("LAB_ENGINE_KEY must be set")
-    relay = Relay(key, origin, password)
+    browser_origin = os.getenv("LAB_BROWSER_ORIGIN") or None
+    if browser_origin:
+        browser = urlsplit(browser_origin)
+        if browser.scheme != "https" or not browser.netloc or browser.path or browser.query or browser.fragment or browser.username:
+            raise SystemExit("LAB_BROWSER_ORIGIN must be an HTTPS origin without a path.")
+    relay = Relay(key, origin, password, browser_origin)
     runner = web.AppRunner(relay.application(), access_log=None, shutdown_timeout=3)
     await runner.setup()
     try:

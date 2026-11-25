@@ -21,3 +21,6 @@
 simulator/results/*/raw/
 **/__pycache__/
 **/*.egg-info/
+
+!simulator/results/posthoc/
+!simulator/results/posthoc/**

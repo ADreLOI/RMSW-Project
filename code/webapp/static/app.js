@@ -3,6 +3,7 @@
 // local Python engine (/api/*), which simulates, verifies and stores runs.
 const $ = (id) => document.getElementById(id);
 const t = (key, vars) => I18N.t(key, vars);
+const transport = window.LabConnection;
 const CORE = ["S1", "S2", "S3", "S4-T", "S4-P"];
 const EXTRA = ["S4-E", "S4-K", "S4-G", "S4-L", "S4-M", "S4-O"];
 const ALL = [...CORE, ...EXTRA];
@@ -49,9 +50,11 @@ function toast(message, error = false) {
   toastTimer = setTimeout(() => ($("toast").hidden = true), error ? 12000 : 5500);
 }
 async function api(url, body) {
+  const generation = connectionGeneration;
   const options = body ? { method: "POST", headers: { "Content-Type": "application/json", "X-Lab-Token": state.catalog.token }, body: JSON.stringify(body) } : {};
-  const response = await fetch(url, options);
+  const response = await transport.request(url, options);
   const result = await response.json();
+  if (generation !== connectionGeneration) throw Error(t("remote.changed"));
   if (!response.ok) throw Error(result.error || `Request failed (${response.status})`);
   return result;
 }
@@ -102,7 +105,8 @@ function fillPolicySelect() {
     : CORE.map(option).join("");
   $("policy").value = datasetPolicies().includes(current) ? current : "S4-T";
   $("run-all").querySelector("span").textContent = t("setup.runAll");
-  $("run-all").disabled = $("run-one").disabled = state.dataset === "extension";
+  $("run-all").disabled = $("run-one").disabled = state.dataset === "extension" || (transport.static && !transport.online);
+  document.querySelectorAll("[data-action]").forEach((button) => { button.disabled = transport.static && !transport.online; });
   $("run-all").title = state.dataset === "extension" ? t("setup.extNoRun") : "";
 }
 function setSetup(req) {
@@ -944,6 +948,7 @@ function saveMap() {
 /* ---------- jobs ---------- */
 async function submit(action, selected = false) {
   try {
+    if (transport.static && !transport.online) throw Error(t("remote.required"));
     if (!state.catalog) return;
     let req = {};
     if (action === "run") {
@@ -1509,7 +1514,7 @@ function setLang(lang) {
   fillPolicySelect();
   setSetup(request());
   setPlaying(state.playing);
-  if (state.catalog) { renderEvidence(); refreshJobs().catch(() => {}); $("connection").textContent = t("engine.connected"); }
+  if (state.catalog) { renderEvidence(); refreshJobs().catch(() => {}); $("connection").textContent = t(transport.static && !transport.online ? "remote.offline" : "engine.connected"); }
   $("ext-run-policy").innerHTML = "";
   if (state.ext) renderExtension();
   if (activeTrace()) { $("boat-states").dataset.key = ""; $("forecast-chart").dataset.key = ""; afterLoad(); }
@@ -1672,7 +1677,7 @@ let resizeTimer;
 window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { renderMissionCharts(); if (state.catalog) renderEvidence(); if (state.ext) renderExtension(); drawAll(); if (state.tour) placeTour(document.querySelector(tourSteps(state.tour.kind)[state.tour.index].sel)); }, 80); });
 window.addEventListener("scroll", () => { if (state.tour) placeTour(document.querySelector(tourSteps(state.tour.kind)[state.tour.index].sel)); }, { passive: true });
 
-let initialized = false, gatewayOnline = false, lastSample = null;
+let initialized = false, gatewayOnline = null, lastSample = null;
 let gatewaySession = null;
 let connectionGeneration = 0;
 
@@ -1702,8 +1707,9 @@ async function connectDashboard(generation) {
     const catalog = await api("/api/catalog");
     if (generation !== connectionGeneration) return;
     state.catalog = catalog;
-    $("connection").textContent = t("engine.connected");
-    $("engine-dot").classList.add("on");
+    $("connection").textContent = t(transport.static && !transport.online ? "remote.offline" : "engine.connected");
+    $("engine-dot").classList.toggle("on", !transport.static || transport.online);
+    fillPolicySelect();
     renderEvidence();
     await refreshJobs();
     if (!initialized) {
@@ -1715,7 +1721,7 @@ async function connectDashboard(generation) {
       initialized = true;
       requestAnimationFrame(animate);
       setInterval(() => {
-        if (!document.hidden && state.catalog) refreshJobs().catch(() => {
+        if (!document.hidden && state.catalog && (!transport.static || transport.online)) refreshJobs().catch(() => {
           $("connection").textContent = t("engine.disconnected");
           $("engine-dot").classList.remove("on");
         });
@@ -1733,38 +1739,90 @@ async function connectDashboard(generation) {
 }
 
 function gatewayState(online) {
-  if (online === gatewayOnline && online) return;
+  if (online === gatewayOnline) return;
   gatewayOnline = online;
+  transport.setOnline(online);
   ++connectionGeneration;
   if (online) {
     connectDashboard(connectionGeneration);
   } else {
     state.catalog = null;
+    state.ext = null;
+    state.jobs = [];
+    state.currentJob = state.selectedJob = null;
+    $("run-progress").hidden = true;
     lastSample = null;
     $("live-sample").hidden = true;
     $("connection").textContent = t("engine.disconnected");
     $("engine-dot").classList.remove("on");
+    fillPolicySelect();
+    if (transport.static) {
+      state.dataset = "core";
+      state.traces = {};
+      state.demoTried = false;
+      ++state.generation;
+      connectDashboard(connectionGeneration).then(() => {
+        loadSelected(true);
+        if (state.view === "presentation") renderSlide();
+      });
+    }
   }
 }
 
-function watchGateway() {
-  const url = new URL("/live", location.href);
-  url.protocol = location.protocol === "https:" ? "wss:" : "ws:";
-  const socket = new WebSocket(url);
+let liveSocket = null, liveEpoch = 0;
+async function watchGateway(epoch = liveEpoch, delay = 2000) {
+  let address;
+  try { address = await transport.liveUrl(); }
+  catch (error) {
+    if (epoch !== liveEpoch) return;
+    $("remote-status").textContent = error.message;
+    if (!error.stopRetry) setTimeout(() => {
+      if (epoch === liveEpoch) watchGateway(epoch, Math.min(delay * 2, 30000));
+    }, delay);
+    return;
+  }
+  if (epoch !== liveEpoch) return;
+  const socket = new WebSocket(address);
+  liveSocket = socket;
   socket.onmessage = (message) => {
+    if (epoch !== liveEpoch) return;
     const update = JSON.parse(message.data);
     if (update.online && gatewaySession !== update.session) {
       gatewayOnline = false;
       gatewaySession = update.session;
+      state.ext = null;
+      state.currentJob = state.selectedJob = null;
+      handledJobs.clear();
     }
     gatewayState(update.online);
+    if (transport.static) $("remote-status").textContent = t(update.online ? "engine.connected" : "remote.waiting");
     if (update.sample) {
       lastSample = update.sample;
       drawLiveSample(lastSample);
     }
   };
-  socket.onclose = () => { gatewayState(false); setTimeout(watchGateway, 2000); };
+  socket.onclose = () => {
+    if (epoch !== liveEpoch) return;
+    gatewayState(false);
+    setTimeout(() => {
+      if (epoch === liveEpoch) watchGateway(epoch, Math.min(delay * 2, 30000));
+    }, delay);
+  };
 }
+
+window.addEventListener("lab-connect", () => {
+  ++liveEpoch;
+  liveSocket?.close();
+  gatewayState(false);
+  $("remote-status").textContent = t("remote.connecting");
+  watchGateway();
+});
+window.addEventListener("lab-disconnect", () => {
+  ++liveEpoch;
+  liveSocket?.close();
+  gatewayState(false);
+  $("remote-status").textContent = t("remote.hint");
+});
 
 async function init() {
   const saved = new URLSearchParams(location.search).get("lang") || store.get("lang");
@@ -1773,8 +1831,10 @@ async function init() {
   // ?deck=checkpoint|final opens a specific deck; otherwise the next scheduled event's deck.
   const deck = new URLSearchParams(location.search).get("deck");
   state.deck = DECKS[deck] ? deck : defaultDeck();
+  transport.init();
   try {
-    if ((await api("/health").catch(() => ({}))).service === "usv-web") watchGateway();
+    if (transport.static) await connectDashboard(connectionGeneration);
+    else if ((await api("/health").catch(() => ({}))).service === "usv-web") watchGateway();
     else await connectDashboard(connectionGeneration);
   } catch (error) {
     $("connection").textContent = t("engine.unavailable");

@@ -19,10 +19,16 @@ Both working branches start from `dev`. At the start of each round of edits, bri
 
 For the split webapp and engine, open **Manage-Lab.cmd** on Windows. Choose **3** to start both with Docker Desktop or **4** to start them with native Python. **7** and **8** stop the corresponding pair. The [deployment guide](docs/deployment.md) also covers engine-only modes and an HTTPS webapp connected to an engine on a separate PC.
 
+The publication workflow builds GitHub Pages with historical results and five
+verified demo replays, and requests a Render relay deployment after checks pass
+on a push to `main`. The PC engine performs new experiments. Configure Pages,
+the Render service, the hook secret and public relay URL as described in the
+deployment guide; adding the workflow alone does not create those services.
+
 | Where | What to open |
 | --- | --- |
 | code/simulator/usv_sim/ | Start at model.py for boats, radio and task allocation. The engine runs on the operator's PC. |
-| code/webapp/ | relay.py serves the dashboard. static/index.html, app.js and style.css define the interface. |
+| code/webapp/ | relay.py connects browser and PC; build_pages.py exports the public site. static/ defines the interface. |
 | code/simulator/results/ | core/ holds the original 900-mission study, extension/ the follow-up and lab/ new jobs. |
 | code/simulator/tests/ | Tests of the model, scientific outputs and local dashboard API. |
 | code/webapp/tests/check_stack.py | Integration check for a running engine and web service. |

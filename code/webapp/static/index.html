@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ffffff" />
     <title>USV·PAC Research Lab · II2202</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/tokens.css" />
-    <link rel="stylesheet" href="/style.css" />
-    <script src="/i18n.js" defer></script>
-    <script src="/app.js" defer></script>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./i18n.js" defer></script>
+    <script src="./config.js" defer></script>
+    <script src="./connection.js" defer></script>
+    <script src="./app.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main" data-i18n="a11y.skip">Skip to content</a>
@@ -58,6 +60,18 @@
         <button class="nav-item" data-view="presentation"><svg><use href="#i-present" /></svg><span data-i18n="nav.presentation">Presentation</span></button>
       </nav>
       <div class="sidebar-footer">
+        <details id="remote-panel" hidden>
+          <summary data-i18n="remote.title">Connect your engine</summary>
+          <form id="remote-form">
+            <label for="relay-url" data-i18n="remote.url">Relay URL</label>
+            <input id="relay-url" type="url" required placeholder="https://…onrender.com" autocomplete="url" />
+            <label for="relay-password" data-i18n="remote.password">Browser password</label>
+            <input id="relay-password" type="password" required autocomplete="off" />
+            <button type="submit" class="button secondary small" data-i18n="remote.connect">Connect</button>
+            <button type="button" id="remote-disconnect" class="button secondary small" data-i18n="remote.disconnect">Disconnect</button>
+            <p id="remote-status" aria-live="polite" data-i18n="remote.hint">Your password stays in this tab. Start the engine on your PC to run experiments.</p>
+          </form>
+        </details>
         <div class="engine"><span class="status-dot" id="engine-dot"></span><span id="connection" data-i18n="engine.connecting">Connecting to the Python engine…</span></div>
         <p data-i18n="sidebar.note">The engine supplies recorded runs and live samples.</p>
         <span class="authors">Andrea Lo Iacono · Ettore Mugisha Cirillo</span>

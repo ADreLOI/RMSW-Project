@@ -20,7 +20,7 @@ The dashboard does not change the scientific model. New run controls can explore
 
 ## Implementation and evidence entry points
 
-The split deployment adds `Manage-Lab.cmd`, `compose.yaml`, `usv_sim.relay` and `usv_sim.engine`. See [deployment](deployment.md). The original standalone dashboard also remains available.
+The split deployment adds `Manage-Lab.cmd`, `compose.yaml`, `webapp.relay` and `usv_sim.engine`. See [deployment](deployment.md). The original standalone dashboard also remains available.
 
 | Need | Read / run |
 |---|---|
@@ -28,7 +28,7 @@ The split deployment adds `Manage-Lab.cmd`, `compose.yaml`, `usv_sim.relay` and 
 | Protocol, motion, predictor | `code/simulator/usv_sim/model.py` |
 | Raw-log check | `analysis.reconstruct(path)`; `tests/test_simulator.py` |
 | Dashboard API / queue | `dashboard.py`; `tests/test_dashboard.py` |
-| Browser visualization / charts | `web/index.html`, `web/style.css`, `web/app.js` |
+| Browser visualization / charts | `code/webapp/static/{index.html,style.css,app.js}` |
 | Provenance / trace | `evidence.py` |
 | Automated execution | `workflow.py`, root `code/simulator/scripts/Run-Study.ps1` |
 | Exact science comparison | `verify.py` |
@@ -79,3 +79,16 @@ All 180 S2 runs stopped moving between 265 and 520 s, before the earliest slowdo
 ## Update 27 October 2026: extension study E1–E3
 
 A separately frozen extension lives in `code/simulator/results/extension/`, with design `extension-design.json` and seeds 2000–2029. Its purpose is to address the meeting's requests and the S2 stall without touching the core. Read `literature-and-code-2026-10-27.md` for verified sources and `milestones-status-2026-10-27.md` for plan-versus-status and per-author tasks. Key interpretation: with a common rendezvous rule, prediction beats reactive by 7–10% but never beats the always-long queue, even with a fade oracle. Predictor computation is negligible next to radio traffic. The synthetic map RMSE separates stalled coordination (2.5 m) from completed missions (about 0.34 m). Run it with `python -m usv_sim.extension all --output <fresh dir>`. The dashboard does not yet display extension policies.
+
+## 25 November integration
+
+The `dev-code` post-hoc analyses are integrated on `dev-code-deploy` in the new
+`code/simulator` layout. See its README for retained outputs and reproduction
+commands. New figure modules live under `usv_sim/charts`. Core science and its
+interpretation are unchanged. The agreed hosting implementation now
+exports GitHub Pages with historical data and five verified demo logs, and uses a
+Render relay for authenticated PC access. See deployment.md for the precise
+settings and publication gate (successful push to main). Browser credentials
+stay in memory; exact-origin CORS and one-use live tickets protect cross-origin
+access. Local combined mode remains supported. No hosted service was deployed,
+and the merge/implementation remain uncommitted for the user's review.

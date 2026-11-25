@@ -84,8 +84,9 @@ vm.createContext(sandbox);
 // i18n.js defines the dictionary that app.js reads through the global I18N.
 const i18n = fs.readFileSync(path.join(web, "i18n.js"), "utf8");
 const app = fs.readFileSync(path.join(web, "app.js"), "utf8");
+const connection = fs.readFileSync(path.join(web, "connection.js"), "utf8");
 vm.runInContext(
-  i18n + "\n" + app.replace(/\ninit\(\);\s*$/, "") +
+  i18n + "\n" + connection + "\n" + app.replace(/\ninit\(\);\s*$/, "") +
     "\nI18N.set('en');globalThis.qa={state,prepare,rollValue,rollNumbers,roll,fmt,drawAll,renderComparison,renderMissionCharts,renderEvents,renderForecast,renderBudgetNow};",
   sandbox,
 );
@@ -195,7 +196,7 @@ for (const trace of JSON.parse(execution.stdout)) {
   });
 }
 const hashes = {};
-for (const name of ["app.js", "i18n.js", "index.html", "style.css", "tokens.css"])
+for (const name of ["app.js", "i18n.js", "connection.js", "config.js", "index.html", "style.css", "tokens.css"])
   hashes[name] = crypto
     .createHash("sha256")
     .update(fs.readFileSync(path.join(web, name)))

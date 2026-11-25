@@ -192,3 +192,98 @@ The Windows menu now lives in Manage-Lab.cmd and Manage-Lab.ps1 at the repositor
 The CI workflow targets main, dev and the dev-code prefix. A PR from dev-paper skips the jobs. Windows uses the native launcher on a GitHub-hosted machine. Ubuntu starts both services with Docker and runs the browser check. Local validation passed for 21 simulator and 13 extension tests, independent reconstruction and reference comparison for all five smoke policies, headless replay on six traces, wheel contents, the Windows menu and Docker Compose configuration. All 31 tracked result and example files match the original Git blobs. Live container and browser integration still need a runner with Docker access. The local dashboard unit suite could not import psutil in this environment.
 
 The automatic Windows and Ubuntu lab integration jobs were subsequently removed. The scientific CI job still runs on Ubuntu. The local menu and the running-stack test remain available for manual testing.
+
+## 12 November 2026 — post-hoc link-loss analysis after the tutor meeting
+
+At the 12 November meeting the tutor said the results do not show the trends that matter for this work: how often the link is lost, outcomes normalised "out of 100 broken links", a measure of resilience, and a cost comparison. Summary and action list: `/mnt/project-files/notes/meeting-tutor-2026-11-12-azioni.md` (automatic transcript next to it). Andrea asked to start implementing the corrections.
+
+- New `usv_sim/linkloss.py` and `usv_sim/linkloss_figures.py`; output in `code/simulation/results/posthoc/link-loss-2026-11-12/` (six CSV tables, five figures as PNG/PDF, `manifest.json` with input hashes, `README.md` with definitions, findings and limits).
+- It is a declared post-evaluation analysis. It reads `results/core/runs.json`, `mechanism-diagnostics.csv` and `frozen-design.json` and writes nothing there; the CLI refuses an output path inside the core bundle. No model, predictor, margin or frozen result changed.
+- One addition executes new runs: an ideal-link reference (300 runs: evaluation seeds, both progress settings, five policies, fade stream disabled) used only to define retention. These are not core evidence and are stored only in the post-hoc bundle.
+- Main readings (details in the bundle README): in completed online missions 31–50 % of missed exchanges are distance failures; S4-T reserved before 82 % of eligible outages without a better outcome than S3; among completed missions fades delay S3/S4 by 12–32 s on average, so the loss is concentrated in stalls; fade exposure correlates weakly with restricted time (Spearman 0.26–0.34) for online policies; traffic follows mission duration.
+- Not done: no change to the report, the slides or the dashboard; no energy conversion (the plan excludes joules); literature review of reported metrics, formal objective statement and the constant-alarm baseline table remain open (actions A5, A6, B1 in the notes).
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 57 tests, including five new ones in `tests/test_linkloss.py` (Spearman with ties, outage counts equal to the frozen `outage-diagnostics.csv`, 900 derived rows, S1 balanced fade exposure equal to its measured unavailability, core file hashes unchanged after a run). The five figures were inspected by eye. Nothing pushed. No human review yet.
+
+## 24 November 2026 — post-hoc critical-window analysis
+
+Andrea found the results weak: the graphs show no pattern. Inspecting individual runs showed that online outcomes are bimodal and that every stall starts at the same point of the route. New `usv_sim/critical.py` and `usv_sim/critical_figures.py` make this reproducible; output in `code/simulation/results/posthoc/critical-window-2026-11-24/` (CSV tables, four figures, `manifest.json`, `README.md`, and `report-draft.tex` with proposed report text that is not yet in `paper/`).
+
+- Finding: the boats first leave radio range at 260 s under every online policy. If the exchanges at 240 s and 250 s are both faded, the 230 s allocation leaves them 326 m apart (10 m out of range) and the mission stalls. The rule agrees with 180/180 S3, 178/180 S4-T and 176/180 S4-P frozen runs. Stall probability q(1 − 1/L) explains the non-monotonic pattern across L as sampling noise.
+- New runs, diagnostic only and stored only in the post-hoc bundle: 1080 intervention runs (window forced faded or clear on the 540 online scenarios) and 2145 blackout-map runs on the fade-free balanced mission.
+- No change to the model, the frozen results, the report or the slides. The finding was identified after seeing the results; the intervention is the check.
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 63 tests, including six new ones in `tests/test_critical.py` (derived window and range, rule agreement on S3, theory against the stream generator, Wilson interval, intervention flip on one scenario, core hashes unchanged). The four figures were inspected by eye. Nothing pushed.
+
+## 25 November 2026 - integrate Andrea's analyses into the deployment branch
+
+Integrated `dev-code` (c8f5387) into `dev-code-deploy`, resolving additions under
+old paths into `code/simulator`. The critical-window and link-loss modules use
+the new default core path; their figure modules live under `usv_sim/charts`.
+Retained post-hoc outputs are included in the engine image and mounted read-only
+by Compose. The evidence snapshot now includes mechanism/outage diagnostic
+fixtures required by the added tests. README documents native and Docker commands.
+No model, core/extension data, frontend, relay, engine or paper source changed.
+36 retained post-hoc files match Andrea's Git blobs exactly; the remaining README
+only changes the working-directory instruction. The dashboard does not yet add
+views for these post-hoc analyses. Hosting is still under discussion.
+
+Validation on Windows with the assistant's Python 3.12 runtime: all 63 tests
+passed; the smoke pipeline reconstructed five missions, produced figures and
+packaged evidence in `code/simulator/results/lab/integration-20261125/` (ignored).
+The verifier matched all five scientific runs exactly against core and checked
+all 71 inventoried artifact hashes. All nine post-hoc figure sets regenerated from retained tables into temporary
+storage. Headless replay passed on six traces, three knowledge layers and four
+times. Compose configuration and Git whitespace checks passed. Dependencies were
+installed in temporary storage, not in the project or the user's global Python.
+Docker build/start and interactive browser QA remain unverified: the runner cannot
+access Docker Desktop's Linux engine (permission denied). No service was published.
+Merge prepared for the user's review; no commit or push performed.
+
+## 25 November 2026 — Pages build and Render relay
+
+Implemented the agreed static Pages frontend plus authenticated Render relay.
+The Pages exporter publishes retained core/extension summaries, figure downloads
+and five regenerated demo replays from the independently verified smoke bundle.
+It removes the runtime token, operator jobs and host environment from the public
+catalog. Relative assets work under the repository's Pages subpath. The public
+site uses these snapshots while offline and enables new jobs after connecting
+to the PC engine. Post-hoc analyses remain integrated as above; no new scientific
+interpretation or post-hoc dashboard view was added.
+
+Cross-origin API requests require the browser password and exact allowed origin.
+Single-use, 30-second, origin-bound tickets authenticate live WebSockets without
+putting the password or engine key in a URL. Passwords stay in tab memory.
+Authenticated downloads include streamed response CORS headers; the browser
+buffers the file for saving. The relay reads Render's public URL and PORT and
+exposes a credential-free health endpoint. Local standalone/relay modes remain.
+
+The existing simulator workflow retains scientific checks and adds relay/JS
+tests and a Pages build. Only a successful push to main publishes Pages and
+requests a Render deployment of that tested commit through the private hook.
+The hook job reports acceptance, not completion of Render's build. PRs and
+development pushes only test/build. Render/Pages setup is in deployment.md.
+
+Validation performed with the assistant's runtime on Windows:
+
+- 63 simulator/dashboard tests passed in the smoke pipeline.
+- Five missions independently reconstructed and exactly matched retained core
+  scientific values; all 75 artifact hashes verified. Bundle:
+  `code/simulator/results/lab/pages-20261125/` (ignored).
+- Seven relay tests passed, including origin/auth rejection, one-use/expired
+  tickets, local access, streamed downloads and a real engine job with live
+  samples, verified replay and ZIP download.
+- Five JavaScript transport tests passed (mocked browser environment): Pages
+  subpath, offline data/jobs, credentials/tickets, invalid URLs, stale responses
+  and incorrect-password retry behavior.
+- Final static artifact generated under `.pages-artifact/final/` (ignored):
+  92 mapped endpoints, 900 core records, five replay/raw pairs with matching
+  hashes, relative assets present, 18.8 MiB. It contains no catalog token or PC jobs.
+- Headless replay passed six traces, three knowledge layers and four times;
+  report and relay logs are under results/lab with the pages-20261125 prefix.
+- Compose configuration, JavaScript syntax and Git whitespace checks passed.
+
+Actual browser interaction/layout, Docker image build/start, GitHub Actions,
+Pages and Render deployment remain unverified. Docker daemon access was denied
+in this session and browser control is unavailable. No hosted service was
+created, no generated secrets were read, and no commit/push was performed.

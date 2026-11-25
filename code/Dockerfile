@@ -21,5 +21,6 @@ COPY simulator/scripts simulator/scripts
 COPY simulator/examples simulator/examples
 COPY simulator/results/core simulator/results/core
 COPY simulator/results/extension simulator/results/extension
+COPY simulator/results/posthoc simulator/results/posthoc
 WORKDIR /lab/code/simulator
 CMD ["python", "-m", "usv_sim.engine"]

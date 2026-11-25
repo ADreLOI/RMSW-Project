@@ -36,9 +36,109 @@ $env:LAB_ENGINE_KEY = Get-Content -Raw .lab-launcher/engine.key
 docker compose logs --tail 50 web engine
 ```
 
-## Host the webapp after the local test
+## GitHub Pages + Render (agreed publication path)
 
-Deploy one **web** instance. The engine and result files stay on the operator's PC. The web service needs a long-running process, WebSocket upgrades, streaming HTTP uploads/downloads and HTTPS. Its connection state is in memory. The page can open while the engine is offline and connects when the engine comes online. Evidence, new runs and downloads require that connection.
+GitHub Pages serves the interface, guide, presentations, historical core/extension
+summaries and five verified demonstration replays (seed 1000, slowdown, L=5).
+The Pages build regenerates these five logs in CI and compares their scientific
+values with the frozen core. They are identified by their own raw hashes; they
+do not replace the original logs or change the 900-run study.
+
+Render runs only the relay. The engine on the operator's PC supplies live samples,
+new jobs, other raw logs and downloads. A disconnected public page remains usable
+with its published data; experiment buttons are disabled. Results produced on a
+PC are not automatically published on Pages.
+
+### Prepare Render
+
+Do this after the implementation has been reviewed, committed and merged into
+`main`. Until then the current production branch cannot start the new relay.
+
+| Render field | Value |
+| --- | --- |
+| Source | Public Git Repository: https://github.com/ADreLOI/RMSW-Project |
+| Name | rmsw-relay |
+| Language | Python 3 |
+| Branch | main |
+| Region | Frankfurt |
+| Root Directory | code |
+| Build Command | `python -m pip install "aiohttp>=3.12,<4"` |
+| Start Command | `python -m webapp.relay` |
+| Compute | Free |
+| Health Check Path (Advanced) | /health |
+
+Add these environment variables in Render:
+
+| Name | Value |
+| --- | --- |
+| LAB_WEB_BIND | 0.0.0.0 |
+| LAB_ENGINE_KEY | Generated private key, also used by the PC engine |
+| LAB_WEB_PASSWORD | A different generated password, entered in the Pages connection panel |
+| LAB_BROWSER_ORIGIN | https://adreloi.github.io |
+
+The browser origin has no `/RMSW-Project` path or trailing slash. For a custom
+Pages domain replace it with that exact HTTPS origin. The relay uses Render's
+`RENDER_EXTERNAL_URL` and `PORT` automatically. An explicit
+`LAB_PUBLIC_ORIGIN` overrides the detected URL; normally leave it unset.
+Never put either credential in the public configuration, repository variables or commits.
+
+Click **Deploy web service** after the code is on main. A successful build and an
+HTTP 200 response from `https://<actual-render-host>/health` confirm the relay is
+running; `engine_connected: false` is expected until a PC connects.
+
+### Enable automatic publication
+
+1. GitHub repository **Settings → Pages → Source: GitHub Actions**.
+2. Render service **Settings → Deploy Hook**: copy the secret URL into GitHub
+   **Settings → Secrets and variables → Actions → New repository secret** named
+   `RENDER_DEPLOY_HOOK_URL`. Do not share the URL in chat or documentation.
+3. Add the **repository variable** `LAB_RELAY_URL` with the actual HTTPS Render
+   origin. This address is public and is included in the Pages build. If omitted,
+   visitors can enter it in **Connect your engine**.
+4. Keep native Render auto-deploy disabled if offered: GitHub Actions requests
+   deployment after its checks, specifying the tested commit SHA.
+
+`simulator.yaml` runs on push/PR to main, dev and dev-code**. It tests the
+scientific implementation and remote transport, executes five reference missions,
+verifies their evidence, builds the static site and uploads its artifact.
+Only a successful **push to main** publishes Pages and requests a Render deploy.
+PRs and development branches never publish. The Render job confirms that Render
+accepted the request, not that its asynchronous build is already live. The
+initial manual deployment creates the service and makes its hook available.
+
+This path does not require the failing GitHub OAuth popup. It follows
+[Render's deploy-hook integration](https://render.com/docs/deploy-hooks) and
+[GitHub's Pages workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+
+### Connect the PC and browser
+
+Use the engine-only launcher instructions below with the actual Render URL and
+engine key; choose **1** (Docker) or **2** (native). Then open the Pages site,
+expand **Connect your engine**, confirm the relay URL and enter
+`LAB_WEB_PASSWORD`. The password stays in memory for that tab and is cleared
+on disconnect/reload. Live sockets use short-lived, one-use tickets. The browser
+never needs the engine key. Reloading requires entering the browser password again.
+
+After a relay restart the engine and browser retry their connections. New
+experiments and their files remain on the PC. A new run is never automatically
+resubmitted after a network failure. For large archive downloads the browser
+buffers the authenticated response before saving it.
+
+### Verify before calling the deployment complete
+
+- Local: menu **3**, replay and comparison, timeline/charts, history, slides,
+  job submission and ZIP/raw/figure downloads; then menu **7**.
+- Public with PC off: guide/slides, historical summaries and five demo replays.
+- Public with PC on: connect, submit a short job, observe live samples, open
+  the verified replay and download its ZIP. Disconnect and reconnect.
+- Publication: a main push passes CI; Pages and Render show the tested revision.
+
+Programmatic relay tests and headless replay tests do not replace this browser
+and Docker checklist.
+
+## Alternative: serve the frontend and relay together
+
+Deploy one **web** instance. The engine and result files stay on the operator's PC. The web service needs a long-running process, WebSocket upgrades, streaming HTTP uploads/downloads and HTTPS. Its connection state is in memory. In this combined mode evidence, new runs and downloads require the engine connection.
 
 On a server with Docker Compose, use a checkout of the same revision. Set these environment variables in the hosting environment or a private `.env` at the repository root:
 

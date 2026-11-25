@@ -1,0 +1,36 @@
+% DRAFT for the Final Report, 24 November 2026. Not yet in paper/ or on Overleaf.
+% Proposed placement: new subsection at the start of Results (before "Reservation
+% control and warning quality"), one paragraph in Discussion 4.1, one sentence in 4.2.
+% Figures: copy fig-outcome-distribution, fig-critical-mechanism, fig-stall-vs-theory
+% and fig-blackout-map (.pdf) to generated/posthoc/.
+
+% ---------------------------------------------------------------- Results
+
+\subsection{What decides an online mission}\label{sec:critical}
+The restricted means hide a bimodal outcome. Every completed S3, S4-T or S4-P mission finished between $1425$ and $1985$ s; every other mission stalled until the $7200$ s cutoff (Fig.~\ref{fig:outcomes}). Differences in restricted mean time between these policies are therefore differences in the number of stalls, which ranged from two to seven of 30 seeds per condition.
+
+All stalls arise at one point of the route. With the fixed map and start positions, the boats first separate beyond the $316$ m radio range at $260$ s under every online policy. If both exchanges before that split, at $240$ s ($282$ m) and $250$ s ($304$ m), fall in a fade, the last committed allocation is the one from $230$ s. Its queues leave the boats $326$ m apart, $10$ m beyond range, and without a rendezvous rule they wait indefinitely (Fig.~\ref{fig:mechanism}). The rule ``both window exchanges faded'' is fixed by the seed before any policy runs. It agrees with all 180 S3 outcomes, 178 S4-T outcomes and 176 S4-P outcomes. This analysis was not pre-specified, so we tested it by intervention in new runs on the same 180 scenarios per policy: forcing the window faded stalled S3, S4-T and S4-P in $180$, $178$ and $174$ cases, and forcing it clear in $0$, $2$ and $0$ cases.
+
+Because the fade process is stationary with fade fraction $q=0.2$, the probability that both window exchanges are faded is $q(1-1/L)$: $0.10$, $0.16$ and $0.18$ for $L=2,5,10$. The observed S3 stall shares ($2/30$, $6/30$, $3/30$) lie within their 95\% Wilson intervals around these values (Fig.~\ref{fig:stall-theory}). The non-monotonic pattern across fade durations in Fig.~\ref{fig:time} is consistent with sampling variation around a slowly increasing stall probability, not with an effect specific to $L=5$.
+
+Outside the window, the online policies differ in how they absorb outages. On the fade-free balanced mission we imposed a single link blackout of $10$ to $120$ s at every possible start time (Fig.~\ref{fig:blackout}). S3 stalled only when the blackout covered both window exchanges, and any blackout starting after $400$ s delayed it by at most $20$ s. S4-T and S4-P keep a short queue unless warned; after $400$ s a $120$ s blackout delayed them by $55$ and $59$ s on average and by up to $95$ s.
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-outcome-distribution.pdf}
+\caption{Left: completion times of the 180 runs per online policy; the remaining runs stalled at the $7200$ s cutoff. Right: share of stalled missions over the 90 balanced scenarios with 95\% Wilson intervals.}\label{fig:outcomes}\end{figure}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-critical-mechanism.pdf}
+\caption{Separation between the boats in the fade-free S3 mission, with and without the two exchanges before the first split. Crosses mark missed exchanges.}\label{fig:mechanism}\end{figure}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-stall-vs-theory.pdf}
+\caption{Left: observed stall share per fade duration (30 balanced seeds, 95\% Wilson intervals) and the probability $q(1-1/L)$ that both window exchanges are faded. Right: observed restricted means with paired bootstrap intervals and the means expected from that probability.}\label{fig:stall-theory}\end{figure}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-blackout-map.pdf}
+\caption{Effect of one link blackout on the fade-free balanced mission, by start time and duration (new diagnostic runs). The mission completes at $1425$ s without blackouts.}\label{fig:blackout}\end{figure}
+
+% ---------------------------------------------------------------- Discussion 4.1 (add after the RQ paragraph)
+
+The critical-window analysis explains these answers. Every online outcome is decided by whether two exchanges before the boats' first split are lost, and the warnings of both S4 variants are already active at that moment, so S4 holds exactly the long backlog that S3 always holds. Prediction can therefore at best equal S3 at the decisive moment. Elsewhere in the mission the long backlog acts as a buffer: S3 absorbed blackouts of up to two minutes almost without delay, whereas S4 lost up to $95$ s when an outage arrived without a precursor. In this model resilience comes from reservation capacity, and forecast skill would matter only if the forecast could trigger an action that S3 does not already take, such as keeping the boats within range.
+
+% ---------------------------------------------------------------- Discussion 4.2 (add to limitations)
+
+With one map and fixed start positions, all stalls occur at the same split and depend on a $10$ m geometric margin. This concentrates the outcome variance in two exchanges and makes the core comparison sensitive to a single route feature. Randomized start positions or an explicit rendezvous rule would remove this artefact; both require a new, separately frozen experiment.

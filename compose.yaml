@@ -7,6 +7,7 @@ services:
       LAB_ENGINE_KEY: ${LAB_ENGINE_KEY:?Set LAB_ENGINE_KEY or start Manage-Lab.cmd}
       LAB_PUBLIC_ORIGIN: ${LAB_PUBLIC_ORIGIN:-http://127.0.0.1:8768}
       LAB_WEB_PASSWORD: ${LAB_WEB_PASSWORD:-}
+      LAB_BROWSER_ORIGIN: ${LAB_BROWSER_ORIGIN:-}
     ports:
       - "127.0.0.1:8768:8768"
     init: true
@@ -27,6 +28,7 @@ services:
     volumes:
       - ./code/simulator/results/core:/lab/code/simulator/results/core:ro
       - ./code/simulator/results/extension:/lab/code/simulator/results/extension:ro
+      - ./code/simulator/results/posthoc:/lab/code/simulator/results/posthoc:ro
       - ./code/simulator/results/lab:/lab/code/simulator/results/lab
     init: true
     stop_grace_period: 24h

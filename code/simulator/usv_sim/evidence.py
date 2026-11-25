@@ -47,7 +47,8 @@ def provenance(destination, design, request):
     files += [code / "pyproject.toml", SIMULATION / "README.md"]
     # The captured test suite reads these retained fixtures even for custom runs.
     files += [SIMULATION / "results" / "core" / name for name in
-              ("runs.json", "condition-summary.csv", "frozen-design.json")]
+              ("runs.json", "condition-summary.csv", "frozen-design.json",
+               "mechanism-diagnostics.csv", "outage-diagnostics.csv")]
     hashes = {}
     for source in files:
         if not source.is_file() or "__pycache__" in source.parts:

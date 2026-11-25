@@ -569,3 +569,8 @@ body.motion-paused .scroll-reveal { opacity: 1; filter: none; transform: none; t
   .sidebar, .topbar, .page-footer, .slide-controls, .deck-picker, #view-presentation .page-heading { display: none !important; }
   .workspace { margin: 0; }
 }
+/* Connection controls are present only in the public Pages build. */
+#remote-panel { margin-bottom: 1rem; }
+#remote-panel summary { cursor: pointer; }
+#remote-form { display: grid; gap: .5rem; margin-top: .75rem; }
+#remote-form input { width: 100%; min-width: 0; }
