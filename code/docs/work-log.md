@@ -145,3 +145,52 @@ Requested by Andrea: show the extension in the dashboard, restyle the dashboard 
 Andrea asked for the kthais.com style with numbers that respond to the user, replacing the moving dot field. Same local branch, new commit, nothing pushed, no simulation or data change. Replaced the dot field with a USV digit field whose digits are only recorded dBm values; added rolling numbers (KPIs, link counts, warning scores, new per-policy headline cells in Core study and Extension, slide facts), serif hero numbers, a scroll timeline for the first-simulation steps, (serif) bold headings in EN/IT and a static bathymetric texture. Verified: full unittest suite OK; `headless-replay-qa.cjs` passes, now also checking that rolled values are monotonic, never overshoot, end exactly and switch instantly with motion paused; the i18n test now also fails if a key escapes its language block (this caught a real placement bug). Browser: guide, core condition change (rolled value ends on the exact formatted mean), presentation title, 375 px without horizontal overflow. Found and fixed: in a hidden tab animation frames stop, so a timer now always writes the exact final value. Screenshots `validation/redesign-v2-*`.
 
 Follow-up the same afternoon: removed the parenthesised serif titles (EN/IT, incl. presentation) and moved the large numbers from serif to the heading font, on Andrea's request; digit field and rolling numbers unchanged. Dashboard tests pass; checked in the browser.
+
+## 11 November 2026 — event-based presentations and tutor checkpoint deck
+
+Requested by Andrea for the 12 November tutor meeting: show different presentations according to scheduled events, keep the existing deck as the final-presentation draft, and add a checkpoint deck following his outline (recap, way of working and simulation separation, policies, algorithms, data/3D datasets, first results, next steps), compared with the research plan and its schedule.
+
+- `web/app.js`: `SCHEDULE` (plan Section 3.1 milestones plus the two deck events) and `DECKS`; deck picker above the deck; default deck = next event on or after today's local date; `?deck=` override. The final deck's slide code is unchanged; the checkpoint deck renders from `cp.*` strings (EN/IT, 117 keys each).
+- First-results slide states the 11 Nov verification finding (`/mnt/project-files/notes/verifica-scientifica-2026-11-11.md`, `scripts/warning_baseline.py` on its own branch): at the frozen 4 dB margin the fixed-route clear-state signal (−86.02 dBm) is 0.02 dB below the warning level, so F1 0.175 equals a constant alarm (0.1755). The arithmetic was rechecked here; the 3.9 dB figures are quoted from that report.
+- `web/style.css`: picker, grids, schedule table, status tags; slide charts now get `width: 100%` (the core-outcome bar chart previously rendered at a tiny default size in both decks); phone layout stacks the schedule table and wraps the slide dots.
+- `tests/test_dashboard.py`: `cp.section.` family count (8).
+- No change to the simulator, results, CI or paper.
+
+Checks: `python -m unittest tests.test_dashboard` (18 tests) passes on Linux/Python 3.11. Playwright on the local dashboard: every slide of both decks in IT and EN at 1440 px with no console warnings, no missing i18n key and no deck-body overflow; at 390 px no horizontal page scroll. Not checked on Windows or in native fullscreen.
+
+### Follow-up (same day): schematic deck, live slides, margin explanation
+
+Andrea asked for less text, an interactive view of the simulations with the policies, the dataset slide on hold for Ettore, and a clear explanation of the warning-margin finding.
+
+- Checkpoint deck now has ten slides: text cut to short labels; schedule as a Gantt with a today line; workflow as box diagrams; results as large numbers; two live slides (policies, algorithm pipeline) on the recorded core missions `1000-1-5-{S1,S2,S3,S4-T,S4-P}`; a warning-margin slide with a slider over the recorded S1 mission (persistence warns at a received sample exactly when its signal is below threshold + margin); a procedure slide (frozen before evaluation, no margin beats the constant alarm, keep the core and add the baseline; optional separately frozen study as proposed in `/mnt/project-files/notes/proposta-sensibilita-warning-2026-11-11.md`).
+- Independent recomputation of the margin finding (scratch script, not committed): regenerated the S1 fixed routes for pilot seeds 0–9 and evaluation seeds 1000–1029 and replayed both rules at margins 0–6 dB. Constant alarm F1 0.1524 (pilot) / 0.1755 (evaluation); for m ≥ 3.98 dB both rules warn on ≥ 99.8 % of received samples; the best pilot F1 below that is 0.131 (trend, 2–3 dB). This agrees with the verification thread's numbers.
+- Browser QA used a scratch copy of `results/core` with those five raw logs regenerated (their gzip bytes differ from the frozen hashes, so the copy's hash inventory was updated; the repository's `results/core` was not modified).
+
+Checks: `python -m unittest tests.test_dashboard` (18 tests) passes. Playwright: all ten checkpoint slides and seven final-draft slides in IT and EN at 1440 px without console warnings or overflow; policy switching, play/restart/speed and the margin slider (0 → 0 %, 2 → 20 %, 3.9 → 52 %, 4 → 100 % of the 95 received S1 samples) exercised; no horizontal scroll at 390 px. Not checked on Windows, in native fullscreen, or against the hosted export.
+
+### Follow-up (same day): slides removed on Andrea and Ettore's decision
+
+- Removed the schedule (Gantt) and workflow slides and the tutor questions on the last slide, which now shows only the 12–25 November plan. The checkpoint deck has eight slides; their code, strings and styles were removed with them (`SCHEDULE` stays: it drives the deck picker).
+- Checks: `python -m unittest tests.test_dashboard` passes; Playwright on both decks in IT and EN at 1440 px (no console warnings, no overflow) and at 390 px (no horizontal scroll).
+
+## 12 November 2026 — post-hoc link-loss analysis after the tutor meeting
+
+At the 12 November meeting the tutor said the results do not show the trends that matter for this work: how often the link is lost, outcomes normalised "out of 100 broken links", a measure of resilience, and a cost comparison. Summary and action list: `/mnt/project-files/notes/meeting-tutor-2026-11-12-azioni.md` (automatic transcript next to it). Andrea asked to start implementing the corrections.
+
+- New `usv_sim/linkloss.py` and `usv_sim/linkloss_figures.py`; output in `code/simulation/results/posthoc/link-loss-2026-11-12/` (six CSV tables, five figures as PNG/PDF, `manifest.json` with input hashes, `README.md` with definitions, findings and limits).
+- It is a declared post-evaluation analysis. It reads `results/core/runs.json`, `mechanism-diagnostics.csv` and `frozen-design.json` and writes nothing there; the CLI refuses an output path inside the core bundle. No model, predictor, margin or frozen result changed.
+- One addition executes new runs: an ideal-link reference (300 runs: evaluation seeds, both progress settings, five policies, fade stream disabled) used only to define retention. These are not core evidence and are stored only in the post-hoc bundle.
+- Main readings (details in the bundle README): in completed online missions 31–50 % of missed exchanges are distance failures; S4-T reserved before 82 % of eligible outages without a better outcome than S3; among completed missions fades delay S3/S4 by 12–32 s on average, so the loss is concentrated in stalls; fade exposure correlates weakly with restricted time (Spearman 0.26–0.34) for online policies; traffic follows mission duration.
+- Not done: no change to the report, the slides or the dashboard; no energy conversion (the plan excludes joules); literature review of reported metrics, formal objective statement and the constant-alarm baseline table remain open (actions A5, A6, B1 in the notes).
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 57 tests, including five new ones in `tests/test_linkloss.py` (Spearman with ties, outage counts equal to the frozen `outage-diagnostics.csv`, 900 derived rows, S1 balanced fade exposure equal to its measured unavailability, core file hashes unchanged after a run). The five figures were inspected by eye. Nothing pushed. No human review yet.
+
+## 24 November 2026 — post-hoc critical-window analysis
+
+Andrea found the results weak: the graphs show no pattern. Inspecting individual runs showed that online outcomes are bimodal and that every stall starts at the same point of the route. New `usv_sim/critical.py` and `usv_sim/critical_figures.py` make this reproducible; output in `code/simulation/results/posthoc/critical-window-2026-11-24/` (CSV tables, four figures, `manifest.json`, `README.md`, and `report-draft.tex` with proposed report text that is not yet in `paper/`).
+
+- Finding: the boats first leave radio range at 260 s under every online policy. If the exchanges at 240 s and 250 s are both faded, the 230 s allocation leaves them 326 m apart (10 m out of range) and the mission stalls. The rule agrees with 180/180 S3, 178/180 S4-T and 176/180 S4-P frozen runs. Stall probability q(1 − 1/L) explains the non-monotonic pattern across L as sampling noise.
+- New runs, diagnostic only and stored only in the post-hoc bundle: 1080 intervention runs (window forced faded or clear on the 540 online scenarios) and 2145 blackout-map runs on the fade-free balanced mission.
+- No change to the model, the frozen results, the report or the slides. The finding was identified after seeing the results; the intervention is the check.
+
+Checks actually run (Linux, Python 3.13): `python -m unittest discover -s tests` passes, 63 tests, including six new ones in `tests/test_critical.py` (derived window and range, rule agreement on S3, theory against the stream generator, Wilson interval, intervention flip on one scenario, core hashes unchanged). The four figures were inspected by eye. Nothing pushed.

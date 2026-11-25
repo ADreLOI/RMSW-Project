@@ -1,0 +1,6 @@
+policy,runs,window_faded_and_stalled,window_faded_but_completed,window_clear_but_stalled,window_clear_and_completed,agreement
+S1,180,0,22,0,158,0.8777777777777778
+S2,180,22,0,158,0,0.12222222222222222
+S3,180,22,0,0,158,1.0
+S4-T,180,22,0,2,156,0.9888888888888889
+S4-P,180,18,4,0,158,0.9777777777777777

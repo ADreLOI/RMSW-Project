@@ -24,7 +24,7 @@ const UI_FONT = "Inter, 'Segoe UI', system-ui, sans-serif";
 const state = {
   catalog: null, ext: null, traces: {}, active: "S4-T", dataset: "core", t: 0, playing: false,
   slowdown: true, view: "map", slide: 0, jobs: [], generation: 0, currentJob: null, selectedJob: null,
-  motionPaused: false, tour: null,
+  motionPaused: false, tour: null, deck: "final", margin: 4, demoTried: false, demoLoading: false,
 };
 const store = {
   get(key) { try { return localStorage.getItem(`usvpac.${key}`); } catch { return null; } },
@@ -350,6 +350,7 @@ function drawAll() {
   });
   const slideMap = $("slide-map");
   if (slideMap) drawMap(slideMap, trace, state.t);
+  updateSlideLive();
 }
 function updateHeader(trace, at) {
   const r = trace.result, timeout = trace.config.timeout_s;
@@ -1311,11 +1312,155 @@ function studyFacts() {
   ].filter((item) => item[1] != null);
 }
 
-/* ---------- presentation ---------- */
-const SLIDES = ["title", "question", "mechanism", "link", "outcome", "extension", "reproduce"];
+/* ---------- presentation: one deck per scheduled event ---------- */
+// Research-plan Section 3.1 milestones (provisional internal targets) and the meetings
+// that own a deck. `status` records the evidence state from code/docs/milestones-status-*.md
+// ("done" = the artifact exists and its checks pass, not that both authors reviewed it).
+const SCHEDULE = [
+  { id: "plan", from: "2026-10-01", to: "2026-10-01", lead: "both", status: "done" },
+  { id: "sources", from: "2026-10-02", to: "2026-10-07", lead: "both", status: "partial" },
+  { id: "coverage", from: "2026-10-08", to: "2026-10-14", lead: "ettore", status: "done" },
+  { id: "reactive", from: "2026-10-15", to: "2026-10-21", lead: "both", status: "done" },
+  { id: "predictors", from: "2026-10-22", to: "2026-10-28", lead: "andrea", status: "done" },
+  { id: "core", from: "2026-10-29", to: "2026-11-11", lead: "andrea", status: "done" },
+  { id: "checkpoint", from: "2026-11-12", to: "2026-11-12", lead: "both", status: "event", deck: "checkpoint" },
+  { id: "analysis", from: "2026-11-12", to: "2026-11-25", lead: "both", status: "progress" },
+  { id: "final", from: "2026-11-26", to: null, lead: "both", status: "todo", deck: "final" },
+];
+const DECKS = {
+  checkpoint: { section: "cp.section.", slides: ["recap", "policies", "algorithm", "data", "results", "warning", "procedure", "next"] },
+  // The 27 October results deck, kept as the draft of the final presentation.
+  final: { section: "pres.section.", slides: ["title", "question", "mechanism", "link", "outcome", "extension", "reproduce"] },
+};
+const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+const dayLabel = (iso, long = false) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(locale(), long ? { day: "numeric", month: "long", year: "numeric" } : { day: "numeric", month: "short" }); };
+const deckEvents = () => SCHEDULE.filter((e) => e.deck);
+function defaultDeck(today = isoToday()) {
+  // The next scheduled event that still lies ahead (or is today); afterwards the last one.
+  const events = deckEvents();
+  return (events.find((e) => (e.to ?? "9999-12-31") >= today) ?? events[events.length - 1]).deck;
+}
+const deckSlides = () => DECKS[state.deck].slides;
+function chooseDeck(deck) {
+  if (!DECKS[deck] || deck === state.deck) return;
+  state.deck = deck;
+  state.slide = 0;
+  renderSlide();
+}
+function renderDeckPicker() {
+  const today = isoToday();
+  $("deck-picker").innerHTML = deckEvents().map((e) => {
+    const when = e.to == null ? (e.from <= today ? "draft" : "upcoming") : e.to < today ? "past" : e.from <= today ? "today" : "upcoming";
+    const date = e.to == null ? t("pres.fromDate", { date: dayLabel(e.from) }) : dayLabel(e.from);
+    const badge = e.deck === "final" ? t("pres.when.draft") : t(`pres.when.${when}`);
+    return `<button class="deck-choice${e.deck === state.deck ? " active" : ""}" data-deck="${e.deck}" aria-pressed="${e.deck === state.deck}"><span class="mono">${esc(date)}</span><b>${esc(t(`pres.deck.${e.deck}`))}</b><small>${esc(badge)} · ${esc(t("pres.slideCount", { n: DECKS[e.deck].slides.length }))}</small></button>`;
+  }).join("");
+}
+const chipRow = (keys) => `<div class="slide-chips">${keys.map((k) => `<span class="chip">${esc(t(k))}</span>`).join("")}</div>`;
+
+/* Interactive mission slides: one paired scenario, all five core policies. */
+const DEMO = { seed: 1000, slowdown: true, length: 5, exponent: 2, timeout: 7200 };
+const SIM_SLIDES = new Set(["policies", "algorithm", "warning"]);
+const demoKey = () => { const r = request(); return `${state.dataset}|${r.seed}|${r.slowdown}|${r.length}|${r.exponent}|${r.timeout}`; };
+const DEMO_KEY = `core|${DEMO.seed}|${DEMO.slowdown}|${DEMO.length}|${DEMO.exponent}|${DEMO.timeout}`;
+async function ensureDemo() {
+  if (demoKey() === DEMO_KEY && (CORE.every((p) => state.traces[p]) || state.demoTried)) return;
+  if (state.demoLoading) return;
+  state.demoLoading = true;
+  setPlaying(false);
+  state.dataset = "core";
+  fillPolicySelect();
+  setSetup(DEMO);
+  state.t = 0;
+  await loadComparison(CORE);
+  state.demoLoading = false;
+  state.demoTried = true;
+  if (state.view === "presentation" && SIM_SLIDES.has(deckSlides()[state.slide])) renderSlide();
+}
+function missionControls() {
+  const speed = $("speed").value;
+  return `<div class="sim-controls"><button id="slide-play" class="button primary small">${esc(state.playing ? t("pres.pauseMission") : t("pres.playMission"))}</button><button id="slide-restart" class="button secondary small">${esc(t("cp.sim.restart"))}</button>${["60", "240"].map((v) => `<button class="button secondary small${speed === v ? " active" : ""}" data-slide-speed="${v}" aria-pressed="${speed === v}">${v}×</button>`).join("")}<span class="mono sim-clock" id="slide-clock"></span></div>`;
+}
+function missionPanel() {
+  const trace = activeTrace();
+  return `<div class="sim-map"><canvas id="slide-map" class="slide-map" aria-label="${esc(t("map.canvas"))}"></canvas><p class="slide-caption"><span class="mono">${esc(t("cp.sim.scenario", { seed: DEMO.seed, length: DEMO.length }))}</span>${trace ? "" : ` · ${esc(t("cp.sim.loading"))}`}</p>${missionControls()}</div>`;
+}
+function policyResult(p) {
+  const tr = state.traces[p];
+  if (!tr) return `<span class="sim-result muted">${esc(t("cp.sim.missing"))}</span>`;
+  return tr.result.complete ? `<span class="sim-result ok">✓ ${esc(clock(tr.result.completion_s))}</span>` : `<span class="sim-result bad">✗ ${esc(t("cp.sim.incomplete"))}</span>`;
+}
+function sessionAt(trace, at) {
+  let found = null;
+  for (const s of trace.sessions) { if (s.t > at) break; found = s; }
+  return found;
+}
+function marginChart(trace, margin) {
+  // Recorded S1 exchanges: received signal [dBm] per scheduled exchange. Persistence warns at a
+  // received sample exactly when its own signal is below threshold + margin.
+  const width = 520, left = 46, right = 508, top = 14, bottom = 178;
+  const theta = trace.config.threshold_dbm, warn = theta + margin;
+  const received = trace.sessions.filter((s) => s.radio), duration = trace.result.stop_s;
+  const values = received.map((s) => s.r);
+  const max = Math.ceil(Math.max(-82, ...values)), min = Math.floor(Math.min(theta - 1, ...values));
+  const x = (at) => left + ((right - left) * at) / duration, y = (v) => bottom - ((bottom - top) * (v - min)) / (max - min);
+  const ticks = []; for (let v = Math.ceil(min / 2) * 2; v <= max; v += 2) ticks.push(v);
+  let c = yAxis(left, right, y, ticks) + text(left, 9, t("chart.signal"), "axis");
+  for (const s of trace.sessions.filter((s) => !s.radio)) c += `<rect x="${x(s.t) - 1.5}" y="${bottom - 4}" width="3" height="4" fill="${token("border-strong")}"/>`;
+  c += `<line x1="${left}" x2="${right}" y1="${y(theta)}" y2="${y(theta)}" stroke="${DANGER}" stroke-width="1.2" stroke-dasharray="5 3"/>`;
+  c += `<line x1="${left}" x2="${right}" y1="${y(warn)}" y2="${y(warn)}" stroke="${WARNING}" stroke-width="1.6"/>`;
+  for (const s of received) c += `<circle cx="${x(s.t)}" cy="${y(s.r)}" r="2.6" fill="${s.r < warn ? WARNING : token("accent")}" opacity="${s.r < warn ? 0.95 : 0.55}"><title>${clock(s.t)} · ${fmt(s.r, 2)} dBm · ${fmt(s.d, 0)} m</title></circle>`;
+  for (let i = 0; i <= 4; i++) c += text(x((duration * i) / 4), 194, fmt(((duration / 60) * i) / 4), "lbl", "middle");
+  c += text(right, 208, t("chart.timeMin"), "lbl", "end");
+  return chartShell(t("cp.warn.chart"), c, 212, width);
+}
+function renderWarningLive() {
+  const box = $("warn-live"), trace = state.traces.S1;
+  if (!box) return;
+  if (!trace) { box.innerHTML = `<div class="empty small">${esc(t(state.demoLoading ? "cp.sim.loading" : "cp.sim.missing"))}</div>`; return; }
+  const m = state.margin, received = trace.sessions.filter((s) => s.radio);
+  const share = received.filter((s) => s.r < trace.config.threshold_dbm + m).length / Math.max(1, received.length);
+  $("warn-chart").innerHTML = marginChart(trace, m);
+  $("warn-readout").innerHTML = `<strong class="num">${fmt(100 * share, 0)}%</strong><span>${esc(t("cp.warn.share", { m: fmt(m, 1), n: received.length }))}</span>`;
+  $("warn-margin-value").textContent = `${fmt(m, 1)} dB`;
+  $("warn-legend").innerHTML = `<span><i class="lg-line warn"></i>${esc(t("cp.warn.level", { v: fmt(trace.config.threshold_dbm + m, 2) }))}</span><span><i class="lg-line cut"></i>${esc(t("cp.warn.cutoff"))}</span><span><i class="lg-dot warn"></i>${esc(t("cp.warn.dotWarn"))}</span><span><i class="lg-dot ok"></i>${esc(t("cp.warn.dotOk"))}</span><span><i class="lg-tick"></i>${esc(t("cp.warn.dotLost"))}</span>`;
+}
+function updateSlideLive() {
+  if (state.view !== "presentation" || state.deck !== "checkpoint") return;
+  const key = deckSlides()[state.slide], trace = activeTrace();
+  const clockBox = $("slide-clock");
+  if (clockBox && trace) clockBox.textContent = `${t("cp.sim.policy", { p: trace.policy })} · ${clock(Math.min(state.t, trace.result.stop_s))}`;
+  document.querySelectorAll("[data-slide-policy]").forEach((b) => { const on = b.dataset.slidePolicy === state.active; b.classList.toggle("active", on); b.setAttribute("aria-pressed", String(on)); });
+  if (key === "algorithm" && trace) {
+    const at = Math.min(state.t, trace.result.stop_s), s = sessionAt(trace, at), frame = frameAt(trace, at);
+    const predicts = trace.policy === "S4-T" || trace.policy === "S4-P";
+    $("live-radio").textContent = s ? t(s.radio ? "cp.live.radioOk" : s.fade ? "cp.live.radioFade" : "cp.live.radioRange", { d: fmt(s.d, 0), r: fmt(s.r, 1) }) : "—";
+    $("live-forecast").textContent = !predicts ? t("cp.live.noForecast") : s && s.radio ? t(s.warning ? "cp.live.warnOn" : "cp.live.warnOff") : t("cp.live.noSample");
+    $("live-forecast").classList.toggle("warn", Boolean(predicts && s?.radio && s.warning));
+    const queues = (s && s.t === frame.t ? s.queues : frame.queues) || frame.queues;
+    $("live-alloc").textContent = queues ? t("cp.live.queues", { a: queues[0].length, b: queues[1].length }) : "—";
+  }
+}
+function checkpointSlide(key, completed) {
+  const head = (k) => `<h2 class="slide-h reveal">${esc(t(`cp.${k}.title`))}</h2>`;
+  const pick = (k, n) => Array.from({ length: n }, (_, i) => `cp.${k}.i${i + 1}`);
+  const tile = (k, value) => `<div class="big-tile"><strong class="num">${esc(value ?? t(`cp.${k}.v`))}</strong><span>${esc(t(`cp.${k}.b`))}</span></div>`;
+  return {
+    recap: () => `<div class="reveal"><p class="slide-kicker">${esc(t("cp.recap.kicker"))}</p><h2 class="slide-hero">${t("cp.recap.title")}</h2><p class="slide-lead">${esc(t("cp.recap.lead"))}</p></div><div class="slide-grid three reveal">${["rq1", "rq2", "rq3"].map((k) => `<div class="slide-rq"><span class="mono">${k.toUpperCase()}</span>${esc(t(`cp.recap.${k}`))}</div>`).join("")}</div>${heroNumbers(studyFacts())}`,
+    policies: () => `${head("policies")}<div class="sim-split reveal">${missionPanel()}<div class="policy-pick">${CORE.map((p) => `<button class="policy-row" data-slide-policy="${p}" style="--c:${COLORS[p]}"><i class="policy-swatch"></i><span class="mono">${p}</span><span><b>${esc(policyName(p))}</b><small>${esc(t(`cp.pol.${p}`))}</small></span>${policyResult(p)}</button>`).join("")}<p class="slide-note">${esc(t("cp.policies.shared"))}</p></div></div>`,
+    algorithm: () => `${head("algorithm")}<div class="sim-split reveal">${missionPanel()}<div class="pipeline">${[["radio", "live-radio"], ["forecast", "live-forecast"], ["alloc", "live-alloc"]].map(([k, id], i) => `<div class="pipe-step"><span class="pipe-n mono">${i + 1}</span><div><b>${esc(t(`cp.alg.${k}.t`))}</b><p class="pipe-live mono" id="${id}">—</p>${chipRow([`cp.alg.${k}.c1`, `cp.alg.${k}.c2`, `cp.alg.${k}.c3`])}</div></div>`).join("")}<p class="slide-note">${esc(t("cp.alg.found"))}</p></div></div>`,
+    data: () => `${head("data")}<div class="slide-grid two reveal"><div class="data-col"><p class="slide-kicker">${esc(t("cp.data.used"))}</p>${chipRow(["cp.data.u1", "cp.data.u2", "cp.data.u3"])}</div><div class="data-col"><p class="slide-kicker">${esc(t("cp.data.found"))}</p>${chipRow(["cp.data.f1", "cp.data.f2"])}</div></div><p class="slide-lead reveal">${esc(t("cp.data.question"))}</p>`,
+    results: () => `${head("results")}<div class="slide-split results reveal"><div id="slide-completion" class="slide-chart"></div><div class="big-tiles">${tile("res.s2", `${completed("S2")}/180`)}${tile("res.s3")}${tile("res.f1")}${tile("res.ext")}</div></div><p class="slide-note reveal">${esc(t("cp.results.note"))}</p>`,
+    warning: () => `${head("warning")}<div class="sim-split warn-split reveal"><ol class="chain">${["c1", "c2", "c3", "c4", "c5"].map((k) => `<li><b>${esc(t(`cp.warn.${k}.t`))}</b><small>${esc(t(`cp.warn.${k}.b`))}</small></li>`).join("")}</ol><div id="warn-live" class="warn-live"><div id="warn-chart" class="slide-chart"></div><div id="warn-legend" class="warn-legend"></div><label class="warn-slider"><span>${esc(t("cp.warn.margin"))} <b id="warn-margin-value" class="mono"></b></span><input id="margin-slider" type="range" min="0" max="6" step="0.1" value="${state.margin}"></label><div id="warn-readout" class="warn-readout"></div><p class="slide-note">${esc(t("cp.warn.pilot"))}</p></div></div>`,
+    procedure: () => `${head("procedure")}<div class="slide-grid three reveal">${["p1", "p2", "p3"].map((k) => `<div class="proc-card ${k}"><span class="mono">${esc(t(`cp.proc.${k}.k`))}</span><b>${esc(t(`cp.proc.${k}.t`))}</b><small>${esc(t(`cp.proc.${k}.b`))}</small></div>`).join("")}</div><p class="slide-lead reveal">${esc(t("cp.proc.message"))}</p>`,
+    next: () => `${head("next")}<div class="slide-grid three reveal">${pick("next.plan", 3).map((k) => `<div class="proc-card next"><b>${esc(t(`${k}.t`))}</b><small>${esc(t(`${k}.b`))}</small></div>`).join("")}</div>`,
+  }[key]();
+}
 function renderSlide() {
   if (!state.catalog) return;
+  renderDeckPicker();
   const d = state.catalog, all = d.runs, completed = (p) => all.filter((r) => r.policy === p && r.complete).length;
+  const SLIDES = deckSlides(), deck = DECKS[state.deck];
   const key = SLIDES[state.slide], ext = state.ext;
   const clone = (id) => $(id)?.innerHTML || `<div class="empty small">${esc(t("pres.openView"))}</div>`;
   const body = {
@@ -1328,18 +1473,19 @@ function renderSlide() {
     reproduce: () => `<h2 class="slide-h reveal">${esc(t("pres.s7.title"))}</h2><div class="slide-facts reveal"><div><strong class="num">${roll("s7-runs", all.length)}</strong><span>${esc(t("pres.s7.runs"))}</span></div><div><strong class="num">${roll("s7-logs", d.verification.raw_runs_reconstructed)}</strong><span>${esc(t("pres.s7.logs"))}</span></div><div><strong class="num">${ext ? roll("s7-ext", ext.runs.length) : "—"}</strong><span>${esc(t("pres.s7.ext"))}</span></div></div><ul class="slide-list reveal"><li><b>${esc(t("pres.s7.freeze"))}</b>${esc(t("pres.s7.freezeText"))}</li><li><b>${esc(t("pres.s7.bundle"))}</b>${esc(t("pres.s7.bundleText"))}</li><li><b>${esc(t("pres.s7.again"))}</b><code>python -m usv_sim.workflow --preset full --workers 4</code></li></ul>`,
   }[key];
   $("slide-number").textContent = `${String(state.slide + 1).padStart(2, "0")} / ${String(SLIDES.length).padStart(2, "0")}`;
-  $("deck-section").textContent = t(`pres.section.${key}`);
+  $("deck-section").textContent = t(`${deck.section}${key}`);
   $("deck-progress").style.width = `${(100 * (state.slide + 1)) / SLIDES.length}%`;
-  $("slide-content").innerHTML = body();
+  $("slide-content").innerHTML = state.deck === "final" ? body() : checkpointSlide(key, completed);
   $("slide-content").querySelectorAll(".reveal").forEach((e, i) => e.style.setProperty("--i", i));
   rollNumbers($("slide-content"), { from: 0 });
-  $("slide-dots").innerHTML = SLIDES.map((s, i) => `<button class="${i === state.slide ? "active" : ""}" data-slide="${i}" aria-label="${esc(t("pres.goto", { n: i + 1, name: t(`pres.section.${s}`) }))}" aria-current="${i === state.slide}"></button>`).join("");
+  $("slide-dots").innerHTML = SLIDES.map((s, i) => `<button class="${i === state.slide ? "active" : ""}" data-slide="${i}" aria-label="${esc(t("pres.goto", { n: i + 1, name: t(`${deck.section}${s}`) }))}" aria-current="${i === state.slide}"></button>`).join("");
   $("previous-slide").disabled = state.slide === 0;
   $("next-slide").disabled = state.slide === SLIDES.length - 1;
   if (key === "title") startField($("slide-field"));
   if (key === "mechanism") drawAll();
-  if (key === "outcome") barChart("slide-completion", CORE.map((p) => ({ name: p, value: completed(p) })), { title: t("pres.s5.chart"), unit: t("chart.completedOf", { n: 180 }), max: 200, ticks: [0, 60, 120, 180] });
-  if (key === "extension" && !ext) loadExtension().then(() => state.view === "presentation" && SLIDES[state.slide] === "extension" && renderSlide());
+  if (key === "outcome" || key === "results") barChart("slide-completion", CORE.map((p) => ({ name: p, value: completed(p) })), { title: t("pres.s5.chart"), unit: t("chart.completedOf", { n: 180 }), max: 200, ticks: [0, 60, 120, 180] });
+  if (state.deck === "checkpoint" && SIM_SLIDES.has(key)) { ensureDemo(); drawAll(); renderWarningLive(); updateSlideLive(); }
+  if (key === "extension" && !ext) loadExtension().then(() => state.view === "presentation" && deckSlides()[state.slide] === "extension" && renderSlide());
 }
 function presentationFocus(on) {
   state.presentationFocus = on;
@@ -1415,9 +1561,16 @@ document.addEventListener("click", async (event) => {
     await loadSelected(true);
     view("map");
   }
+  const deckChoice = event.target.closest("[data-deck]");
+  if (deckChoice) chooseDeck(deckChoice.dataset.deck);
   const slide = event.target.closest("[data-slide]");
   if (slide) { state.slide = +slide.dataset.slide; renderSlide(); }
-  if (event.target.closest("#slide-play")) setPlaying(!state.playing);
+  if (event.target.closest("#slide-play")) { if (!state.playing && state.t >= +$("timeline").max) state.t = 0; setPlaying(!state.playing); }
+  if (event.target.closest("#slide-restart")) { setPlaying(false); setTime(0); }
+  const speed = event.target.closest("[data-slide-speed]");
+  if (speed) { $("speed").value = speed.dataset.slideSpeed; document.querySelectorAll("[data-slide-speed]").forEach((b) => { const on = b === speed; b.classList.toggle("active", on); b.setAttribute("aria-pressed", String(on)); }); }
+  const slidePolicy = event.target.closest("[data-slide-policy]");
+  if (slidePolicy && state.traces[slidePolicy.dataset.slidePolicy]) { state.active = slidePolicy.dataset.slidePolicy; $("policy").value = state.active; afterLoad(); }
   const tourStart = event.target.closest("[data-tour-start]");
   if (tourStart) startTour(tourStart.dataset.tourStart, +tourStart.dataset.tourIndex || 0);
 });
@@ -1445,7 +1598,7 @@ document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && state.presentationFocus) exitPresentationFocus();
   if (state.view === "presentation" && ["ArrowLeft", "ArrowRight"].includes(event.key)) {
     event.preventDefault();
-    state.slide = Math.min(SLIDES.length - 1, Math.max(0, state.slide + (event.key === "ArrowRight" ? 1 : -1)));
+    state.slide = Math.min(deckSlides().length - 1, Math.max(0, state.slide + (event.key === "ArrowRight" ? 1 : -1)));
     renderSlide();
   }
 });
@@ -1483,8 +1636,11 @@ $("ext-profile").addEventListener("change", renderHardware);
 $("ext-run-policy").addEventListener("change", () => renderExtension());
 $("outcome-filter").addEventListener("change", renderRuns);
 $("snapshot").addEventListener("click", saveMap);
+document.addEventListener("input", (event) => {
+  if (event.target.id === "margin-slider") { state.margin = +event.target.value; renderWarningLive(); }
+});
 $("previous-slide").addEventListener("click", () => { state.slide = Math.max(0, state.slide - 1); renderSlide(); });
-$("next-slide").addEventListener("click", () => { state.slide = Math.min(SLIDES.length - 1, state.slide + 1); renderSlide(); });
+$("next-slide").addEventListener("click", () => { state.slide = Math.min(deckSlides().length - 1, state.slide + 1); renderSlide(); });
 $("fullscreen").addEventListener("click", () => {
   presentationFocus(true);
   // Embedded browsers may deny native fullscreen; the focused layout still works.
@@ -1519,6 +1675,9 @@ async function init() {
   const saved = new URLSearchParams(location.search).get("lang") || store.get("lang");
   setLang(saved ||((navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en"));
   setMotion(store.get("motion") === "paused");
+  // ?deck=checkpoint|final opens a specific deck; otherwise the next scheduled event's deck.
+  const deck = new URLSearchParams(location.search).get("deck");
+  state.deck = DECKS[deck] ? deck : defaultDeck();
   try {
     state.catalog = await api("/api/catalog");
     $("connection").textContent = t("engine.connected");
