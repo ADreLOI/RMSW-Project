@@ -85,6 +85,17 @@ In the optional split deployment, a single web gateway serves the same assets. A
 
 The server binds to `127.0.0.1`, validates the Host header, checks an unpredictable session token and same-origin POSTs, and serves allowlisted paths. It cannot execute arbitrary client commands. Experiment bounds are validated on the server, including seed type/range, policy, fade duration, timeout and exponent. This is a local research interface, not a multi-user deployment.
 
+## Public browser access
+
+Public Pages mode (`--public-access` in the Pages exporter, `LAB_PUBLIC_ACCESS=1`
+on the relay) connects visitors automatically without a browser password. The
+engine still authenticates with its private key and runs the loopback dashboard
+with its existing token, origin, validation and queue limits. Without a connected
+engine the relay returns 503 for API commands; it does not enqueue future work.
+The browser keeps showing static evidence and reconnects when the engine returns.
+Already accepted jobs remain owned by the PC and may finish after disconnection.
+Protected browser mode remains the default for other relay deployments.
+
 ## Extending the project
 
 Add new measurements to raw events first, with unit/meaning documented. Build independent verification before exposing a derived number as evidence. Preserve the distinction between a scientific change and a visualization improvement. Adding rendezvous or more realistic motion is a new experiment design, not a repair to make current results look better. See `agent-handoff.md` for decision boundaries.

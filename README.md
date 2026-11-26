@@ -25,6 +25,12 @@ on a push to `main`. The PC engine performs new experiments. Configure Pages,
 the Render service, the hook secret and public relay URL as described in the
 deployment guide; adding the workflow alone does not create those services.
 
+The public dashboard connects automatically when Render has `LAB_PUBLIC_ACCESS=1`.
+Anyone can run experiments while the PC engine is connected. Configure the
+Windows launcher's remote connection once with menu **9**, then use **1** to
+start the Docker engine and **5** to stop it. The engine key stays on the PC
+and Render; it is never included in the public site.
+
 | Where | What to open |
 | --- | --- |
 | code/simulator/usv_sim/ | Start at model.py for boats, radio and task allocation. The engine runs on the operator's PC. |

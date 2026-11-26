@@ -9,22 +9,64 @@ import unittest
 import zipfile
 from http.server import ThreadingHTTPServer
 
-from aiohttp import BasicAuth, ClientSession, WSServerHandshakeError
-from aiohttp.test_utils import TestClient, TestServer
+from aiohttp import BasicAuth, ClientSession, WSServerHandshakeError, web
+from aiohttp.test_utils import TestClient, TestServer, make_mocked_request
 
 from webapp.relay import Relay
 
 PAGES = "https://adreloi.github.io"
 
 
+class RelayAccessTests(unittest.IsolatedAsyncioTestCase):
+    """Exercise access decisions without requiring a listening socket."""
+
+    def request(self, method, path, **headers):
+        return make_mocked_request(method, path, headers={
+            "Host": "relay.example", "Origin": PAGES, **headers})
+
+    async def accept(self, request):
+        return web.Response(status=204)
+
+    async def test_public_is_explicit_and_keeps_engine_authentication(self):
+        relay = Relay("engine-key", "https://relay.example", "old-password", PAGES)
+        request = self.request("POST", "/api/jobs")
+        self.assertEqual((await relay.access(request, self.accept)).status, 401)
+        relay = Relay("engine-key", "https://relay.example", "old-password", PAGES, public_access=True)
+        self.assertEqual((await relay.access(request, self.accept)).status, 204)
+        for credential, status in (("", 403), ("Bearer wrong", 403), ("Bearer engine-key", 204)):
+            request = self.request("GET", "/_engine/connect", Authorization=credential)
+            self.assertEqual((await relay.access(request, self.accept)).status, status)
+
+    async def test_public_keeps_origin_and_host_checks(self):
+        relay = Relay("engine-key", "https://relay.example", browser_origin=PAGES, public_access=True)
+        for headers in ({"Origin": "https://evil.example"}, {"Origin": ""}, {"Host": "evil.example"}):
+            response = await relay.access(self.request("POST", "/api/jobs", **headers), self.accept)
+            self.assertEqual(response.status, 403)
+
+    async def test_public_offline_jobs_are_rejected_without_queueing(self):
+        relay = Relay("engine-key", "https://relay.example", browser_origin=PAGES, public_access=True)
+        request = self.request("POST", "/api/jobs")
+        request.match_info["name"] = "jobs"
+        response = await relay.access(request, relay.api)
+        self.assertEqual(response.status, 503)
+        self.assertEqual(json.loads(response.text)["error"], "Simulation engine offline")
+        self.assertFalse(relay.pending)
+
+
 class RelayTests(unittest.IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
-        self.relay = Relay("engine-test-key", "http://127.0.0.1:1", "browser-test-password", PAGES)
+        await self.start_relay()
+
+    async def start_relay(self, public_access=False):
+        self.relay = Relay("engine-test-key", "http://127.0.0.1:1", "browser-test-password", PAGES,
+                           public_access=public_access)
         self.client = TestClient(TestServer(self.relay.application()))
         await self.client.start_server()
         self.origin = str(self.client.make_url("")).rstrip("/")
         self.relay.hosts.add(self.origin.removeprefix("http://"))
         self.headers = {"Origin": PAGES, "Authorization": BasicAuth("lab", "browser-test-password").encode()}
+        if public_access:
+            self.headers.pop("Authorization")
 
     async def asyncTearDown(self):
         await self.client.close()
@@ -107,6 +149,35 @@ class RelayTests(unittest.IsolatedAsyncioTestCase):
         await engine.close()
 
     async def test_real_engine_job_replay_and_archive(self):
+        await self.check_real_engine_job()
+
+    async def test_public_engine_job_replay_and_archive(self):
+        await self.client.close()
+        await self.start_relay(public_access=True)
+        await self.check_real_engine_job()
+
+    async def test_public_access_waits_for_engine_and_keeps_engine_key_and_origin_checks(self):
+        await self.client.close()
+        await self.start_relay(public_access=True)
+        for path, method in (("/api/catalog", "get"), ("/api/jobs", "post")):
+            response = await getattr(self.client, method)(path, headers=self.headers)
+            self.assertEqual(response.status, 503)
+        response = await self.client.post("/live-ticket", headers={"Origin": "https://evil.example"})
+        self.assertEqual(response.status, 403)
+        response = await self.client.get("/_engine/connect", headers=self.headers)
+        self.assertEqual(response.status, 403)
+        socket = await self.client.ws_connect("/live?ticket=" + await self.ticket(), origin=PAGES)
+        self.assertFalse((await socket.receive_json())["online"])
+        engine = await self.client.ws_connect("/_engine/connect", headers={"Authorization": "Bearer engine-test-key"})
+        self.assertTrue((await socket.receive_json(timeout=5))["online"])
+        await engine.close()
+        self.assertFalse((await socket.receive_json(timeout=5))["online"])
+        response = await self.client.post("/api/jobs", headers=self.headers, json={"action": "run"})
+        self.assertEqual(response.status, 503)
+        self.assertFalse(self.relay.pending)
+        await socket.close()
+
+    async def check_real_engine_job(self):
         from usv_sim.dashboard import Lab, handler_for
         from usv_sim.engine import bridge
         with tempfile.TemporaryDirectory(prefix="rmsw-relay-test-") as temporary:

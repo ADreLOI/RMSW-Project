@@ -1804,6 +1804,7 @@ async function watchGateway(epoch = liveEpoch, delay = 2000) {
   socket.onclose = () => {
     if (epoch !== liveEpoch) return;
     gatewayState(false);
+    if (transport.static) $("remote-status").textContent = t("remote.connecting");
     setTimeout(() => {
       if (epoch === liveEpoch) watchGateway(epoch, Math.min(delay * 2, 30000));
     }, delay);
@@ -1840,5 +1841,7 @@ async function init() {
     $("connection").textContent = t("engine.unavailable");
     toast(error.message, true);
   }
+  // Load published data first; relay startup must never delay the offline site.
+  if (transport.publicAccess && transport.remote) watchGateway();
 }
 init();

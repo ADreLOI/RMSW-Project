@@ -61,16 +61,16 @@
       </nav>
       <div class="sidebar-footer">
         <details id="remote-panel" hidden>
-          <summary data-i18n="remote.title">Connect your engine</summary>
+          <summary id="remote-heading" data-i18n="remote.title">Connect your engine</summary>
           <form id="remote-form">
             <label for="relay-url" data-i18n="remote.url">Relay URL</label>
             <input id="relay-url" type="url" required placeholder="https://…onrender.com" autocomplete="url" />
-            <label for="relay-password" data-i18n="remote.password">Browser password</label>
+            <label id="relay-password-label" for="relay-password" data-i18n="remote.password">Browser password</label>
             <input id="relay-password" type="password" required autocomplete="off" />
             <button type="submit" class="button secondary small" data-i18n="remote.connect">Connect</button>
             <button type="button" id="remote-disconnect" class="button secondary small" data-i18n="remote.disconnect">Disconnect</button>
-            <p id="remote-status" aria-live="polite" data-i18n="remote.hint">Your password stays in this tab. Start the engine on your PC to run experiments.</p>
           </form>
+          <p id="remote-status" aria-live="polite" data-i18n="remote.hint">Your password stays in this tab. Start the engine on your PC to run experiments.</p>
         </details>
         <div class="engine"><span class="status-dot" id="engine-dot"></span><span id="connection" data-i18n="engine.connecting">Connecting to the Python engine…</span></div>
         <p data-i18n="sidebar.note">The engine supplies recorded runs and live samples.</p>

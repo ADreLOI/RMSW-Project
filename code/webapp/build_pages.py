@@ -20,7 +20,7 @@ def api_key(path):
     return url.path + ("?" + urlencode(query) if query else "")
 
 
-def build(output, demo_bundle, relay_url=""):
+def build(output, demo_bundle, relay_url="", public_access=False):
     output, demo_bundle = Path(output), Path(demo_bundle)
     if relay_url:
         url = urlsplit(relay_url)
@@ -38,7 +38,8 @@ def build(output, demo_bundle, relay_url=""):
     shutil.copytree(STATIC_DIR, output, dirs_exist_ok=True)
     (output / ".nojekyll").write_text("", encoding="utf-8")
     (output / "config.js").write_text(
-        "window.LAB_CONFIG = " + json.dumps({"static": True, "relayUrl": relay_url}) + ";\n", encoding="utf-8")
+        "window.LAB_CONFIG = " + json.dumps({"static": True, "relayUrl": relay_url,
+                                            "publicAccess": public_access}) + ";\n", encoding="utf-8")
     (output / "data").mkdir()
     manifest = {}
 
@@ -110,8 +111,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True, help="New directory, must not exist")
     parser.add_argument("--demo-bundle", type=Path, required=True)
     parser.add_argument("--relay-url", default="")
+    parser.add_argument("--public-access", action="store_true", help="Connect browsers automatically without a password")
     args = parser.parse_args()
-    manifest = build(args.output, args.demo_bundle, args.relay_url)
+    manifest = build(args.output, args.demo_bundle, args.relay_url, args.public_access)
     print(f"Built {len(manifest)} public endpoints in {args.output}")
 
 

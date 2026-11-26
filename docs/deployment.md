@@ -51,8 +51,11 @@ PC are not automatically published on Pages.
 
 ### Prepare Render
 
-Do this after the implementation has been reviewed, committed and merged into
-`main`. Until then the current production branch cannot start the new relay.
+For a new service, first push and validate the implementation branch and use it
+for the initial Render deployment. Configure the hook and Pages before merging
+to main, then change Render's branch to main. The existing service is
+https://rmsw-relay.onrender.com and the Pages site is
+https://adreloi.github.io/RMSW-Project/#map.
 
 | Render field | Value |
 | --- | --- |
@@ -73,14 +76,24 @@ Add these environment variables in Render:
 | --- | --- |
 | LAB_WEB_BIND | 0.0.0.0 |
 | LAB_ENGINE_KEY | Generated private key, also used by the PC engine |
-| LAB_WEB_PASSWORD | A different generated password, entered in the Pages connection panel |
+| LAB_PUBLIC_ACCESS | 1 (public browser access, explicitly approved by the project owner) |
 | LAB_BROWSER_ORIGIN | https://adreloi.github.io |
 
 The browser origin has no `/RMSW-Project` path or trailing slash. For a custom
 Pages domain replace it with that exact HTTPS origin. The relay uses Render's
 `RENDER_EXTERNAL_URL` and `PORT` automatically. An explicit
 `LAB_PUBLIC_ORIGIN` overrides the detected URL; normally leave it unset.
-Never put either credential in the public configuration, repository variables or commits.
+Never put the engine key in the public configuration, repository variables or commits.
+With `LAB_PUBLIC_ACCESS=1`, an existing `LAB_WEB_PASSWORD` is ignored. Anyone can
+request the allowed experiments and download engine-served evidence while the
+PC engine is connected. The private engine key, exact browser-origin checks,
+session tokens, input validation and four-job queue bound remain active.
+Origin checks are not visitor authentication. No new jobs are accepted while
+the engine is disconnected, and the relay does not queue jobs for later delivery.
+Jobs already accepted by the PC may finish even after disconnection.
+
+To retain password-protected hosting instead, omit `LAB_PUBLIC_ACCESS`, set
+`LAB_WEB_PASSWORD` and build Pages without `--public-access`.
 
 Click **Deploy web service** after the code is on main. A successful build and an
 HTTP 200 response from `https://<actual-render-host>/health` confirm the relay is
@@ -94,7 +107,8 @@ running; `engine_connected: false` is expected until a PC connects.
    `RENDER_DEPLOY_HOOK_URL`. Do not share the URL in chat or documentation.
 3. Add the **repository variable** `LAB_RELAY_URL` with the actual HTTPS Render
    origin. This address is public and is included in the Pages build. If omitted,
-   visitors can enter it in **Connect your engine**.
+   visitors must enter it manually in the connection panel. Set it to
+   `https://rmsw-relay.onrender.com` to enable automatic connection.
 4. Keep native Render auto-deploy disabled if offered: GitHub Actions requests
    deployment after its checks, specifying the tested commit SHA.
 
@@ -112,12 +126,26 @@ This path does not require the failing GitHub OAuth popup. It follows
 
 ### Connect the PC and browser
 
-Use the engine-only launcher instructions below with the actual Render URL and
-engine key; choose **1** (Docker) or **2** (native). Then open the Pages site,
-expand **Connect your engine**, confirm the relay URL and enter
-`LAB_WEB_PASSWORD`. The password stays in memory for that tab and is cleared
-on disconnect/reload. Live sockets use short-lived, one-use tickets. The browser
-never needs the engine key. Reloading requires entering the browser password again.
+Once per Windows user/PC, open `Manage-Lab.cmd` and choose **9**. Accept the
+default relay URL and enter the value of `LAB_ENGINE_KEY` configured on Render
+at the hidden prompt. The ignored `.lab-launcher/remote.xml` stores the key
+encrypted with Windows DPAPI; it can only be decrypted by that Windows user on
+that PC. Configure Andrea's launcher separately instead of copying this file.
+Alternatively run `Manage-Lab.cmd -Action configure-remote`.
+
+For subsequent use, start Docker Desktop and choose **1** to start only the
+engine, or **2** for native Python. Stop an existing engine before changing its
+destination or key. Choose **5** to stop the Docker engine or **6** for native.
+Options **3/4** still start the local webapp and engine; **7/8** stop that pair.
+Explicit `LAB_RELAY_URL` and `LAB_ENGINE_KEY` environment variables override
+the saved profile, as in the alternative instructions below.
+
+Open the Pages site: it loads published data first and automatically connects to
+the configured relay, without a browser password. The panel **Collegamento al
+motore / Engine connection** shows waiting/connected status. Mission controls
+become available when the engine connects and are disabled when it disconnects.
+Reloading starts the connection again. Live sockets still use short-lived,
+one-use origin-bound tickets; the browser never receives the engine key.
 
 After a relay restart the engine and browser retry their connections. New
 experiments and their files remain on the PC. A new run is never automatically
@@ -129,7 +157,7 @@ buffers the authenticated response before saving it.
 - Local: menu **3**, replay and comparison, timeline/charts, history, slides,
   job submission and ZIP/raw/figure downloads; then menu **7**.
 - Public with PC off: guide/slides, historical summaries and five demo replays.
-- Public with PC on: connect, submit a short job, observe live samples, open
+- Public with PC on: verify automatic connection, submit a short job, observe live samples, open
   the verified replay and download its ZIP. Disconnect and reconnect.
 - Publication: a main push passes CI; Pages and Render show the tested revision.
 

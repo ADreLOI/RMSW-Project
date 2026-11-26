@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [ValidateSet('menu','start','stop')][string]$Action = 'menu',
+    [ValidateSet('menu','start','stop','configure-remote')][string]$Action = 'menu',
     [ValidateSet('docker','native')][string]$Mode = 'docker',
     [ValidateSet('engine','both')][string]$Services = 'both',
     [switch]$NoBrowser
@@ -14,6 +14,27 @@ $localUrl = 'http://127.0.0.1:8768'
 $requestedRelay = $env:LAB_RELAY_URL
 $requestedKey = $env:LAB_ENGINE_KEY
 [void][IO.Directory]::CreateDirectory($stateDir)
+$remoteProfile = Join-Path $stateDir 'remote.xml'
+
+function Set-RemoteProfile {
+    $address = (Read-Host 'URL del relay [https://rmsw-relay.onrender.com]').Trim()
+    if (-not $address) { $address = 'https://rmsw-relay.onrender.com' }
+    $uri = $null
+    if (-not [Uri]::TryCreate($address, [UriKind]::Absolute, [ref]$uri) -or
+        $uri.Scheme -ne 'https' -or $uri.UserInfo -or $uri.AbsolutePath -ne '/' -or $uri.Query -or $uri.Fragment) {
+        throw 'Inserisci un URL HTTPS senza percorso, parametri o credenziali.'
+    }
+    $key = Read-Host 'LAB_ENGINE_KEY configurata su Render (input nascosto)' -AsSecureString
+    if ($key.Length -eq 0) { throw 'La chiave non puo essere vuota.' }
+    # Windows encrypts PSCredential with DPAPI for this user on this PC.
+    $profile = [pscustomobject]@{
+        Relay = $uri.GetLeftPart([UriPartial]::Authority)
+        Credential = [PSCredential]::new('engine', $key)
+    }
+    $profile | Export-Clixml -LiteralPath $remoteProfile
+    Write-Host 'Configurazione salvata per questo utente Windows. Usa 1 (Docker) o 2 (nativo).'
+    Write-Host 'Se il motore e gia avviato, fermalo prima di riavviarlo con la nuova configurazione.'
+}
 
 function Get-LocalKey {
     $file = Join-Path $stateDir 'engine.key'
@@ -127,12 +148,24 @@ function Manage($operation, $runtime, $scope) {
     $guard = [IO.File]::Open((Join-Path $stateDir 'menu.lock'), 'OpenOrCreate', 'ReadWrite', 'None')
     $started = @()
     try {
-        $remote = $scope -eq 'engine' -and $requestedRelay
-        $env:LAB_ENGINE_KEY = if ($requestedKey) { $requestedKey } else { Get-LocalKey }
-        if ($remote -and -not $requestedKey -and $operation -eq 'start') { throw 'Per un server remoto imposta anche LAB_ENGINE_KEY.' }
-        $env:LAB_RELAY_URL = if ($remote) { $requestedRelay } elseif ($runtime -eq 'docker') { 'http://web:8768' } else { $localUrl }
+        $relay = $requestedRelay
+        $engineKey = $requestedKey
+        if ($scope -eq 'engine' -and $operation -eq 'start' -and -not $relay -and
+            (Test-Path -LiteralPath $remoteProfile)) {
+            try {
+                $profile = Import-Clixml -LiteralPath $remoteProfile
+                $relay = $profile.Relay
+                $engineKey = if ($requestedKey) { $requestedKey } else { $profile.Credential.GetNetworkCredential().Password }
+                if (-not $relay -or -not $engineKey) { throw 'Profilo incompleto' }
+            } catch { throw 'Configurazione remota non leggibile. Ricreala con la voce 9 del menu.' }
+        }
+        $remote = $scope -eq 'engine' -and $relay
+        $env:LAB_ENGINE_KEY = if ($engineKey) { $engineKey } else { Get-LocalKey }
+        if ($remote -and -not $engineKey -and $operation -eq 'start') { throw 'Per un server remoto imposta anche LAB_ENGINE_KEY.' }
+        $env:LAB_RELAY_URL = if ($remote) { $relay } elseif ($runtime -eq 'docker') { 'http://web:8768' } else { $localUrl }
         $env:LAB_PUBLIC_ORIGIN = $localUrl
         $env:LAB_WEB_PASSWORD = ''
+        $env:LAB_PUBLIC_ACCESS = '0'
         $env:PORT = '8768'
         $env:LAB_WEB_BIND = '127.0.0.1'
         $names = if ($scope -eq 'both') { @('web','engine') } else { @('engine') }
@@ -186,6 +219,7 @@ function Manage($operation, $runtime, $scope) {
     } finally { $guard.Dispose() }
 }
 
+if ($Action -eq 'configure-remote') { Set-RemoteProfile; exit 0 }
 if ($Action -ne 'menu') { Manage $Action $Mode $Services; exit 0 }
 $choices = @(
     @('start','docker','engine'), @('start','native','engine'),
@@ -205,10 +239,15 @@ USV Research Lab
   6  Ferma motore                   Nativo
   7  Ferma motore + webapp          Docker
   8  Ferma motore + webapp          Nativo
+  9  Configura collegamento remoto (una sola volta)
   0  Esci dal menu
 '@
     $selection = Read-Host 'Scelta'
     if ($selection -eq '0') { break }
+    if ($selection -eq '9') {
+        try { Set-RemoteProfile } catch { Write-Host $_.Exception.Message -ForegroundColor Red }
+        continue
+    }
     if ($selection -notmatch '^[1-8]$') { continue }
     $arguments = $choices[[int]$selection - 1]
     try { Manage @arguments } catch { Write-Host $_.Exception.Message -ForegroundColor Red }

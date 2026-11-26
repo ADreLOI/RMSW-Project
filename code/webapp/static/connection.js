@@ -2,6 +2,7 @@
 // Passwords live only in this closure and are never stored or put in URLs.
 window.LabConnection = (() => {
   const config = window.LAB_CONFIG || {};
+  const publicAccess = Boolean(config.static && config.publicAccess);
   let base = "", password = "", online = false, revision = 0, manifest;
   const text = (key) => I18N.t(key);
   const keyFor = (path) => {
@@ -18,8 +19,10 @@ window.LabConnection = (() => {
   }
   async function authenticated(path, options = {}) {
     const headers = new Headers(options.headers || {});
-    const bytes = new TextEncoder().encode("lab:" + password);
-    headers.set("Authorization", "Basic " + btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join("")));
+    if (!publicAccess) {
+      const bytes = new TextEncoder().encode("lab:" + password);
+      headers.set("Authorization", "Basic " + btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join("")));
+    }
     return fetch(base + path, { ...options, headers, credentials: "omit", redirect: "error" });
   }
   async function request(path, options = {}) {
@@ -64,11 +67,29 @@ window.LabConnection = (() => {
     panel.hidden = !config.static;
     if (!config.static) return;
     document.getElementById("relay-url").value = config.relayUrl || "";
+    if (publicAccess) {
+      document.getElementById("remote-heading").setAttribute("data-i18n", "remote.publicTitle");
+      document.getElementById("remote-heading").textContent = text("remote.publicTitle");
+      document.getElementById("remote-status").removeAttribute("data-i18n");
+      document.getElementById("relay-password-label").hidden = true;
+      document.getElementById("relay-password").hidden = true;
+      document.getElementById("remote-disconnect").hidden = true;
+      panel.open = true;
+      if (config.relayUrl) {
+        try {
+          base = origin(config.relayUrl);
+          document.getElementById("remote-form").hidden = true;
+          document.getElementById("remote-status").textContent = text("remote.connecting");
+        } catch (error) {
+          document.getElementById("remote-status").textContent = error.message;
+        }
+      }
+    }
     document.getElementById("remote-form").addEventListener("submit", (event) => {
       event.preventDefault();
       try {
         base = origin(document.getElementById("relay-url").value.trim());
-        password = document.getElementById("relay-password").value;
+        password = publicAccess ? "" : document.getElementById("relay-password").value;
         document.getElementById("relay-password").value = "";
         online = false;
         ++revision;
@@ -104,8 +125,8 @@ window.LabConnection = (() => {
     });
   }
   return {
-    static: Boolean(config.static), request, liveUrl, init,
-    get remote() { return Boolean(base && password); },
+    static: Boolean(config.static), publicAccess, request, liveUrl, init,
+    get remote() { return Boolean(base && (publicAccess || password)); },
     get online() { return online; },
     setOnline(value) { if (online !== value) { online = value; ++revision; } },
   };

@@ -38,7 +38,7 @@ jobs:
       - name: Build public site from verified evidence
         env:
           LAB_RELAY_URL: ${{ vars.LAB_RELAY_URL }}
-        run: python -m webapp.build_pages --output .pages-artifact --demo-bundle code/simulator/results/ci-smoke --relay-url "$LAB_RELAY_URL"
+        run: python -m webapp.build_pages --output .pages-artifact --demo-bundle code/simulator/results/ci-smoke --relay-url "$LAB_RELAY_URL" --public-access
       - name: Package Pages site
         uses: actions/upload-pages-artifact@v4
         with:

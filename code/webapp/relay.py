@@ -26,7 +26,7 @@ def same_secret(a, b):
 
 
 class Relay:
-    def __init__(self, key, origin, password=None, browser_origin=None):
+    def __init__(self, key, origin, password=None, browser_origin=None, public_access=False):
         self.key = key
         self.origin = origin.rstrip("/")
         parsed = urlsplit(self.origin)
@@ -34,7 +34,8 @@ class Relay:
         if parsed.hostname in ("localhost", "127.0.0.1") and parsed.port:
             self.hosts = {f"localhost:{parsed.port}", f"127.0.0.1:{parsed.port}"}
         self.scheme = parsed.scheme
-        self.password = password
+        # Public browser access is explicit; the engine always needs its private key.
+        self.password = None if public_access else password
         self.browser_origin = browser_origin
         self.tickets = {}
         self.engine = None
@@ -247,8 +248,9 @@ async def main():
     origin = os.getenv("LAB_PUBLIC_ORIGIN") or os.getenv("RENDER_EXTERNAL_URL") or f"http://127.0.0.1:{port}"
     parsed = urlsplit(origin)
     password = os.getenv("LAB_WEB_PASSWORD")
-    if parsed.hostname not in ("127.0.0.1", "localhost") and (parsed.scheme != "https" or not password):
-        raise SystemExit("Set an HTTPS LAB_PUBLIC_ORIGIN and LAB_WEB_PASSWORD for hosted access.")
+    public_access = os.getenv("LAB_PUBLIC_ACCESS") == "1"
+    if parsed.hostname not in ("127.0.0.1", "localhost") and (parsed.scheme != "https" or not (password or public_access)):
+        raise SystemExit("Hosted access requires HTTPS and LAB_WEB_PASSWORD or explicit LAB_PUBLIC_ACCESS=1.")
     key = os.environ["LAB_ENGINE_KEY"]
     if not key:
         raise SystemExit("LAB_ENGINE_KEY must be set")
@@ -257,7 +259,9 @@ async def main():
         browser = urlsplit(browser_origin)
         if browser.scheme != "https" or not browser.netloc or browser.path or browser.query or browser.fragment or browser.username:
             raise SystemExit("LAB_BROWSER_ORIGIN must be an HTTPS origin without a path.")
-    relay = Relay(key, origin, password, browser_origin)
+    if public_access and not browser_origin:
+        raise SystemExit("Public access requires LAB_BROWSER_ORIGIN for the published dashboard.")
+    relay = Relay(key, origin, password, browser_origin, public_access=public_access)
     runner = web.AppRunner(relay.application(), access_log=None, shutdown_timeout=3)
     await runner.setup()
     try:

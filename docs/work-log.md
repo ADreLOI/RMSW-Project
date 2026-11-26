@@ -287,3 +287,52 @@ Actual browser interaction/layout, Docker image build/start, GitHub Actions,
 Pages and Render deployment remain unverified. Docker daemon access was denied
 in this session and browser control is unavailable. No hosted service was
 created, no generated secrets were read, and no commit/push was performed.
+
+## 2026-11-26 — Automatic public relay connection
+
+User-authorized change on `dev-code-public-relay`, based on main. No commit,
+push, Render setting change or hosted deployment was performed in this session.
+
+- Pages builds opt in with `--public-access`, use the public `LAB_RELAY_URL`
+  configuration and start relay watching after loading the published catalog.
+  Password controls are hidden in this mode; disconnects restore offline data
+  and disable mission submission while connection retries continue.
+- Render separately opts in with `LAB_PUBLIC_ACCESS=1`. Existing browser
+  passwords are ignored only in that mode. Engine authentication, browser
+  origin/host checks and downstream validation remain. Offline submissions are
+  rejected, not queued for future reconnection. Public access intentionally
+  permits visitors to use allowed engine actions and evidence while connected.
+- Launcher menu 9 saves URL and a DPAPI-encrypted PSCredential for the current
+  Windows user/PC in ignored `.lab-launcher/remote.xml`. Engine-only starts use
+  it; combined local starts retain local configuration; explicit environment
+  settings take precedence. No real user credential was created or read.
+- Deployment and architecture docs explain activation and the public-access
+  implications. Scientific code, frozen evidence and paper were not modified.
+
+Validation:
+- Seven JavaScript transport tests passed, including public initialization,
+  credential-free requests, offline fallback and manual URL fallback.
+- Three new middleware access checks passed by driving their immediate
+  coroutines directly, without creating an event loop: explicit public opt-in,
+  retained engine/host/origin checks and offline 503 without queueing. Their
+  normal unittest execution and real socket lifecycle tests remain in CI.
+- PowerShell AST parsed; isolated launcher checks with dummy credentials passed
+  encrypted round-trip/no plaintext, saved remote settings, local isolation,
+  environment overrides and missing-key rejection. Docker calls were mocked.
+- Simulator suite: 57 passed; six HTTP integration tests failed with Windows
+  socket permission error 10013 in this environment. The relay integration
+  suite could not complete because local networking/event-loop sockets were
+  blocked and was interrupted. Docker Desktop access was also denied.
+- Regenerated five missions using run_bundle, independently reconstructed logs,
+  inventoried the bundle and exactly compared scientific values with core.
+  This was a direct export check, not a successful full test pipeline.
+  Bundle: `code/simulator/results/lab/public-20261126/` (ignored). The older
+  pages-20261125 directory was incomplete in this checkout and was not reused.
+- Public exporter generated 92 endpoints in `.pages-artifact/public-20261126/`
+  (ignored); all mapped files exist and config contains only the public relay
+  URL and mode flags. No engine key is included.
+- Headless replay passed six traces across three knowledge layers/four times.
+  JavaScript syntax and git diff whitespace checks passed.
+
+Actual browser layout/interactions and network integration remain to be checked
+in an unrestricted environment and GitHub Actions before merging to main.

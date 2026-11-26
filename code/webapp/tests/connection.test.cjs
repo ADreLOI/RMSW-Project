@@ -5,13 +5,16 @@ const path = require("node:path");
 const vm = require("node:vm");
 const source = fs.readFileSync(path.join(__dirname, "../static/connection.js"), "utf8");
 
-function fixture(fetch) {
+function fixture(fetch, config = {}) {
   const nodes = new Map(), events = [];
   const node = (id) => {
-    if (!nodes.has(id)) nodes.set(id, { value: "", listeners: {}, addEventListener(name, fn) { this.listeners[name] = fn; } });
+    if (!nodes.has(id)) nodes.set(id, { value: "", listeners: {}, attributes: {},
+      setAttribute(name, value) { this.attributes[name] = value; },
+      removeAttribute(name) { delete this.attributes[name]; },
+      addEventListener(name, fn) { this.listeners[name] = fn; } });
     return nodes.get(id);
   };
-  const window = { LAB_CONFIG: { static: true, relayUrl: "https://relay.example" },
+  const window = { LAB_CONFIG: { static: true, relayUrl: "https://relay.example", ...config },
     dispatchEvent(event) { events.push(event.type); } };
   const context = {
     window, document: { baseURI: "https://owner.github.io/RMSW-Project/", getElementById: node, addEventListener() {} },
@@ -87,4 +90,42 @@ test("wrong browser password stops automatic authentication retries", async () =
   const f = fixture(async () => new Response("{}", { status: 401 }));
   f.connect();
   await assert.rejects(f.transport.liveUrl(), (error) => error.stopRetry && error.message === "remote.passwordError");
+});
+
+test("public Pages prepares automatic connection without credentials and falls back when engine disconnects", async () => {
+  const calls = [];
+  const f = fixture(async (url, options) => {
+    calls.push({ url: String(url), options });
+    if (String(url).endsWith("/live-ticket")) return new Response(JSON.stringify({ ticket: "public-ticket" }));
+    if (url === "./data/manifest.json") return new Response(JSON.stringify({ "/api/catalog": { path: "data/catalog.json" } }));
+    return new Response("{}");
+  }, { publicAccess: true });
+  assert.equal(f.transport.remote, true);
+  assert.equal(f.transport.online, false);
+  assert.equal(f.node("remote-form").hidden, true);
+  assert.equal(f.node("relay-password").hidden, true);
+  assert.deepEqual(f.events, []); // app.js starts the watcher after loading static data.
+  assert.equal(await f.transport.liveUrl(), "wss://relay.example/live?ticket=public-ticket");
+  assert.equal(calls[0].options.headers.has("Authorization"), false);
+  await assert.rejects(f.transport.request("/api/jobs", { method: "POST" }), /remote.required/);
+  f.transport.setOnline(true);
+  await f.transport.request("/api/jobs", { method: "POST", body: "{}" });
+  assert.equal(calls[1].url, "https://relay.example/api/jobs");
+  assert.equal(calls[1].options.headers.has("Authorization"), false);
+  f.transport.setOnline(false);
+  await f.transport.request("/api/catalog");
+  assert.equal(calls.at(-1).url, "https://owner.github.io/RMSW-Project/data/catalog.json");
+  assert.equal(f.transport.remote, true); // Stay subscribed; the engine may reconnect.
+});
+
+test("public connection without a configured URL offers only URL entry and rejects invalid origins", () => {
+  const f = fixture(() => { throw Error("must not fetch"); }, { publicAccess: true, relayUrl: "" });
+  assert.equal(f.transport.remote, false);
+  assert.notEqual(f.node("remote-form").hidden, true);
+  f.connect("http://relay.example");
+  assert.equal(f.transport.remote, false);
+  f.connect("https://relay.example", "unused-password");
+  assert.equal(f.transport.remote, true);
+  assert.equal(f.node("relay-password").value, "");
+  assert.deepEqual(f.events, ["lab-connect"]);
 });

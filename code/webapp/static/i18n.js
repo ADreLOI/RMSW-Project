@@ -4,6 +4,7 @@
 // Placeholders use {name}. Values used with data-i18n-html may contain <em>.
 const STRINGS = {
   en: {
+    "remote.publicTitle": "Engine connection",
     "remote.title": "Connect your engine",
     "remote.url": "Relay URL",
     "remote.password": "Browser password",
@@ -771,6 +772,7 @@ const STRINGS = {
     "cp.warn.dotLost": "exchange lost",
   },
   it: {
+    "remote.publicTitle": "Collegamento al motore",
     "remote.title": "Collega il tuo motore",
     "remote.url": "URL del relay",
     "remote.password": "Password del browser",
