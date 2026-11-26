@@ -2,6 +2,14 @@
 
 Record completed work, actual checks, evidence locations and remaining limits here. Entries describe work done; proposed research changes belong in a separate decision record until implemented and evaluated.
 
+## 26 November 2026 — report-based seminar deck
+
+- Added a nine-slide, bilingual II2202 seminar deck alongside the existing decks. The shareable presentation route is `?deck=seminar#presentation`.
+- The results slides show the four retained November diagnostic figures and the extension's mission-time plot. Completion and paired time ranges read the archived result data. The complete extension contrasts are available as a CSV.
+- Checked the three selectors, the four diagnostic figure buttons, and the extension plot in Chrome on the loopback dashboard. This is a local review before publication.
+- Added an English PDF download to the seminar deck. Its first nine pages follow the deck, and three appendix pages preserve the additional graphs available through the results slide's figure tabs. The PDF is rendered from the dashboard and packaged with its static assets. After editing the seminar deck, run `node code/webapp/scripts/export_seminar_pdf.cjs <dashboard-url>` from the repository root with Playwright and Chromium available, then verify the resulting pages before publication.
+- The cover keeps the dashboard's animated boat. The PDF uses a frame rendered by the same component. The problem slide shows the verified S4-T replay at 600 seconds, with the recorded boat positions, paths and assignments.
+
 ## 23 October 2026 — revised-plan implementation and paper setup
 
 Relevant commits: `472e8bb` (implementation and separation), `8ee8b64` (source/evidence review notes), `dff1764` (stronger reconstruction and print polish). See Git history for exact changes.

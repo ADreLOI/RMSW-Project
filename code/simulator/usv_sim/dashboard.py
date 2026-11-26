@@ -37,14 +37,21 @@ RUN_NAME = re.compile(r"\d{1,10}-[01]-(?:2|5|10)-(?:S1|S2|S3|S4-[TPEKGLMO])")
 JOB_ID = re.compile(r"\d{8}T\d{6}-[a-f0-9]{8}")
 STATIC = {"/": "index.html", "/index.html": "index.html", "/app.js": "app.js", "/i18n.js": "i18n.js",
           "/config.js": "config.js", "/connection.js": "connection.js",
-          "/style.css": "style.css", "/tokens.css": "tokens.css", "/favicon.svg": "favicon.svg"}
+          "/style.css": "style.css", "/tokens.css": "tokens.css", "/favicon.svg": "favicon.svg",
+          "/II2202-Final-Seminar.pdf": "II2202-Final-Seminar.pdf"}
 FONT = re.compile(r"/fonts/([A-Za-z0-9-]+\.(?:ttf|woff2|txt))")
 TYPES = {".ttf": "font/ttf", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8",
          ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
-         ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml"}
+         ".html": "text/html; charset=utf-8", ".svg": "image/svg+xml", ".pdf": "application/pdf"}
+POSTHOC_FIGURES = {
+    "report-outcomes": "fig-outcome-distribution.png",
+    "report-window": "fig-critical-mechanism.png",
+    "report-stall-model": "fig-stall-vs-theory.png",
+    "report-blackout": "fig-blackout-map.png",
+}
 FIGURES = {"core-mission-time", "core-resource-tradeoff", "core-condition", "core-contrasts",
            "extension-mission-time", "extension-predictor-cost", "extension-map-rmse",
-           "extension-condition", "extension-contrasts"}
+           "extension-condition", "extension-contrasts", *POSTHOC_FIGURES}
 EXTENSION_EXPORTS = {"runs.json", "extension-design.json", "condition-summary.csv", "paired-contrasts.csv",
                      "predictor-warning-quality.csv", "hardware-projection.csv", "map-accuracy-summary.csv",
                      "evaluation-manifest.json", "analysis-manifest.json"}
@@ -245,6 +252,10 @@ class Lab:
         """Publication-style PNG of retained summaries; names and conditions are whitelisted."""
         if name not in FIGURES:
             raise ValueError("Unknown figure")
+        if name in POSTHOC_FIGURES:
+            filename = POSTHOC_FIGURES[name]
+            evidence = SIMULATION / "results" / "posthoc" / "critical-window-2026-11-24"
+            return (evidence / filename).read_bytes(), filename
         per_condition = name.endswith(("condition", "contrasts"))
         slow = {"true": True, "false": False}.get(slowdown)
         if per_condition and (slow is None or length not in ("2", "5", "10")):

@@ -23,4 +23,4 @@ packages = ["usv_sim", "usv_sim.charts", "usv_sim.extensions", "webapp"]
 package-dir = {usv_sim = "simulator/usv_sim", webapp = "webapp"}
 
 [tool.setuptools.package-data]
-webapp = ["static/*.html", "static/*.css", "static/*.js", "static/*.svg", "static/fonts/*"]
+webapp = ["static/*.html", "static/*.css", "static/*.js", "static/*.svg", "static/*.pdf", "static/fonts/*"]

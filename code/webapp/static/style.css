@@ -400,6 +400,10 @@ tr.selected { background: var(--accent-soft); }
 .slide-list .policy-swatch { background: var(--c); }
 .slide-chart { min-height: 0; }
 .slide-chart svg { width: 100%; height: auto; display: block; max-height: 30cqi; }
+.seminar-figure { margin: 0; }
+.seminar-figure img { width: 100%; height: auto; max-height: 32cqi; object-fit: contain; }
+.seminar-evidence { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+[data-seminar-figure][aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 /* Deck picker: one presentation per scheduled event (research-plan milestones). */
 .deck-picker { display: flex; flex-wrap: wrap; gap: var(--s-3); }
 .deck-choice { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 180px; padding: var(--s-2) var(--s-4); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--foreground); font: inherit; text-align: left; cursor: pointer; transition: border-color var(--t-fast), background var(--t-fast); }
@@ -479,6 +483,8 @@ tr.selected { background: var(--accent-soft); }
 .proc-card b { font: 600 1.25em / 1.2 var(--font-display); }
 .proc-card small { color: var(--muted-foreground); font-size: 0.92em; line-height: 1.4; }
 .slide-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); }
+.presentation-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.presentation-actions [hidden] { display: none; }
 .slide-dots { display: flex; gap: var(--s-2); }
 .slide-dots button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: 1px solid var(--border-strong); background: var(--surface); cursor: pointer; transition: background var(--t-fast), width var(--t-fast); }
 .slide-dots button.active { width: 26px; border-radius: 5px; background: var(--accent); border-color: var(--accent); }
@@ -531,6 +537,7 @@ body.motion-paused .scroll-reveal { opacity: 1; filter: none; transform: none; t
   .step-big { font-size: 3.4rem; }
   .page-heading { flex-direction: column; align-items: flex-start; }
   .slide-title-grid, .slide-split { grid-template-columns: minmax(0, 1fr); }
+  .seminar-figure img { max-height: none; }
   .slide-field { display: none; }
   .deck { aspect-ratio: auto; min-height: 60vh; }
   .deck-body { font-size: 14px; }
@@ -568,7 +575,33 @@ body.motion-paused .scroll-reveal { opacity: 1; filter: none; transform: none; t
 @media print {
   .sidebar, .topbar, .page-footer, .slide-controls, .deck-picker, #view-presentation .page-heading { display: none !important; }
   .workspace { margin: 0; }
+  html[data-seminar-print] body { margin: 0; print-color-adjust: exact; }
+  html[data-seminar-print] .workspace { display: block; max-width: none; padding: 0; }
+  html[data-seminar-print] #main { display: block; max-width: none; margin: 0; padding: 0; }
+  html[data-seminar-print] #main > :not(#seminar-print) { display: none !important; }
+  html[data-seminar-print] #seminar-print { display: block !important; }
+  .seminar-sheet {
+    page: seminar-sheet;
+    width: 12in;
+    height: 6.75in;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    break-after: page;
+    break-inside: avoid;
+  }
+  .seminar-sheet:last-child { break-after: auto; }
+  .seminar-sheet .reveal { opacity: 1; animation: none; transform: none; }
+  .seminar-sheet .slide-chips:has([data-seminar-figure]),
+  .seminar-sheet a[href*="paired-contrasts"] { display: none; }
+  .seminar-sheet .seminar-title { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); }
+  .seminar-sheet .seminar-boat { display: block; }
+  .seminar-sheet .seminar-boat canvas { display: block; width: 100%; height: auto; }
+  .seminar-sheet .slide-cols { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .seminar-sheet .seminar-evidence { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); }
+  .seminar-sheet .seminar-figure img { display: block; max-height: 3.55in; }
 }
+@page seminar-sheet { size: 12in 6.75in; margin: 0; }
 /* Connection controls are present only in the public Pages build. */
 #remote-panel { margin-bottom: 1rem; }
 #remote-panel summary { cursor: pointer; }
