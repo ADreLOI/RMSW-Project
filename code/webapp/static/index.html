@@ -620,7 +620,10 @@
               <h1 id="pres-title" data-i18n-html="pres.title">Presentation</h1>
               <p data-i18n="pres.lead">One deck per scheduled event, built from the live dashboard. The next event opens by default; pick another below.</p>
             </div>
-            <button id="fullscreen" class="button secondary"><svg><use href="#i-expand" /></svg><span data-i18n="pres.fullscreen">Full screen</span></button>
+            <div class="presentation-actions">
+              <a id="seminar-pdf" class="button secondary" href="./II2202-Final-Seminar.pdf" download hidden data-i18n="seminar.downloadPdf">Download PDF</a>
+              <button id="fullscreen" class="button secondary"><svg><use href="#i-expand" /></svg><span data-i18n="pres.fullscreen">Full screen</span></button>
+            </div>
           </div>
           <div class="deck-picker" id="deck-picker" role="group" data-i18n-aria="pres.decks" aria-label="Presentations by scheduled event"></div>
           <div class="deck" id="deck" tabindex="0" data-i18n-aria="pres.deck" aria-label="Slide deck; use the arrow keys">
@@ -636,6 +639,7 @@
           </div>
           <p class="footnote" data-i18n="pres.note">Use ← / → to navigate and Esc to leave full screen. The mission slide follows the main replay controls. The motion button in the header pauses the animated backgrounds.</p>
         </section>
+        <div id="seminar-print" hidden></div>
 
         <footer class="page-footer">
           <span class="mono">USV·PAC · REPRODUCIBLE BY DESIGN</span>

@@ -25,7 +25,7 @@ const UI_FONT = "Inter, 'Segoe UI', system-ui, sans-serif";
 const state = {
   catalog: null, ext: null, traces: {}, active: "S4-T", dataset: "core", t: 0, playing: false,
   slowdown: true, view: "map", slide: 0, jobs: [], generation: 0, currentJob: null, selectedJob: null,
-  motionPaused: false, tour: null, deck: "final", margin: 4, demoTried: false, demoLoading: false,
+  motionPaused: false, tour: null, deck: "final", seminarFigure: "outcomes", margin: 4, demoTried: false, demoLoading: false,
 };
 const store = {
   get(key) { try { return localStorage.getItem(`usvpac.${key}`); } catch { return null; } },
@@ -224,8 +224,8 @@ function linkState(session) {
 }
 
 /* ---------- map ---------- */
-function drawMap(canvas, trace, time, { mini = false, paper = false } = {}) {
-  const surface = canvasContext(canvas);
+function drawMap(canvas, trace, time, { mini = false, paper = false, snapshot = false } = {}) {
+  const surface = snapshot ? { ctx: canvas.getContext("2d"), width: canvas.width, height: canvas.height } : canvasContext(canvas);
   if (!surface || !trace) return;
   const { ctx, width, height } = surface;
   const c = trace.config;
@@ -239,9 +239,9 @@ function drawMap(canvas, trace, time, { mini = false, paper = false } = {}) {
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
-  const layer = mini ? "global" : $("knowledge").value;
+  const layer = mini || snapshot ? "global" : $("knowledge").value;
   const known = layer === "global" ? null : localKnowledge(trace, frame, at, +layer);
-  const showRepeats = !mini && $("show-redundant").checked && layer === "global";
+  const showRepeats = !mini && !snapshot && $("show-redundant").checked && layer === "global";
   for (let id = 0; id < c.width * c.height; id++) {
     const seen = known ? known.has(id) : trace.first_seen[id] != null && trace.first_seen[id] <= at;
     const [x, y] = cellXY(id);
@@ -261,7 +261,7 @@ function drawMap(canvas, trace, time, { mini = false, paper = false } = {}) {
       ctx.restore();
     }
   }
-  if ((mini || $("show-queues").checked) && tasks.queues)
+  if ((mini || snapshot || $("show-queues").checked) && tasks.queues)
     tasks.queues.forEach((queue, boat) => {
       ctx.setLineDash(tasks.exact ? [] : [3, 2]);
       for (const [index, id] of queue.entries()) {
@@ -286,7 +286,7 @@ function drawMap(canvas, trace, time, { mini = false, paper = false } = {}) {
         ctx.stroke();
       }
     });
-  if (mini || $("show-trails").checked)
+  if (mini || snapshot || $("show-trails").checked)
     for (let boat = 0; boat < 2; boat++) {
       ctx.beginPath(); ctx.strokeStyle = BOAT[boat]; ctx.globalAlpha = mini ? 0.45 : 0.7; ctx.lineWidth = mini ? 1 : 1.5;
       let previous = null;
@@ -311,8 +311,12 @@ function drawMap(canvas, trace, time, { mini = false, paper = false } = {}) {
   }
   points.forEach(([x, y], boat) => {
     ctx.beginPath(); ctx.fillStyle = BOAT[boat]; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = mini ? 1 : 2;
-    ctx.arc(x, y, mini ? 4.2 : 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-    if (!mini) { ctx.fillStyle = "#ffffff"; ctx.font = `700 10px ${UI_FONT}`; ctx.textAlign = "center"; ctx.fillText(boat + 1, x, y + 3.5); ctx.textAlign = "left"; }
+    if (snapshot) {
+      ctx.moveTo(x, y - 21); ctx.lineTo(x + 13, y - 3); ctx.lineTo(x + 11, y + 17);
+      ctx.lineTo(x - 11, y + 17); ctx.lineTo(x - 13, y - 3); ctx.closePath();
+    } else ctx.arc(x, y, mini ? 4.2 : 9, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    if (!mini) { ctx.fillStyle = "#ffffff"; ctx.font = `700 ${snapshot ? 16 : 10}px ${UI_FONT}`; ctx.textAlign = "center"; ctx.fillText(boat + 1, x, y + (snapshot ? 7 : 3.5)); ctx.textAlign = "left"; }
   });
   if (!mini) {
     ctx.font = `11px ${UI_FONT}`; ctx.fillStyle = paper ? "#000" : MUTED; ctx.textAlign = "center";
@@ -1229,9 +1233,9 @@ function signalDigits() {
   const sessions = activeTrace()?.sessions || [];
   return sessions.map((s) => String(Math.round(Math.abs(s.r)))).join("");
 }
-function startField(canvas) {
+function startField(canvas, { snapshot = false } = {}) {
   if (!canvas || fields.has(canvas)) return;
-  const box = canvas.getBoundingClientRect();
+  const box = snapshot ? { width: 480, height: 320 } : canvas.getBoundingClientRect();
   if (!box.width) return;
   const dpr = Math.min(window.devicePixelRatio || 1, 2), w = box.width, h = box.height;
   canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
@@ -1255,10 +1259,12 @@ function startField(canvas) {
     cells.push({ x, y, hull, i: (r * cols + c) * 7, next: 0 });
   }
   let pointer = null, elapsed = 0, previous = 0;
-  canvas.addEventListener("pointermove", (e) => { const b = canvas.getBoundingClientRect(); pointer = [e.clientX - b.left, e.clientY - b.top]; });
-  canvas.addEventListener("pointerleave", () => (pointer = null));
+  if (!snapshot) {
+    canvas.addEventListener("pointermove", (e) => { const b = canvas.getBoundingClientRect(); pointer = [e.clientX - b.left, e.clientY - b.top]; });
+    canvas.addEventListener("pointerleave", () => (pointer = null));
+  }
   const draw = (time) => {
-    const digits = signalDigits(), still = reduced() || state.motionPaused;
+    const digits = signalDigits(), still = snapshot || reduced() || state.motionPaused;
     if (!still && previous) elapsed += Math.min(time - previous, 50);
     previous = time;
     const s = elapsed / 1000;
@@ -1281,10 +1287,11 @@ function startField(canvas) {
       ctx.fillText(digits[cell.i % digits.length], cell.x, cell.y);
     }
     ctx.globalAlpha = 1;
-    if (canvas.isConnected && canvas.offsetParent) fields.set(canvas, requestAnimationFrame(draw));
+    if (!snapshot && canvas.isConnected && canvas.offsetParent) fields.set(canvas, requestAnimationFrame(draw));
     else fields.delete(canvas);
   };
-  fields.set(canvas, requestAnimationFrame(draw));
+  if (snapshot) draw(0);
+  else fields.set(canvas, requestAnimationFrame(draw));
 }
 
 /* ---------- scroll reveal and hero numbers ---------- */
@@ -1331,11 +1338,13 @@ const SCHEDULE = [
   { id: "checkpoint", from: "2026-11-12", to: "2026-11-12", lead: "both", status: "event", deck: "checkpoint" },
   { id: "analysis", from: "2026-11-12", to: "2026-11-25", lead: "both", status: "progress" },
   { id: "final", from: "2026-11-26", to: null, lead: "both", status: "todo", deck: "final" },
+  { from: "2026-11-26", to: null, deck: "seminar" },
 ];
 const DECKS = {
   checkpoint: { section: "cp.section.", slides: ["recap", "policies", "algorithm", "data", "results", "warning", "procedure", "next"] },
   // The 27 October results deck, kept as the draft of the final presentation.
   final: { section: "pres.section.", slides: ["title", "question", "mechanism", "link", "outcome", "extension", "reproduce"] },
+  seminar: { section: "seminar.section.", slides: ["title", "problem", "background", "method", "design", "evidence", "recovery", "conclusion", "questions"] },
 };
 const isoToday = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 const dayLabel = (iso, long = false) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(locale(), long ? { day: "numeric", month: "long", year: "numeric" } : { day: "numeric", month: "short" }); };
@@ -1343,13 +1352,16 @@ const deckEvents = () => SCHEDULE.filter((e) => e.deck);
 function defaultDeck(today = isoToday()) {
   // The next scheduled event that still lies ahead (or is today); afterwards the last one.
   const events = deckEvents();
-  return (events.find((e) => (e.to ?? "9999-12-31") >= today) ?? events[events.length - 1]).deck;
+  return (events.find((e) => e.to !== null && e.to >= today) ?? events.filter((e) => e.from <= today).at(-1) ?? events[0]).deck;
 }
 const deckSlides = () => DECKS[state.deck].slides;
 function chooseDeck(deck) {
-  if (!DECKS[deck] || deck === state.deck) return;
+  if (!Object.hasOwn(DECKS, deck) || deck === state.deck) return;
   state.deck = deck;
   state.slide = 0;
+  const url = new URL(location.href);
+  url.searchParams.set("deck", deck);
+  history.replaceState(null, "", url);
   renderSlide();
 }
 function renderDeckPicker() {
@@ -1357,7 +1369,7 @@ function renderDeckPicker() {
   $("deck-picker").innerHTML = deckEvents().map((e) => {
     const when = e.to == null ? (e.from <= today ? "draft" : "upcoming") : e.to < today ? "past" : e.from <= today ? "today" : "upcoming";
     const date = e.to == null ? t("pres.fromDate", { date: dayLabel(e.from) }) : dayLabel(e.from);
-    const badge = e.deck === "final" ? t("pres.when.draft") : t(`pres.when.${when}`);
+    const badge = e.deck === "seminar" ? t("seminar.badge") : e.deck === "final" ? t("pres.when.draft") : t(`pres.when.${when}`);
     return `<button class="deck-choice${e.deck === state.deck ? " active" : ""}" data-deck="${e.deck}" aria-pressed="${e.deck === state.deck}"><span class="mono">${esc(date)}</span><b>${esc(t(`pres.deck.${e.deck}`))}</b><small>${esc(badge)} · ${esc(t("pres.slideCount", { n: DECKS[e.deck].slides.length }))}</small></button>`;
   }).join("");
 }
@@ -1461,8 +1473,93 @@ function checkpointSlide(key, completed) {
     next: () => `${head("next")}<div class="slide-grid three reveal">${pick("next.plan", 3).map((k) => `<div class="proc-card next"><b>${esc(t(`${k}.t`))}</b><small>${esc(t(`${k}.b`))}</small></div>`).join("")}</div>`,
   }[key]();
 }
+const SEMINAR_FIGURES = {
+  outcomes: { number: 1, name: "report-outcomes" },
+  window: { number: 5, name: "report-window" },
+  theory: { number: 6, name: "report-stall-model" },
+  blackout: { number: 7, name: "report-blackout" },
+};
+const seminarSnapshots = new Map();
+function seminarMission(at) {
+  return `<figure class="slide-chart seminar-figure"><img data-seminar-mission="${at}" alt="${esc(t("seminar.mission.alt"))}" hidden><p class="empty small" role="status">${esc(t("pres.s6.loading"))}</p><figcaption class="slide-caption">${esc(t("seminar.mission.caption", { time: at }))}</figcaption></figure>`;
+}
+async function loadSeminarMission(img) {
+  const at = Number(img.dataset.seminarMission);
+  const status = img.nextElementSibling;
+  try {
+    if (!seminarSnapshots.has(at)) {
+      const trace = prepare(await api(urlForTrace("S4-T", "core", DEMO)));
+      const canvas = document.createElement("canvas");
+      canvas.width = 860;
+      canvas.height = 505;
+      drawMap(canvas, trace, at, { paper: true, snapshot: true });
+      seminarSnapshots.set(at, canvas.toDataURL("image/png"));
+    }
+    img.src = seminarSnapshots.get(at);
+    await img.decode();
+    img.hidden = false;
+    status.hidden = true;
+    return true;
+  } catch {
+    status.textContent = t("seminar.figureUnavailable");
+    return false;
+  }
+}
+function seminarFigure(figure, key) {
+  const caption = t(`seminar.figure.${key}`);
+  const url = `/api/figure?name=${figure.name}`;
+  return `<figure class="slide-chart seminar-figure"><img data-seminar-chart="${esc(url)}" alt="${esc(caption)}" hidden><p class="empty small" role="status">${esc(t("pres.s6.loading"))}</p><figcaption class="slide-caption"><a href="${esc(url)}">${esc(t("seminar.figureLabel", { n: figure.number }))}</a> · ${esc(caption)}</figcaption></figure>`;
+}
+async function loadSeminarFigure(img) {
+  const status = img.nextElementSibling;
+  try {
+    const result = await transport.request(img.dataset.seminarChart);
+    if (!result.ok || !result.headers.get("Content-Type")?.startsWith("image/")) throw Error("Expected an image");
+    const blob = await result.blob();
+    if (!img.isConnected) return false;
+    const url = URL.createObjectURL(blob);
+    try {
+      img.src = url;
+      await img.decode();
+      img.hidden = false;
+      status.hidden = true;
+      return true;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  } catch {
+    status.textContent = t("seminar.figureUnavailable");
+    return false;
+  }
+}
+function seminarSlide(key, completed, figureKey = state.seminarFigure) {
+  const copy = (part) => esc(t(`seminar.${key}.${part}`));
+  const head = () => `<h2 class="slide-h reveal">${copy("title")}</h2>`;
+  const list = (items) => `<ul class="slide-list reveal">${items.map((n) => `<li><b>${copy(`h${n}`)}</b>${copy(`p${n}`)}</li>`).join("")}</ul>`;
+  return {
+    title: () => `<div class="slide-title-grid seminar-title"><div class="reveal"><p class="slide-kicker">KTH · II2202</p><h2 class="slide-hero">${copy("title")}</h2><p class="slide-lead">${copy("lead")}</p><p class="slide-authors">Andrea Lo Iacono · Ettore Mugisha Cirillo</p></div><div class="digit-field slide-field seminar-boat" aria-hidden="true"><canvas data-seminar-boat></canvas><span class="field-caption mono">${esc(t("field.caption"))}</span></div></div>${heroNumbers(studyFacts())}`,
+    problem: () => `${head()}<div class="slide-split seminar-evidence">${seminarMission(600)}${list([1, 2, 3])}</div>`,
+    background: () => head() + list([1, 2, 3]),
+    method: () => `${head()}<div class="slide-cols reveal">${CORE.map((p) => `<div class="slide-policy" style="--c:${COLORS[p]}"><span class="mono">${p}</span><b>${esc(policyName(p))}</b><small>${esc(t(`cp.pol.${p}`))}</small></div>`).join("")}</div><p class="slide-note reveal">${copy("note")}</p>`,
+    design: () => head() + list([1, 2, 3]),
+    evidence: () => `${head()}<div class="slide-chips reveal" role="group" aria-label="${esc(t("seminar.figures"))}">${Object.entries(SEMINAR_FIGURES).map(([id, f]) => `<button class="button secondary small" data-seminar-figure="${id}" aria-pressed="${figureKey === id}">${esc(t("seminar.figureTab", { n: f.number, label: t(`seminar.tab.${id}`) }))}</button>`).join("")}</div><div class="slide-split seminar-evidence reveal">${seminarFigure(SEMINAR_FIGURES[figureKey], figureKey)}<div>${figureKey === "outcomes" ? `<p class="slide-note mono">${CORE.map((p) => `${p} ${completed(p)}/180`).join(" · ")}</p>` : ""}<p class="slide-lead">${esc(t(`seminar.read.${figureKey}`))}</p></div></div>`,
+    recovery: () => {
+      const ext = state.ext;
+      const counts = ext ? `${fmt(ext.runs.filter((r) => r.complete).length)}/${fmt(ext.runs.length)}` : "—";
+      const interval = (control) => {
+        const values = (ext?.contrasts ?? []).filter((r) => r.comparison === `S4-T minus ${control}`).map((r) => Math.abs(r.mean_difference_s));
+        return values.length ? `${fmt(Math.min(...values), 1)}–${fmt(Math.max(...values), 1)}` : "—";
+      };
+      return `${head()}<div class="slide-split seminar-evidence reveal">${seminarFigure({ number: 8, name: "extension-mission-time" }, "recovery")}<div><p class="slide-lead">${esc(t("seminar.recovery.complete", { n: counts }))}</p><p class="slide-note">${esc(t("seminar.recovery.delta", { short: interval("S2"), long: interval("S3") }))}</p><a class="slide-caption" href="/api/download?dataset=extension&amp;name=paired-contrasts.csv">${esc(t("seminar.recovery.table"))}</a></div></div>`;
+    },
+    conclusion: () => head() + list([1, 2, 3]),
+    questions: () => `<h2 class="slide-hero reveal">${copy("title")}</h2>`,
+  }[key]();
+}
+
 function renderSlide() {
   if (!state.catalog) return;
+  $("seminar-pdf").hidden = state.deck !== "seminar";
   renderDeckPicker();
   const d = state.catalog, all = d.runs, completed = (p) => all.filter((r) => r.policy === p && r.complete).length;
   const SLIDES = deckSlides(), deck = DECKS[state.deck];
@@ -1480,17 +1577,43 @@ function renderSlide() {
   $("slide-number").textContent = `${String(state.slide + 1).padStart(2, "0")} / ${String(SLIDES.length).padStart(2, "0")}`;
   $("deck-section").textContent = t(`${deck.section}${key}`);
   $("deck-progress").style.width = `${(100 * (state.slide + 1)) / SLIDES.length}%`;
-  $("slide-content").innerHTML = state.deck === "final" ? body() : checkpointSlide(key, completed);
+  $("slide-content").innerHTML = state.deck === "seminar" ? seminarSlide(key, completed) : state.deck === "final" ? body() : checkpointSlide(key, completed);
+  $("slide-content").querySelectorAll("[data-seminar-chart]").forEach(loadSeminarFigure);
+  $("slide-content").querySelectorAll("[data-seminar-mission]").forEach(loadSeminarMission);
   $("slide-content").querySelectorAll(".reveal").forEach((e, i) => e.style.setProperty("--i", i));
   rollNumbers($("slide-content"), { from: 0 });
   $("slide-dots").innerHTML = SLIDES.map((s, i) => `<button class="${i === state.slide ? "active" : ""}" data-slide="${i}" aria-label="${esc(t("pres.goto", { n: i + 1, name: t(`${deck.section}${s}`) }))}" aria-current="${i === state.slide}"></button>`).join("");
   $("previous-slide").disabled = state.slide === 0;
   $("next-slide").disabled = state.slide === SLIDES.length - 1;
   if (key === "title") startField($("slide-field"));
+  if (key === "title" && state.deck === "seminar") startField($("slide-content").querySelector("[data-seminar-boat]"));
   if (key === "mechanism") drawAll();
   if (key === "outcome" || key === "results") barChart("slide-completion", CORE.map((p) => ({ name: p, value: completed(p) })), { title: t("pres.s5.chart"), unit: t("chart.completedOf", { n: 180 }), max: 200, ticks: [0, 60, 120, 180] });
   if (state.deck === "checkpoint" && SIM_SLIDES.has(key)) { ensureDemo(); drawAll(); renderWarningLive(); updateSlideLive(); }
   if (key === "extension" && !ext) loadExtension().then(() => state.view === "presentation" && deckSlides()[state.slide] === "extension" && renderSlide());
+  if (key === "recovery" && !ext) loadExtension().then(() => {
+    if (state.ext && state.view === "presentation" && deckSlides()[state.slide] === "recovery") renderSlide();
+  });
+}
+
+async function prepareSeminarPrint() {
+  await loadExtension();
+  if (!state.catalog || !state.ext) throw Error("The seminar evidence is unavailable.");
+  const completed = (policy) => state.catalog.runs.filter((r) => r.policy === policy && r.complete).length;
+  const main = DECKS.seminar.slides;
+  const page = (key, number, figureKey) => `<section class="deck seminar-sheet"><div class="deck-head"><span class="wordmark">USV·PAC</span><span class="deck-section">${esc(t(`seminar.section.${key}`))}</span><span class="deck-count mono">${number}</span></div><div class="deck-body">${seminarSlide(key, completed, figureKey)}</div></section>`;
+  const printable = $("seminar-print");
+  const supplements = ["window", "theory", "blackout"];
+  printable.innerHTML = main.map((key, i) => page(key, `${String(i + 1).padStart(2, "0")} / 09`, "outcomes")).join("")
+    + supplements.map((key, i) => page("evidence", `A${i + 1}`, key)).join("");
+  await document.fonts.ready;
+  startField(printable.querySelector("[data-seminar-boat]"), { snapshot: true });
+  const loaded = await Promise.all([
+    ...[...printable.querySelectorAll("[data-seminar-chart]")].map(loadSeminarFigure),
+    ...[...printable.querySelectorAll("[data-seminar-mission]")].map(loadSeminarMission),
+  ]);
+  if (!loaded.every(Boolean)) throw Error("At least one report figure failed to load.");
+  document.documentElement.dataset.seminarPrint = "ready";
 }
 function presentationFocus(on) {
   state.presentationFocus = on;
@@ -1569,6 +1692,12 @@ document.addEventListener("click", async (event) => {
   }
   const deckChoice = event.target.closest("[data-deck]");
   if (deckChoice) chooseDeck(deckChoice.dataset.deck);
+  const seminarFigureChoice = event.target.closest("[data-seminar-figure]");
+  if (seminarFigureChoice && Object.hasOwn(SEMINAR_FIGURES, seminarFigureChoice.dataset.seminarFigure)) {
+    state.seminarFigure = seminarFigureChoice.dataset.seminarFigure;
+    renderSlide();
+    document.querySelector(`[data-seminar-figure="${state.seminarFigure}"]`)?.focus();
+  }
   const slide = event.target.closest("[data-slide]");
   if (slide) { state.slide = +slide.dataset.slide; renderSlide(); }
   if (event.target.closest("#slide-play")) { if (!state.playing && state.t >= +$("timeline").max) state.t = 0; setPlaying(!state.playing); }
@@ -1829,14 +1958,15 @@ async function init() {
   const saved = new URLSearchParams(location.search).get("lang") || store.get("lang");
   setLang(saved ||((navigator.language || "en").toLowerCase().startsWith("it") ? "it" : "en"));
   setMotion(store.get("motion") === "paused");
-  // ?deck=checkpoint|final opens a specific deck; otherwise the next scheduled event's deck.
+  // A deck link opens that deck; otherwise use the next scheduled presentation.
   const deck = new URLSearchParams(location.search).get("deck");
-  state.deck = DECKS[deck] ? deck : defaultDeck();
+  state.deck = Object.hasOwn(DECKS, deck) ? deck : defaultDeck();
   transport.init();
   try {
     if (transport.static) await connectDashboard(connectionGeneration);
     else if ((await api("/health").catch(() => ({}))).service === "usv-web") watchGateway();
     else await connectDashboard(connectionGeneration);
+    if (deck === "seminar" && new URLSearchParams(location.search).get("print") === "1") await prepareSeminarPrint();
   } catch (error) {
     $("connection").textContent = t("engine.unavailable");
     toast(error.message, true);
