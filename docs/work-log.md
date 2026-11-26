@@ -2,6 +2,13 @@
 
 Record completed work, actual checks, evidence locations and remaining limits here. Entries describe work done; proposed research changes belong in a separate decision record until implemented and evaluated.
 
+## 26 November 2026 - integrate final report into main
+
+- Merged `dev-paper` (`ad681a4`) into main after the seminar merge (`040f92a`), as requested. Resolved the work-log rename/content conflict by retaining both the seminar and final-report revision entries. Preserved main's corrected simulator paths and launcher commands in the appendices. No simulator, dashboard or deployment code changed in this merge; no push was performed.
+- Checked all 25 TeX files reachable from `main.tex`: included sources, figures, citation keys and cross-reference labels are present, with no duplicate labels. Docker access was denied in this session, so the merged PDF has not been recompiled or checked for layout/page count. The prior Overleaf compilation record below applies to the paper branch, not a fresh merged build.
+- Investigated the missing seminar tab: main retains all three decks plus automatic relay connection. GitHub Actions run `45864908539` succeeded for `040f92a`. The published `app.js` matches the local merged script; all five seminar chart downloads and the seminar PDF returned HTTP 200 with the expected media types. This confirms publication, not the user's browser state; that remains under investigation.
+- Rebuilt Pages locally with 120 endpoints from verified five-policy evidence, and the six-trace headless replay check passed. No actual browser layout review was possible here.
+
 ## 26 November 2026 — report-based seminar deck
 
 - Added a nine-slide, bilingual II2202 seminar deck alongside the existing decks. The shareable presentation route is `?deck=seminar#presentation`.
@@ -9,6 +16,11 @@ Record completed work, actual checks, evidence locations and remaining limits he
 - Checked the three selectors, the four diagnostic figure buttons, and the extension plot in Chrome on the loopback dashboard. This is a local review before publication.
 - Added an English PDF download to the seminar deck. Its first nine pages follow the deck, and three appendix pages preserve the additional graphs available through the results slide's figure tabs. The PDF is rendered from the dashboard and packaged with its static assets. After editing the seminar deck, run `node code/webapp/scripts/export_seminar_pdf.cjs <dashboard-url>` from the repository root with Playwright and Chromium available, then verify the resulting pages before publication.
 - The cover keeps the dashboard's animated boat. The PDF uses a frame rendered by the same component. The problem slide shows the verified S4-T replay at 600 seconds, with the recorded boat positions, paths and assignments.
+
+## 25 November 2026 — final report revision
+
+- Synced the compiled Overleaf draft to the report sources. The revision clarifies the two-exchange intervention and its exceptions, adds related-work comparisons, and distinguishes the original evaluation from the recovery extension.
+- Verified the draft in Overleaf with LuaLaTeX. The body occupies pages 2–11, before references and appendices. Checked the Git copy against the corresponding source archive. This revision uses the archived simulation results.
 
 ## 23 October 2026 — revised-plan implementation and paper setup
 

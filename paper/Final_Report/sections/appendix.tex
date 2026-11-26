@@ -59,7 +59,31 @@ The component files retain forecasting, allocation and resynchronization counts 
 The retained host environment was Python 3.13.2 on Windows 11, with NumPy 1.26.4, Matplotlib 3.10.8 and psutil 7.2.2, 14 physical/20 logical CPU cores and approximately 31.7 GiB reported total system RAM. The benchmark saved the twentieth coordination input of pilot seed 0, $L=5$, with slowdown and warmed the integer geometry cache. Seven CPU batches exceeded 150 ms each; representative allocation, trend and persistence used 512, 32768 and 131072 repetitions per batch respectively. Wrapper and loop overhead are included. Separate incremental Python allocation peaks were 9976, 952 and 448 bytes for these inputs and exclude some native-library allocations. Full-process peaks include the interpreter, libraries, geometry and state; memory and CPU profiling were separate.
 
 \clearpage
-\section{Reproduction, provenance and draft status}\label{app:reproduce}
+\section{Critical-window diagnostics}\label{app:critical}
+These diagnostics were identified after the frozen evaluation and are not part of the pre-specified analysis. They read the retained core results; the intervention and blackout runs are new executions stored separately under \path{code/simulation/results/posthoc/critical-window-2026-11-24/} and regenerated with \texttt{python -m usv\_sim.critical --output <dir>}. The window is derived from fade-free runs, not from the frozen outcomes. Slowdown begins at $600$ s or later, after the window, and the retained outcomes repeat the balanced stall pattern; stall shares therefore use the 90 balanced scenarios. The blackout map uses one fade-free mission, so its delays describe that route rather than averages over seeds.
+
+Completed S3, S4-T and S4-P missions took $1425$--$1985$ s. Others reached $7200$ s. In the reference S3 route the boats first exceed clear-state radio range ($316$ m) at $260$ s. The two preceding exchanges occur at $240$ and $250$ s. If both fail, the last allocation at $230$ s leaves the boats about $326$ m apart after their queues empty (Fig.~\ref{fig:mechanism}). In the retained S3 data all 22 stalls occurred when both slots faded, and all 158 other runs finished. S4-T also stalled twice without both slots fading. S4-P completed four missions despite both slots fading.
+
+Paired diagnostic interventions changed the fade state in those two slots for all 180 scenario settings per policy. With both slots forced faded, S3, S4-T and S4-P stalled in 180, 178 and 174 cases. With both forced clear, the corresponding counts were 0, 2 and 0. The increases in stall frequency were 100, 97.8 and 96.7 percentage points. These are model interventions on the same sampled scenarios. Their agreement across repeated slowdown settings does not constitute independent validation.
+
+The stationary fade model gives probability $q(1-1/L)$ for two adjacent faded exchanges. At $q=0.2$ this gives $0.10$, $0.16$ and $0.18$ for $L=2,5,10$. Each prediction lies inside the 95\% Wilson interval around the corresponding observed S3 proportion ($2/30$, $6/30$, $3/30$ balanced seeds). With these sample sizes the observations are compatible with sampling variation around the model probabilities (Fig.~\ref{fig:stall-theory}).
+
+On one balanced, fade-free route, we introduced a single blackout at varying start times and durations of $10$--$120$ s (Fig.~\ref{fig:blackout}). S3 stalled only when the blackout covered both slots. After $400$ s, blackouts delayed S3 by at most $20$ s. A $120$ s blackout starting after $400$ s delayed S4-T and S4-P by $55$ and $59$ s on average and up to $95$ s. The result identifies where the route is vulnerable and motivates a prospective test with varied departures and start positions.
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/mission-time.pdf}
+\caption{Restricted mean time to coverage with 95\% bootstrap intervals. Unfinished missions contribute $7200$ s without being counted as completed. Each point uses 30 seeds.}\label{fig:time}\end{figure}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-critical-mechanism.pdf}
+\caption{Separation between the boats in the fade-free S3 mission, with and without the two exchanges before the first split. Crosses mark missed exchanges.}\label{fig:mechanism}\end{figure}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-stall-vs-theory.pdf}
+\caption{Left: observed stall share per fade duration (30 balanced seeds, 95\% Wilson intervals) and the probability $q(1-1/L)$ that both window exchanges are faded. Right: observed restricted means with paired bootstrap intervals and a mixture combining that probability, the cutoff and the observed mean among finishers. The mixture uses data from this sample.}\label{fig:stall-theory}\end{figure}
+
+\begin{figure}[htbp]\centering\includegraphics[width=\linewidth]{generated/posthoc/fig-blackout-map.pdf}
+\caption{Effect of one link blackout on the fade-free balanced mission, by start time and duration (new diagnostic runs). The mission completes at $1425$ s without blackouts.}\label{fig:blackout}\end{figure}
+
+\clearpage
+\section{Reproduction and provenance}\label{app:reproduce}
 The repository separates paper sources from implementation. The reviewed research-plan snapshot is retained under \path{paper/research-plan/} and the assigned template under \path{paper/professor-template-2026/}. The active report compiles from \path{paper/Final_Report/main.tex} using LuaLaTeX and BibTeX. Source Sans, 11-point body text, one-inch margins and the professor's required headings are preserved. GitHub author icons and the boxed repository link follow the established research-plan style.
 
 \begin{table}[htbp]\centering
@@ -99,6 +123,6 @@ Replace \texttt{<id>} with the generated run directory. The comparison checks sc
 
 
 
-The frozen-design SHA-256 begins \texttt{51f3d40b5dc037c0}; complete hashes remain in the manifests. The last-motion observation for S2 in Section 4 was checked by scanning all 180 S2 raw files, comparing successive recorded one-second positions, and taking the last time either boat moved. The range was $265$--$520$ s. This is a post-evaluation explanatory diagnostic, not a new primary endpoint.
+The source snapshots for the analysis and original manuscript are \href{https://github.com/ADreLOI/RMSW-Project/tree/c8f5387}{\texttt{c8f5387}} (simulation) and \href{https://github.com/ADreLOI/RMSW-Project/tree/9620f10da721a64ccd2bc245ba4da389b17d8436}{\texttt{9620f10}} (paper). The frozen-design SHA-256 begins \texttt{51f3d40b5dc037c0}; complete hashes remain in the manifests. The last-motion observation for S2 in Section 4 was checked by scanning all 180 S2 raw files, comparing successive recorded one-second positions, and taking the last time either boat moved. The range was $265$--$520$ s. This is a post-evaluation explanatory diagnostic, not a new primary endpoint.
 
-The repository work log, AI assistance record and agent handoff describe implementation, validation, source checks and pending author review. The draft reports the full retained core even where the result is adverse. Optional oracle and distance-loss sensitivity analyses remain outside this evidence set. No claim of human author replication, mentor acceptance, course submission or operational validation is made.
+The repository work log, AI assistance record and agent handoff describe implementation, validation, source checks and pending author review. The draft reports the full retained core even where the result is adverse. The extension evaluated an oracle with access to future fades. The optional distance-loss sensitivity remains untested. No claim of human author replication, mentor acceptance, course submission or operational validation is made.
